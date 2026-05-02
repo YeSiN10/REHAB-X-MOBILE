@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import type { ReactElement } from "react";
 import { useNavigate } from "react-router";
-import { motion } from "motion/react";
+import { motion, AnimatePresence } from "motion/react";
 import { BottomNav } from "../components/BottomNav";
 import { useApp, useColors } from "../context/AppContext";
 
@@ -78,6 +78,7 @@ export default function CalendarScreen() {
   const [selectedDay, setSelectedDay] = useState(1);
   const [month] = useState(4); // May
   const [selectedCat, setSelectedCat] = useState("All");
+  const [showAddWorkout, setShowAddWorkout] = useState(false);
 
   const firstDay = new Date(2026, month, 1).getDay();
   const daysInMonth = new Date(2026, month + 1, 0).getDate();
@@ -147,7 +148,8 @@ export default function CalendarScreen() {
           </div>
           <button
             className="w-10 h-10 rounded-2xl flex items-center justify-center"
-            style={{ background: "rgba(255,255,255,0.12)", border: "1px solid rgba(255,255,255,0.15)" }}
+            style={{ background: "#256DE9", boxShadow: "0 4px 16px rgba(37,109,233,0.4)" }}
+            onClick={() => setShowAddWorkout(true)}
           >
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
               <path d="M12 5V19M5 12H19" stroke="white" strokeWidth="2" strokeLinecap="round" />
@@ -156,7 +158,57 @@ export default function CalendarScreen() {
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto pb-[90px] px-5 space-y-4">
+      {/* Add Workout Sheet */}
+      <AnimatePresence>
+        {showAddWorkout && (
+          <>
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              className="absolute inset-0 z-40" style={{ background: "rgba(0,0,0,0.55)", backdropFilter: "blur(4px)" }}
+              onClick={() => setShowAddWorkout(false)} />
+            <motion.div
+              initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }}
+              transition={{ type: "spring", stiffness: 340, damping: 34 }}
+              className="absolute bottom-0 left-0 right-0 z-50 rounded-t-3xl px-5 pt-5 pb-10"
+              style={{ background: c.card, border: `1px solid ${c.cardBorder}` }}
+            >
+              <div className="w-10 h-1 rounded-full mx-auto mb-5" style={{ background: c.divider }} />
+              <h3 className="font-black text-lg mb-2" style={{ color: c.text }}>Add Workout</h3>
+              <p className="text-sm mb-5" style={{ color: c.textMuted }}>Choose a workout type to schedule or start now</p>
+              <div className="grid grid-cols-2 gap-3 mb-5">
+                {[
+                  { icon: "⚡", label: "HIIT", color: "#F97316", type: "HIIT" },
+                  { icon: "💪", label: "Strength", color: "#A855F7", type: "Strength" },
+                  { icon: "❤️", label: "Recovery", color: "#22C55E", type: "Recovery" },
+                  { icon: "🏃", label: "Cardio", color: "#256DE9", type: "Cardio" },
+                  { icon: "🧘", label: "Flexibility", color: "#EAB308", type: "Flexibility" },
+                  { icon: "🎯", label: "Core", color: "#EC4899", type: "Core" },
+                ].map((t) => (
+                  <button
+                    key={t.type}
+                    onClick={() => { setShowAddWorkout(false); navigate("/exercises"); }}
+                    className="flex items-center gap-3 p-4 rounded-2xl text-left transition-all"
+                    style={{ background: c.secondaryCard, border: `1px solid ${c.cardBorder}` }}
+                  >
+                    <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style={{ background: `${t.color}20` }}>
+                      <span style={{ fontSize: 20 }}>{t.icon}</span>
+                    </div>
+                    <span className="font-bold text-sm" style={{ color: c.text }}>{t.label}</span>
+                  </button>
+                ))}
+              </div>
+              <button
+                onClick={() => { setShowAddWorkout(false); navigate("/exercises"); }}
+                className="w-full py-4 rounded-2xl text-white font-bold"
+                style={{ background: "linear-gradient(135deg, #256DE9, #1a4bb5)", boxShadow: "0 12px 32px rgba(37,109,233,0.3)" }}
+              >
+                Browse All Exercises
+              </button>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+
+      <div className="flex-1 overflow-y-auto pb-[90px] px-5 space-y-4 pt-4">
         {/* Calendar */}
         <div
           className="rounded-2xl overflow-hidden"

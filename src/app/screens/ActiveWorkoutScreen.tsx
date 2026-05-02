@@ -590,7 +590,7 @@ export default function ActiveWorkoutScreen() {
       )}
 
       {/* ── Exercise list — HORIZONTAL SCROLL ────────────────────────── */}
-      <div className="relative z-10 px-5 py-2 shrink-0">
+      <div className="relative z-10 px-5 py-2 shrink-0 pb-[110px]">
         <div className="flex gap-2 overflow-x-auto pb-1" style={{ scrollbarWidth: "none" }}>
           {workout.exercises.map((ex, i) => (
             <div
@@ -637,8 +637,9 @@ export default function ActiveWorkoutScreen() {
         </div>
       </div>
 
-      {/* ── Controls ─────────────────────────────────────────────────── */}
-      <div className="relative z-10 px-5 pb-8 pt-3 shrink-0">
+      {/* ── Controls — pinned to absolute bottom ─────────────────────── */}
+      <div className="absolute bottom-0 left-0 right-0 z-20 px-5 pb-8 pt-4"
+        style={{ background: "linear-gradient(to top, rgba(7,9,15,1) 65%, rgba(7,9,15,0) 100%)" }}>
         <div className="flex items-center gap-3">
           <button
             onClick={handlePrev}

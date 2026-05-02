@@ -14,9 +14,11 @@ export interface User {
   email: string;
   gender: string;
   age: string;
+  phone?: string;
   fitnessLevel: string;
   goal: string;
   medicalDoc?: string;
+  medicalDocs?: string[];
   profileSetupDone?: boolean;
   avatar?: string;
 }

@@ -124,6 +124,48 @@ app.post("/api/auth/login", async (req, res) => {
   }
 });
 
+// ── Auth: Google ──────────────────────────────────────────────────────────
+app.post("/api/auth/google", async (req, res) => {
+  try {
+    const { token } = req.body;
+    if (!token) return res.status(400).json({ error: "Google token required" });
+
+    // Decode Google ID token (JWT) — for production use google-auth-library to verify
+    const parts = token.split(".");
+    if (parts.length !== 3) return res.status(400).json({ error: "Invalid token format" });
+    const payload = JSON.parse(Buffer.from(parts[1], "base64url").toString("utf8"));
+
+    const { email, name } = payload;
+    if (!email) return res.status(400).json({ error: "Invalid Google token payload" });
+
+    // Find or create user
+    let user;
+    const { rows } = await pool.query(
+      "SELECT id, email, name FROM users WHERE email = $1",
+      [email.toLowerCase()]
+    );
+    if (rows.length > 0) {
+      user = rows[0];
+    } else {
+      const { rows: newRows } = await pool.query(
+        "INSERT INTO users (email, name, password_hash) VALUES ($1, $2, $3) RETURNING id, email, name",
+        [email.toLowerCase(), name || email.split("@")[0], "google-oauth-" + Date.now()]
+      );
+      user = newRows[0];
+    }
+
+    const jwtToken = jwt.sign(
+      { userId: user.id, email: user.email, name: user.name },
+      JWT_SECRET,
+      { expiresIn: JWT_EXPIRES }
+    );
+    res.json({ token: jwtToken, user: { id: user.id, email: user.email, name: user.name } });
+  } catch (err) {
+    console.error("Google auth error:", err);
+    res.status(500).json({ error: "Google authentication failed. Please try again." });
+  }
+});
+
 // ── Auth: Me ──────────────────────────────────────────────────────────────
 app.get("/api/auth/me", requireAuth, async (req, res) => {
   try {

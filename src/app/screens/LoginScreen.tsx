@@ -37,7 +37,7 @@ export default function LoginScreen() {
 
   useEffect(() => {
     if (isAuthenticated) {
-      navigate(user.profileSetupDone ? "/home" : "/profile-setup", { replace: true });
+      navigate("/home", { replace: true });
     }
   }, [isAuthenticated]);
 
@@ -74,7 +74,7 @@ export default function LoginScreen() {
     if (result.error) {
       showToastMsg(result.error, "error");
     } else {
-      navigate(user.profileSetupDone ? "/home" : "/profile-setup", { replace: true });
+      navigate("/home", { replace: true });
     }
   };
 
@@ -118,7 +118,7 @@ export default function LoginScreen() {
     if (result.error) {
       setErrors({ general: result.error });
     } else {
-      navigate(user.profileSetupDone ? "/home" : "/profile-setup", { replace: true });
+      navigate("/home", { replace: true });
     }
   };
 

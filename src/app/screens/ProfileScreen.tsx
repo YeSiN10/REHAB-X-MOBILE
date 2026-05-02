@@ -1,7 +1,11 @@
 import { useNavigate } from "react-router";
+import { useRef } from "react";
 import { motion } from "motion/react";
 import { BottomNav } from "../components/BottomNav";
 import { useApp, useColors, computeStreak, computeBestStreak } from "../context/AppContext";
+import { AvatarCropModal } from "../components/AvatarCropModal";
+import { compressImage } from "../utils/imageUtils";
+import { useState } from "react";
 
 const menuSections = [
   {
@@ -38,8 +42,27 @@ const menuSections = [
 
 export default function ProfileScreen() {
   const navigate = useNavigate();
-  const { user, sessions, logout } = useApp();
+  const { user, sessions, logout, updateUser } = useApp();
   const c = useColors();
+  const avatarRef = useRef<HTMLInputElement>(null);
+  const [cropSrc, setCropSrc] = useState<string | null>(null);
+
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    e.target.value = "";
+    try {
+      const compressed = await compressImage(file);
+      setCropSrc(compressed);
+    } catch {
+      console.error("Failed to load image");
+    }
+  };
+
+  const handleCropConfirm = (cropped: string) => {
+    updateUser({ avatar: cropped });
+    setCropSrc(null);
+  };
 
   const displayName = user.name || "User";
   const initials = displayName.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2);
@@ -112,6 +135,15 @@ export default function ProfileScreen() {
         </div>
 
         {/* Avatar + info */}
+        {cropSrc && (
+          <AvatarCropModal
+            src={cropSrc}
+            onConfirm={handleCropConfirm}
+            onCancel={() => setCropSrc(null)}
+          />
+        )}
+        <input ref={avatarRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarUpload} />
+
         <div className="flex items-center gap-4 px-5">
           <div className="relative">
             <div
@@ -129,11 +161,13 @@ export default function ProfileScreen() {
               )}
             </div>
             <button
+              onClick={() => avatarRef.current?.click()}
               className="absolute -bottom-1 -right-1 w-8 h-8 rounded-xl flex items-center justify-center"
-              style={{ background: "#256DE9", border: "2px solid #0d1630" }}
+              style={{ background: "#256DE9", border: "2px solid #0d1630", boxShadow: "0 4px 12px rgba(37,109,233,0.4)" }}
             >
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
-                <path d="M12 20H21M16.5 3.5C16.8978 3.10217 17.4374 2.87868 18 2.87868C18.5626 2.87868 19.1022 3.10217 19.5 3.5C19.8978 3.89782 20.1213 4.43739 20.1213 5C20.1213 5.56261 19.8978 6.10217 19.5 6.5L7 19L3 20L4 16L16.5 3.5Z" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                <path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z" stroke="white" strokeWidth="1.8" strokeLinecap="round" />
+                <circle cx="12" cy="13" r="4" stroke="white" strokeWidth="1.8" />
               </svg>
             </button>
           </div>

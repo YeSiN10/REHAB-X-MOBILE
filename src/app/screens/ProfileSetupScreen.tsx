@@ -32,10 +32,15 @@ export default function ProfileSetupScreen() {
 
   const [step, setStep] = useState(0);
   const [age, setAge] = useState(user.age || "");
+  const [phone, setPhone] = useState(user.phone || "");
   const [gender, setGender] = useState(user.gender || "");
   const [fitnessLevel, setFitnessLevel] = useState(user.fitnessLevel || "Intermediate");
   const [goal, setGoal] = useState(user.goal || "Recovery & Performance");
-  const [medicalDoc, setMedicalDoc] = useState(user.medicalDoc || "");
+  const [medicalDocs, setMedicalDocs] = useState<string[]>(
+    user.medicalDocs && user.medicalDocs.length > 0
+      ? user.medicalDocs
+      : user.medicalDoc ? [user.medicalDoc] : []
+  );
   const [avatar, setAvatar] = useState(user.avatar || "");
   const [completing, setCompleting] = useState(false);
   const [cropSrc, setCropSrc] = useState<string | null>(null);
@@ -58,13 +63,26 @@ export default function ProfileSetupScreen() {
   };
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) setMedicalDoc(file.name);
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+    const names = Array.from(files).map((f) => f.name);
+    setMedicalDocs((prev) => [...prev, ...names]);
+    e.target.value = "";
+  };
+
+  const removeDoc = (idx: number) => {
+    setMedicalDocs((prev) => prev.filter((_, i) => i !== idx));
   };
 
   const handleComplete = () => {
     setCompleting(true);
-    updateUser({ age, gender, fitnessLevel, goal, medicalDoc, profileSetupDone: true, avatar });
+    updateUser({
+      age, phone, gender, fitnessLevel, goal,
+      medicalDoc: medicalDocs[0] || "",
+      medicalDocs,
+      profileSetupDone: true,
+      avatar,
+    });
     setTimeout(() => navigate("/home"), 2000);
   };
 
@@ -87,7 +105,6 @@ export default function ProfileSetupScreen() {
               className="w-24 h-24 rounded-full flex items-center justify-center overflow-hidden"
               style={{ background: "#256DE9", border: "3px solid rgba(37,109,233,0.2)" }}
             >
-              {/* Always show REHAB X logo, not user photo */}
               <img src={logo} alt="REHAB X" className="w-16 h-16 object-contain" />
             </motion.div>
           </div>
@@ -154,13 +171,7 @@ export default function ProfileSetupScreen() {
         <AnimatePresence mode="wait">
           {/* ── STEP 0: Personal ── */}
           {step === 0 && (
-            <motion.div
-              key="step0"
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              className="space-y-5"
-            >
+            <motion.div key="step0" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-5">
               {/* Avatar selector */}
               <div className="flex flex-col items-center gap-3">
                 <p className="text-xs font-semibold tracking-wider uppercase self-start" style={{ color: c.textSub }}>
@@ -195,30 +206,45 @@ export default function ProfileSetupScreen() {
                   </button>
                 </div>
                 <input ref={avatarRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarUpload} />
-                <button
-                  onClick={() => avatarRef.current?.click()}
-                  className="text-xs font-semibold"
-                  style={{ color: "#256DE9" }}
-                >
+                <button onClick={() => avatarRef.current?.click()} className="text-xs font-semibold" style={{ color: "#256DE9" }}>
                   {avatar ? "Change Photo" : "Upload Photo"}
                 </button>
               </div>
 
-              {/* Name editable — Username */}
+              {/* Username */}
               <div>
                 <label className="text-xs font-semibold mb-2 block tracking-wider uppercase" style={{ color: c.textSub }}>Username</label>
                 <input
                   type="text"
                   defaultValue={user.name || ""}
-                  onBlur={(e) => {
-                    updateUser({ name: e.target.value });
-                    e.target.style.borderColor = c.inputBorder;
-                  }}
+                  onBlur={(e) => { updateUser({ name: e.target.value }); e.target.style.borderColor = c.inputBorder; }}
                   className="w-full px-4 py-4 rounded-2xl text-sm focus:outline-none transition-all"
                   style={{ background: c.inputBg, border: `1px solid ${c.inputBorder}`, color: c.text, caretColor: "#256DE9" }}
                   placeholder="Enter your username"
                   onFocus={(e) => (e.target.style.borderColor = "#256DE9")}
                 />
+              </div>
+
+              {/* Phone number */}
+              <div>
+                <label className="text-xs font-semibold mb-2 block tracking-wider uppercase" style={{ color: c.textSub }}>Phone Number <span style={{ color: c.textMuted, textTransform: "none", fontSize: 9 }}>(optional)</span></label>
+                <div className="relative">
+                  <div className="absolute left-4 top-1/2 -translate-y-1/2">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none">
+                      <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 13.5 19.79 19.79 0 011 4.82a2 2 0 012-2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L7.09 10.19a16 16 0 006.72 6.72l1.46-1.46a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z" stroke={c.textMuted} strokeWidth="1.8" strokeLinecap="round" />
+                    </svg>
+                  </div>
+                  <input
+                    type="tel"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    className="w-full pl-11 pr-4 py-4 rounded-2xl text-sm focus:outline-none transition-all"
+                    style={{ background: c.inputBg, border: `1px solid ${c.inputBorder}`, color: c.text, caretColor: "#256DE9" }}
+                    placeholder="+1 (555) 000-0000"
+                    onFocus={(e) => (e.target.style.borderColor = "#256DE9")}
+                    onBlur={(e) => (e.target.style.borderColor = c.inputBorder)}
+                  />
+                </div>
               </div>
 
               {/* Age */}
@@ -262,13 +288,7 @@ export default function ProfileSetupScreen() {
 
           {/* ── STEP 1: Fitness ── */}
           {step === 1 && (
-            <motion.div
-              key="step1"
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              className="space-y-5"
-            >
+            <motion.div key="step1" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-5">
               <div>
                 <label className="text-xs font-semibold mb-3 block tracking-wider uppercase" style={{ color: c.textSub }}>Fitness Level</label>
                 <div className="space-y-2.5">
@@ -293,12 +313,8 @@ export default function ProfileSetupScreen() {
                         {fitnessLevel === lvl.value && <div className="w-2.5 h-2.5 rounded-full bg-[#256DE9]" />}
                       </div>
                       <div className="text-left flex-1">
-                        <p className="font-bold text-sm" style={{ color: fitnessLevel === lvl.value ? "white" : c.text }}>
-                          {lvl.label}
-                        </p>
-                        <p className="text-xs" style={{ color: fitnessLevel === lvl.value ? "rgba(255,255,255,0.7)" : c.textMuted }}>
-                          {lvl.desc}
-                        </p>
+                        <p className="font-bold text-sm" style={{ color: fitnessLevel === lvl.value ? "white" : c.text }}>{lvl.label}</p>
+                        <p className="text-xs" style={{ color: fitnessLevel === lvl.value ? "rgba(255,255,255,0.7)" : c.textMuted }}>{lvl.desc}</p>
                       </div>
                     </button>
                   ))}
@@ -319,9 +335,7 @@ export default function ProfileSetupScreen() {
                       }
                     >
                       <span style={{ fontSize: 22 }}>{g.emoji}</span>
-                      <span className="text-xs font-bold" style={{ color: goal === g.value ? "white" : c.text }}>
-                        {g.label}
-                      </span>
+                      <span className="text-xs font-bold" style={{ color: goal === g.value ? "white" : c.text }}>{g.label}</span>
                     </button>
                   ))}
                 </div>
@@ -331,13 +345,7 @@ export default function ProfileSetupScreen() {
 
           {/* ── STEP 2: Documents ── */}
           {step === 2 && (
-            <motion.div
-              key="step2"
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              className="space-y-5"
-            >
+            <motion.div key="step2" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-5">
               <div className="p-4 rounded-2xl" style={{ background: c.accentBg, border: "1px solid rgba(37,109,233,0.2)" }}>
                 <div className="flex items-start gap-3">
                   <div className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0" style={{ background: "rgba(37,109,233,0.2)" }}>
@@ -355,42 +363,54 @@ export default function ProfileSetupScreen() {
                 </div>
               </div>
 
-              <input ref={fileRef} type="file" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" className="hidden" onChange={handleFileUpload} />
+              <input ref={fileRef} type="file" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" multiple className="hidden" onChange={handleFileUpload} />
+
+              {/* Uploaded files list */}
+              {medicalDocs.length > 0 && (
+                <div className="space-y-2">
+                  {medicalDocs.map((doc, idx) => (
+                    <div
+                      key={idx}
+                      className="flex items-center gap-3 px-4 py-3 rounded-2xl"
+                      style={{ background: "rgba(34,197,94,0.06)", border: "1px solid rgba(34,197,94,0.25)" }}
+                    >
+                      <div className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0" style={{ background: "rgba(34,197,94,0.15)" }}>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                          <path d="M14 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V8L14 2Z" stroke="#22C55E" strokeWidth="1.8" strokeLinecap="round" />
+                          <path d="M14 2V8H20M16 13H8M16 17H8M10 9H8" stroke="#22C55E" strokeWidth="1.8" strokeLinecap="round" />
+                        </svg>
+                      </div>
+                      <p className="flex-1 text-xs font-semibold truncate" style={{ color: "#22C55E" }}>{doc}</p>
+                      <button onClick={() => removeDoc(idx)} className="w-6 h-6 rounded-full flex items-center justify-center shrink-0" style={{ background: "rgba(239,68,68,0.15)" }}>
+                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none">
+                          <path d="M18 6L6 18M6 6L18 18" stroke="#EF4444" strokeWidth="2.5" strokeLinecap="round" />
+                        </svg>
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Upload button */}
               <button
                 onClick={() => fileRef.current?.click()}
-                className="w-full py-8 rounded-2xl flex flex-col items-center gap-3 transition-all"
+                className="w-full py-6 rounded-2xl flex flex-col items-center gap-3 transition-all"
                 style={{
-                  background: medicalDoc ? "rgba(34,197,94,0.06)" : c.inputBg,
-                  border: `2px dashed ${medicalDoc ? "#22C55E" : c.inputBorder}`,
+                  background: c.inputBg,
+                  border: `2px dashed ${c.inputBorder}`,
                 }}
               >
-                {medicalDoc ? (
-                  <>
-                    <div className="w-12 h-12 rounded-full flex items-center justify-center" style={{ background: "rgba(34,197,94,0.15)" }}>
-                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-                        <path d="M20 6L9 17L4 12" stroke="#22C55E" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-                      </svg>
-                    </div>
-                    <div className="text-center">
-                      <p className="font-bold text-sm" style={{ color: "#22C55E" }}>File Uploaded!</p>
-                      <p className="text-xs mt-0.5" style={{ color: c.textMuted }}>{medicalDoc}</p>
-                    </div>
-                    <button onClick={(e) => { e.stopPropagation(); setMedicalDoc(""); }}
-                      className="text-xs font-semibold" style={{ color: "#EF4444" }}>Remove</button>
-                  </>
-                ) : (
-                  <>
-                    <div className="w-12 h-12 rounded-full flex items-center justify-center" style={{ background: c.accentBg }}>
-                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-                        <path d="M21 15V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V15M17 8L12 3L7 8M12 3V15" stroke="#256DE9" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-                      </svg>
-                    </div>
-                    <div className="text-center">
-                      <p className="font-bold text-sm" style={{ color: c.text }}>Upload Medical Documents</p>
-                      <p className="text-xs mt-1" style={{ color: c.textMuted }}>PDF, JPG, PNG, DOC supported</p>
-                    </div>
-                  </>
-                )}
+                <div className="w-12 h-12 rounded-full flex items-center justify-center" style={{ background: c.accentBg }}>
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                    <path d="M21 15V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V15M17 8L12 3L7 8M12 3V15" stroke="#256DE9" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                </div>
+                <div className="text-center">
+                  <p className="font-bold text-sm" style={{ color: c.text }}>
+                    {medicalDocs.length > 0 ? "Add More Documents" : "Upload Medical Documents"}
+                  </p>
+                  <p className="text-xs mt-1" style={{ color: c.textMuted }}>PDF, JPG, PNG, DOC • Multiple files supported</p>
+                </div>
               </button>
 
               <div className="p-4 rounded-2xl" style={{ background: c.card, border: `1px solid ${c.cardBorder}` }}>

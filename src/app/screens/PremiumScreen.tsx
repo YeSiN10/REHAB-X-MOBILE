@@ -174,7 +174,7 @@ export default function PremiumScreen() {
           onClick={handleUpgrade}
           disabled={loading}
           className="w-full py-4 rounded-2xl text-white font-bold mb-3"
-          style={{ background: "linear-gradient(135deg, #256DE9 0%, #A855F7 100%)", boxShadow: "0 16px 40px rgba(37,109,233,0.3)", fontSize: 16 }}
+          style={{ background: "linear-gradient(135deg, #256DE9 0%, #1a4bb5 100%)", boxShadow: "0 16px 40px rgba(37,109,233,0.4)", fontSize: 16 }}
         >
           {loading ? (
             <span className="flex items-center justify-center gap-2">
