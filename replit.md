@@ -64,12 +64,33 @@ utils/
 ## Running the App
 
 ```bash
-npm run dev   # starts on port 5000
+npm start          # starts both API server (port 3001) + Vite (port 5000)
+npm run dev        # frontend only
+npm run server     # API server only
 ```
 
 ## Workflow
 
-- **Start application**: `npm run dev` → port 5000 (webview)
+- **Start application**: `npm start` → Vite on port 5000 (webview) + API server on port 3001
+
+## Backend Architecture
+
+The app uses a local Express API server (`server/index.js`) backed by Replit's built-in PostgreSQL database.
+
+- **API server**: `server/index.js` runs on port 3001
+- **Database**: Replit PostgreSQL, table `kv_store` (key-value store)
+- **Vite proxy**: `/api/*` requests are proxied from port 5000 → 3001
+- **AppContext**: uses relative `/api` URL for all data operations
+
+### API Endpoints
+
+| Method | Path | Description |
+|--------|------|-------------|
+| GET | `/api/health` | Health check |
+| GET/POST | `/api/user/:deviceId` | User profile |
+| GET/POST | `/api/sessions/:deviceId` | Workout sessions |
+| GET/POST | `/api/settings/:deviceId` | App settings (dark mode, etc.) |
+| POST | `/api/log/:deviceId` | Append a single session |
 
 ## Key Features
 

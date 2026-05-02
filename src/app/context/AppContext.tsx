@@ -1,8 +1,7 @@
 import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from "react";
-import { projectId, publicAnonKey } from "/utils/supabase/info";
 
-const API = `https://${projectId}.supabase.co/functions/v1/make-server-cbe26bfc`;
-const headers = { "Content-Type": "application/json", Authorization: `Bearer ${publicAnonKey}` };
+const API = "/api";
+const headers = { "Content-Type": "application/json" };
 
 // ── DeviceID ──────────────────────────────────────────────────────────────
 function getDeviceId(): string {
