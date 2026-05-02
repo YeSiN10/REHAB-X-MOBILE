@@ -31,7 +31,7 @@ export interface WorkoutSession {
   title?: string;
 }
 
-// ── Seed sessions ─────────────────────────────────────────────────────────
+// ── Seed sessions (demo only for unauthenticated) ──────────────────────────
 const generateSeedSessions = (): WorkoutSession[] => {
   const types = ["Cardio", "Strength", "Recovery", "HIIT", "Flexibility", "Core"];
   const titles = ["Morning HIIT", "Lower Body Blast", "Sprint Recovery", "Core Power", "Flex Flow", "Upper Body Push"];
@@ -136,6 +136,7 @@ interface AppContextType {
   isAuthenticated: boolean;
   authLoading: boolean;
   login: (email: string, password: string) => Promise<{ error?: string }>;
+  loginWithGoogle: (googleToken: string) => Promise<{ error?: string }>;
   register: (name: string, email: string, password: string) => Promise<{ error?: string }>;
   logout: () => void;
   // App state
@@ -155,6 +156,9 @@ interface AppContextType {
   streak: number;
   bestStreak: number;
   isSyncing: boolean;
+  // Favorites
+  favoriteIds: string[];
+  toggleFavorite: (id: string) => void;
 }
 
 const defaultUser: User = {
@@ -169,6 +173,7 @@ const AppContext = createContext<AppContextType>({
   isAuthenticated: false,
   authLoading: true,
   login: async () => ({}),
+  loginWithGoogle: async () => ({}),
   register: async () => ({}),
   logout: () => {},
   user: defaultUser,
@@ -183,14 +188,15 @@ const AppContext = createContext<AppContextType>({
   setSidebarOpen: () => {},
   isPremium: false,
   setIsPremium: () => {},
-  recoveryScore: 72,
+  recoveryScore: 40,
   streak: 0,
   bestStreak: 0,
   isSyncing: false,
+  favoriteIds: [],
+  toggleFavorite: () => {},
 });
 
 // ── Safe localStorage helpers ─────────────────────────────────────────────
-// Strip large binary fields before persisting; keep them in memory only.
 const LARGE_FIELDS: (keyof User)[] = ["avatar", "medicalDoc"];
 
 function userForStorage(u: User): Partial<User> {
@@ -235,7 +241,17 @@ export function AppProvider({ children }: { children: ReactNode }) {
     localStorage.getItem("rehab_mood_today") || ""
   );
 
+  // Sessions: authenticated users always start fresh (no seed data)
+  // Unauthenticated users see seed data for demo purposes
   const [sessions, setSessions] = useState<WorkoutSession[]>(() => {
+    const hasAuth = !!localStorage.getItem("rehab_auth_token");
+    if (hasAuth) {
+      try {
+        const saved = localStorage.getItem("rehab_sessions");
+        return saved ? JSON.parse(saved) : [];
+      } catch { return []; }
+    }
+    // Demo mode — show seed data
     try {
       const saved = localStorage.getItem("rehab_sessions");
       return saved ? JSON.parse(saved) : generateSeedSessions();
@@ -244,6 +260,22 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isPremium, setIsPremiumState] = useState(false);
+
+  // ── Favorites ─────────────────────────────────────────────────────────
+  const [favoriteIds, setFavoriteIds] = useState<string[]>(() => {
+    try {
+      const saved = localStorage.getItem("rehab_favorites");
+      return saved ? JSON.parse(saved) : [];
+    } catch { return []; }
+  });
+
+  const toggleFavorite = useCallback((id: string) => {
+    setFavoriteIds((prev) => {
+      const next = prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id];
+      safeSet("rehab_favorites", JSON.stringify(next));
+      return next;
+    });
+  }, []);
 
   const recoveryScore = computeRecoveryScore(sessions, todayMood);
   const streak = computeStreak(sessions);
@@ -273,9 +305,30 @@ export function AppProvider({ children }: { children: ReactNode }) {
       setAuthUser(au);
       safeSet("rehab_auth_token", token);
       safeSet("rehab_auth_user", JSON.stringify(au));
-      // Sync user profile name/email to app state
       setUser((prev) => ({ ...prev, name: au.name, email: au.email }));
-      // Sync remote data for this user
+      syncRemoteData(token);
+      return {};
+    } catch {
+      return { error: "Network error. Please check your connection." };
+    }
+  }, []);
+
+  // ── Auth: Google Login ────────────────────────────────────────────────
+  const loginWithGoogle = useCallback(async (googleToken: string) => {
+    try {
+      const res = await fetch(`${API}/auth/google`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token: googleToken }),
+      });
+      const data = await res.json();
+      if (!res.ok) return { error: data.error || "Google sign-in failed" };
+      const { token, user: au } = data;
+      setAuthToken(token);
+      setAuthUser(au);
+      safeSet("rehab_auth_token", token);
+      safeSet("rehab_auth_user", JSON.stringify(au));
+      setUser((prev) => ({ ...prev, name: au.name, email: au.email }));
       syncRemoteData(token);
       return {};
     } catch {
@@ -299,6 +352,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
       safeSet("rehab_auth_token", token);
       safeSet("rehab_auth_user", JSON.stringify(au));
       setUser((prev) => ({ ...prev, name: au.name, email: au.email }));
+      // New users start with empty sessions
+      setSessions([]);
+      localStorage.removeItem("rehab_sessions");
       return {};
     } catch {
       return { error: "Network error. Please check your connection." };
@@ -313,9 +369,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
     localStorage.removeItem("rehab_auth_user");
     localStorage.removeItem("rehab_user");
     localStorage.removeItem("rehab_sessions");
-    localStorage.removeItem("rehab_dark");
     localStorage.removeItem("rehab_mood_today");
-    setSessions(generateSeedSessions());
+    // Reset to empty (not seed) — stays on login screen
+    setSessions([]);
     setUser(defaultUser);
     setTodayMoodState("");
   }, []);
@@ -335,11 +391,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
           safeSet("rehab_user", JSON.stringify(userForStorage(merged)));
         }
       }
-      // Sessions
+      // Sessions — always apply result (even empty) for authenticated users
       const sRes = await fetch(`${API}/sessions`, { headers });
       if (sRes.ok) {
         const sData = await sRes.json();
-        if (Array.isArray(sData) && sData.length > 0) {
+        if (Array.isArray(sData)) {
           setSessions(sData);
           safeSet("rehab_sessions", JSON.stringify(sData.slice(-100)));
         }
@@ -374,7 +430,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
           safeSet("rehab_auth_user", JSON.stringify({ id: data.id, email: data.email, name: data.name }));
           syncRemoteData(authToken);
         } else {
-          // Token invalid or expired
           setAuthToken(null);
           setAuthUser(null);
           localStorage.removeItem("rehab_auth_token");
@@ -444,7 +499,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     <AppContext.Provider
       value={{
         authUser, authToken, isAuthenticated, authLoading,
-        login, register, logout,
+        login, loginWithGoogle, register, logout,
         user, updateUser,
         isDark, setIsDark,
         todayMood, setTodayMood,
@@ -455,6 +510,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
         streak,
         bestStreak,
         isSyncing,
+        favoriteIds,
+        toggleFavorite,
       }}
     >
       {children}

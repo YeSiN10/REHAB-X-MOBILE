@@ -27,7 +27,6 @@ export default function ProgressScreen() {
 
   const today = new Date();
 
-  // ── Weekly data ──────────────────────────────────────────────────────
   const weeklyData = useMemo(() => {
     const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
     const startOfWeek = new Date(today);
@@ -45,7 +44,6 @@ export default function ProgressScreen() {
     });
   }, [sessions]);
 
-  // ── Monthly data ─────────────────────────────────────────────────────
   const monthlyData = useMemo(() => {
     return ["W1", "W2", "W3", "W4"].map((week, wi) => {
       const weekStart = new Date(today);
@@ -59,7 +57,6 @@ export default function ProgressScreen() {
     });
   }, [sessions]);
 
-  // ── Overall stats (computed) ─────────────────────────────────────────
   const thisWeekSessions = useMemo(() => {
     const start = new Date(today);
     start.setDate(today.getDate() - ((today.getDay() + 6) % 7));
@@ -81,7 +78,6 @@ export default function ProgressScreen() {
   const totalMins = sessions.reduce((sum, s) => sum + s.duration, 0);
   const totalHours = totalMins / 60;
 
-  // Streak: count consecutive days ending today
   const streak = useMemo(() => {
     const sessionDates = new Set(sessions.map((s) => s.date));
     let count = 0;
@@ -97,22 +93,19 @@ export default function ProgressScreen() {
     return count;
   }, [sessions]);
 
-  // Avg intensity based on calorie burn per session
   const avgCalPerSession = sessions.length ? totalCalories / sessions.length : 0;
-  const avgIntensity = Math.min(95, Math.max(30, Math.round(avgCalPerSession / 6)));
+  const avgIntensity = sessions.length ? Math.min(95, Math.max(30, Math.round(avgCalPerSession / 6))) : 0;
 
-  // Recovery score (real, computed)
   const recoveryScore = computeRecoveryScore(sessions, todayMood);
 
-  // Sub-metrics for recovery panel
   const last7 = sessions.filter((s) => {
     const diff = (today.getTime() - new Date(s.date).getTime()) / (1000 * 60 * 60 * 24);
     return diff <= 7;
   });
   const restDays = 7 - last7.length;
-  const sleepQuality = Math.min(95, Math.max(35, 55 + restDays * 5 + (todayMood === "great" ? 15 : todayMood === "good" ? 8 : todayMood === "low" ? -12 : 0)));
-  const muscleSoreness = Math.min(95, Math.max(25, 50 + (last7.length <= 3 ? 15 : last7.length >= 6 ? -20 : 5)));
-  const energyLevel = Math.min(98, Math.max(30, 60 + (todayMood === "great" ? 20 : todayMood === "good" ? 12 : todayMood === "ok" ? 5 : todayMood === "low" ? -10 : 0) + (restDays >= 2 ? 8 : -5)));
+  const sleepQuality = sessions.length === 0 ? 0 : Math.min(95, Math.max(35, 55 + restDays * 5 + (todayMood === "great" ? 15 : todayMood === "good" ? 8 : todayMood === "low" ? -12 : 0)));
+  const muscleSoreness = sessions.length === 0 ? 0 : Math.min(95, Math.max(25, 50 + (last7.length <= 3 ? 15 : last7.length >= 6 ? -20 : 5)));
+  const energyLevel = sessions.length === 0 ? 0 : Math.min(98, Math.max(30, 60 + (todayMood === "great" ? 20 : todayMood === "good" ? 12 : todayMood === "ok" ? 5 : todayMood === "low" ? -10 : 0) + (restDays >= 2 ? 8 : -5)));
 
   const weekSessionDiff = thisWeekSessions.length - lastWeekSessions.length;
   const lastWeekHours = lastWeekSessions.reduce((s, x) => s + x.duration, 0) / 60;
@@ -134,14 +127,14 @@ export default function ProgressScreen() {
     },
     {
       label: "Avg Intensity",
-      value: `${avgIntensity}%`,
-      change: "+3%",
+      value: sessions.length ? `${avgIntensity}%` : "—",
+      change: sessions.length ? "+0%" : "No data yet",
       up: true,
     },
     {
       label: "Streak",
       value: `${streak} days`,
-      change: streak > 0 ? `+${streak}d` : "0d",
+      change: streak > 0 ? `+${streak}d` : "Start today!",
       up: streak > 0,
     },
   ];
@@ -166,7 +159,7 @@ export default function ProgressScreen() {
     );
   };
 
-  const recoveryColor = recoveryScore >= 80 ? "#22C55E" : recoveryScore >= 60 ? "#256DE9" : recoveryScore >= 40 ? "#EAB308" : "#EF4444";
+  const recoveryColor = sessions.length === 0 ? c.textMuted : recoveryScore >= 80 ? "#22C55E" : recoveryScore >= 60 ? "#256DE9" : recoveryScore >= 40 ? "#EAB308" : "#EF4444";
 
   return (
     <div className="absolute inset-0 flex flex-col overflow-hidden" style={{ background: c.bg }}>
@@ -178,7 +171,7 @@ export default function ProgressScreen() {
           borderBottomLeftRadius: 36,
           borderBottomRightRadius: 36,
           paddingTop: 52,
-          paddingBottom: 18,
+          paddingBottom: 20,
           boxShadow: "0 12px 40px rgba(0,0,0,0.22)",
           zIndex: 2,
         }}
@@ -216,7 +209,20 @@ export default function ProgressScreen() {
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto pb-[90px] px-5 space-y-4">
+      <div className="flex-1 overflow-y-auto pb-[90px] px-5 space-y-4 pt-5">
+
+        {/* Empty state for new users */}
+        {sessions.length === 0 && (
+          <div
+            className="rounded-2xl p-6 text-center"
+            style={{ background: c.card, border: `1px solid ${c.cardBorder}` }}
+          >
+            <div className="text-4xl mb-3">🚀</div>
+            <p className="font-bold text-sm mb-1" style={{ color: c.text }}>Your journey starts here!</p>
+            <p className="text-xs" style={{ color: c.textMuted }}>Complete your first workout to see your progress charts and stats.</p>
+          </div>
+        )}
+
         {/* Stats grid */}
         <div className="grid grid-cols-2 gap-3">
           {overallStats.map((stat) => (
@@ -291,7 +297,7 @@ export default function ProgressScreen() {
           )}
         </div>
 
-        {/* Recovery Score — REAL computed */}
+        {/* Recovery Score */}
         <div
           className="rounded-2xl p-4"
           style={{ background: c.card, border: `1px solid ${c.cardBorder}`, boxShadow: c.shadow }}
@@ -300,11 +306,10 @@ export default function ProgressScreen() {
             <h3 className="font-bold" style={{ fontSize: 15, color: c.text }}>Recovery Score</h3>
             <span className="text-[10px] font-bold px-2 py-1 rounded-full"
               style={{ background: `${recoveryColor}20`, color: recoveryColor }}>
-              {recoveryScore >= 80 ? "EXCELLENT" : recoveryScore >= 60 ? "GOOD" : recoveryScore >= 40 ? "MODERATE" : "NEEDS REST"}
+              {sessions.length === 0 ? "LOG WORKOUT" : recoveryScore >= 80 ? "EXCELLENT" : recoveryScore >= 60 ? "GOOD" : recoveryScore >= 40 ? "MODERATE" : "NEEDS REST"}
             </span>
           </div>
           <div className="flex items-center gap-4">
-            {/* Ring */}
             <div className="relative w-20 h-20 shrink-0">
               <svg width="80" height="80" viewBox="0 0 80 80">
                 <circle cx="40" cy="40" r="30" fill="none" stroke={c.secondaryCard} strokeWidth="8" />
@@ -316,16 +321,17 @@ export default function ProgressScreen() {
                   strokeLinecap="round"
                   strokeDasharray={`${2 * Math.PI * 30}`}
                   initial={{ strokeDashoffset: 2 * Math.PI * 30 }}
-                  animate={{ strokeDashoffset: 2 * Math.PI * 30 * (1 - recoveryScore / 100) }}
+                  animate={{ strokeDashoffset: 2 * Math.PI * 30 * (1 - (sessions.length ? recoveryScore : 0) / 100) }}
                   transition={{ duration: 1.2, delay: 0.3 }}
                   transform="rotate(-90 40 40)"
                 />
               </svg>
               <div className="absolute inset-0 flex items-center justify-center">
-                <span className="font-black" style={{ fontSize: 16, color: recoveryColor }}>{recoveryScore}%</span>
+                <span className="font-black" style={{ fontSize: 16, color: recoveryColor }}>
+                  {sessions.length ? `${recoveryScore}%` : "—"}
+                </span>
               </div>
             </div>
-            {/* Sub-metrics */}
             <div className="flex-1 space-y-2.5">
               {[
                 { label: "Sleep Quality", val: sleepQuality },
@@ -337,7 +343,7 @@ export default function ProgressScreen() {
                   <div key={item.label}>
                     <div className="flex justify-between text-xs mb-1">
                       <span style={{ color: c.textMuted }}>{item.label}</span>
-                      <span className="font-semibold" style={{ color: c.text }}>{item.val}%</span>
+                      <span className="font-semibold" style={{ color: c.text }}>{item.val > 0 ? `${item.val}%` : "—"}</span>
                     </div>
                     <div className="w-full h-1.5 rounded-full" style={{ background: c.secondaryCard }}>
                       <motion.div
@@ -359,14 +365,15 @@ export default function ProgressScreen() {
           >
             <span style={{ fontSize: 14 }}>💡</span>
             <p className="text-xs leading-relaxed" style={{ color: c.textMuted }}>
-              {recoveryScore >= 80
+              {sessions.length === 0
+                ? "Log your first workout to start tracking your recovery score and health metrics."
+                : recoveryScore >= 80
                 ? "Excellent recovery! You're ready for a high-intensity session today."
                 : recoveryScore >= 60
                 ? "Good recovery. A moderate intensity session is recommended."
                 : recoveryScore >= 40
                 ? "Moderate recovery. Consider a light workout or rest day."
                 : "Low recovery detected. Rest and active recovery are recommended today."}
-              {" "}Score is based on your last {last7.length} session(s) and today's mood.
             </p>
           </div>
         </div>

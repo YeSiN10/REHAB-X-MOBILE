@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router";
 import { motion } from "motion/react";
 import { BottomNav } from "../components/BottomNav";
-import { useApp, useColors } from "../context/AppContext";
+import { useApp, useColors, computeStreak, computeBestStreak } from "../context/AppContext";
 
 const menuSections = [
   {
@@ -23,7 +23,7 @@ const menuSections = [
   {
     title: "Preferences",
     items: [
-      { icon: "🔔", label: "Notifications", path: "/notifications", badge: "3" },
+      { icon: "🔔", label: "Notifications", path: "/notifications", badge: null },
       { icon: "⚙️", label: "App Settings", path: "/settings", badge: null },
       { icon: "⭐", label: "Upgrade to Premium", path: "/premium", badge: null },
     ],
@@ -44,15 +44,10 @@ export default function ProfileScreen() {
   const displayName = user.name || "User";
   const initials = displayName.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2);
 
-  const thisMonth = sessions.filter((s) => {
-    const d = new Date(s.date);
-    const now = new Date();
-    return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
-  });
-
   const totalCalories = sessions.reduce((sum, s) => sum + s.calories, 0);
   const totalHours = Math.round(sessions.reduce((sum, s) => sum + s.duration, 0) / 60);
-  const streak = 5;
+  const streak = computeStreak(sessions);
+  const bestStreak = computeBestStreak(sessions);
 
   const stats = [
     { label: "Sessions", value: `${sessions.length}` },
@@ -62,11 +57,11 @@ export default function ProfileScreen() {
   ];
 
   const achievements = [
-    { icon: "🔥", label: "Calorie Crusher", earned: true },
-    { icon: "⚡", label: "Streak Master", earned: true },
-    { icon: "🏃", label: "Speed Demon", earned: true },
-    { icon: "💪", label: "Strength King", earned: false },
-    { icon: "🧘", label: "Recovery Pro", earned: false },
+    { icon: "🔥", label: "Calorie Crusher", earned: totalCalories >= 2000 },
+    { icon: "⚡", label: "Streak Master", earned: bestStreak >= 3 },
+    { icon: "🏃", label: "Speed Demon", earned: sessions.some(s => s.type === "HIIT" || s.type === "Cardio") },
+    { icon: "💪", label: "Strength King", earned: sessions.filter(s => s.type === "Strength").length >= 5 },
+    { icon: "🧘", label: "Recovery Pro", earned: sessions.filter(s => s.type === "Recovery").length >= 3 },
   ];
 
   return (
@@ -120,18 +115,22 @@ export default function ProfileScreen() {
         <div className="flex items-center gap-4 px-5">
           <div className="relative">
             <div
-              className="w-[80px] h-[80px] rounded-[24px] flex items-center justify-center"
+              className="w-[80px] h-[80px] rounded-[24px] flex items-center justify-center overflow-hidden"
               style={{
                 background: "linear-gradient(135deg, #256DE9, #1a4bb5)",
                 border: "2px solid #256DE9",
                 boxShadow: "0 8px 24px rgba(37,109,233,0.3)",
               }}
             >
-              <span className="text-white font-black" style={{ fontSize: 28 }}>{initials}</span>
+              {user.avatar ? (
+                <img src={user.avatar} alt="Avatar" className="w-full h-full object-cover" />
+              ) : (
+                <span className="text-white font-black" style={{ fontSize: 28 }}>{initials}</span>
+              )}
             </div>
             <button
               className="absolute -bottom-1 -right-1 w-8 h-8 rounded-xl flex items-center justify-center"
-              style={{ background: "#256DE9", border: `2px solid ${c.card}` }}
+              style={{ background: "#256DE9", border: "2px solid #0d1630" }}
             >
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
                 <path d="M12 20H21M16.5 3.5C16.8978 3.10217 17.4374 2.87868 18 2.87868C18.5626 2.87868 19.1022 3.10217 19.5 3.5C19.8978 3.89782 20.1213 4.43739 20.1213 5C20.1213 5.56261 19.8978 6.10217 19.5 6.5L7 19L3 20L4 16L16.5 3.5Z" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
@@ -139,42 +138,46 @@ export default function ProfileScreen() {
             </button>
           </div>
           <div className="flex-1">
-            <h2 style={{ fontSize: 20, fontWeight: 800, color: c.text }}>{displayName}</h2>
-            <p className="text-sm mt-0.5" style={{ color: c.textMuted }}>
+            {/* Username always white — header is dark */}
+            <h2 style={{ fontSize: 20, fontWeight: 800, color: "white" }}>{displayName}</h2>
+            <p className="text-sm mt-0.5" style={{ color: "rgba(255,255,255,0.55)" }}>
               {user.fitnessLevel || "Intermediate"} Athlete
             </p>
             <div className="flex items-center gap-1.5 mt-1.5">
-              <div className="px-2.5 py-1 rounded-full" style={{ background: c.accentBg }}>
-                <span className="text-[#256DE9] text-[10px] font-bold">
+              <div className="px-2.5 py-1 rounded-full" style={{ background: "rgba(37,109,233,0.3)" }}>
+                <span className="text-[10px] font-bold" style={{ color: "#7AABFF" }}>
                   {user.goal ? user.goal.split(" ")[0] : "Recovery"}
                 </span>
               </div>
-              <div className="px-2.5 py-1 rounded-full" style={{ background: "rgba(234,179,8,0.12)" }}>
-                <span className="text-[#EAB308] text-[10px] font-bold">⭐ 4.0 Rating</span>
+              <div className="px-2.5 py-1 rounded-full" style={{ background: "rgba(234,179,8,0.2)" }}>
+                <span className="text-[#EAB308] text-[10px] font-bold">⭐ {sessions.length > 0 ? "Active" : "New"}</span>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Stats row */}
+        {/* Stats row — transparent on dark header */}
         <div
-          className="flex gap-3 mt-5 p-4 rounded-2xl"
-          style={{ background: c.secondaryCard, border: `1px solid ${c.divider}` }}
+          className="flex gap-3 mt-5 mx-5 p-4 rounded-2xl"
+          style={{
+            background: "rgba(255,255,255,0.08)",
+            border: "1px solid rgba(255,255,255,0.12)",
+          }}
         >
           {stats.map((s, i) => (
             <div
               key={s.label}
               className={`flex-1 text-center ${i > 0 ? "border-l" : ""}`}
-              style={{ borderColor: c.divider }}
+              style={{ borderColor: "rgba(255,255,255,0.12)" }}
             >
-              <div className="font-black" style={{ fontSize: 18, color: c.text }}>{s.value}</div>
-              <div className="text-[10px] mt-0.5 font-medium" style={{ color: c.textMuted }}>{s.label}</div>
+              <div className="font-black" style={{ fontSize: 18, color: "white" }}>{s.value}</div>
+              <div className="text-[10px] mt-0.5 font-medium" style={{ color: "rgba(255,255,255,0.5)" }}>{s.label}</div>
             </div>
           ))}
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto pb-[90px] px-5 space-y-4 pt-4">
+      <div className="flex-1 overflow-y-auto pb-[90px] px-5 space-y-4 pt-5">
         {/* Achievements */}
         <div>
           <div className="flex items-center justify-between mb-3">
@@ -256,7 +259,7 @@ export default function ProfileScreen() {
         ))}
 
         <p className="text-center text-xs pb-2" style={{ color: c.textMuted }}>
-          REHAB X v2.4.1 • Member since Jan 2025
+          REHAB X v2.4.1 • {sessions.length > 0 ? `${sessions.length} sessions logged` : "Fresh start — log your first workout!"}
         </p>
       </div>
 

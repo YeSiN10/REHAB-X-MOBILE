@@ -21,7 +21,6 @@ const intensityColors: Record<string, { bg: string; text: string }> = {
   Low:    { bg: "rgba(34,197,94,0.15)",   text: "#22C55E" },
 };
 
-// All exercises mapped by goal
 const allExercises: Record<string, { id: string; title: string; category: string; duration: string; calories: number; intensity: string; img: string }[]> = {
   "Recovery & Performance": [
     { id: "featured", title: "Post-Sprint Recovery", category: "Recovery", duration: "24 min", calories: 180, intensity: "Low", img: "https://images.unsplash.com/photo-1713711437257-0232e837f40c?w=400&q=80" },
@@ -45,7 +44,19 @@ const allExercises: Record<string, { id: string; title: string; category: string
   ],
 };
 
-// Instructions popup data
+// All exercises flat list (for favorites lookup)
+const allExercisesList = [
+  { id: "1", title: "Morning HIIT", category: "Cardio", duration: "45 min", calories: 420, intensity: "High", img: "https://images.unsplash.com/photo-1729281008855-71e2506761c0?w=400&q=80" },
+  { id: "2", title: "Lower Body Blast", category: "Strength", duration: "52 min", calories: 510, intensity: "High", img: "https://images.unsplash.com/photo-1597376833295-40a54d5e69fc?w=400&q=80" },
+  { id: "3", title: "Flexibility Flow", category: "Flexibility", duration: "30 min", calories: 180, intensity: "Low", img: "https://images.unsplash.com/photo-1769416945759-4660fd121172?w=400&q=80" },
+  { id: "4", title: "Upper Body Push", category: "Strength", duration: "38 min", calories: 320, intensity: "Medium", img: "https://images.unsplash.com/photo-1605296867724-fa87a8ef53fd?w=400&q=80" },
+  { id: "5", title: "Sprint Recovery", category: "Recovery", duration: "24 min", calories: 180, intensity: "Low", img: "https://images.unsplash.com/photo-1604011237535-628ea8a45753?w=400&q=80" },
+  { id: "8", title: "Core Power", category: "Core", duration: "35 min", calories: 260, intensity: "Medium", img: "https://images.unsplash.com/photo-1638820870229-00003edce192?w=400&q=80" },
+  { id: "10", title: "Back Sculpt", category: "Strength", duration: "48 min", calories: 380, intensity: "Medium", img: "https://images.unsplash.com/photo-1597376833295-40a54d5e69fc?w=400&q=80" },
+  { id: "11", title: "Arm Blaster", category: "Strength", duration: "30 min", calories: 220, intensity: "Medium", img: "https://images.unsplash.com/photo-1638820870229-00003edce192?w=400&q=80" },
+  { id: "featured", title: "Post-Sprint Recovery", category: "Recovery", duration: "24 min", calories: 180, intensity: "Low", img: "https://images.unsplash.com/photo-1713711437257-0232e837f40c?w=400&q=80" },
+];
+
 const exerciseInstructions: Record<string, { steps: string[]; tip: string }> = {
   featured: {
     steps: [
@@ -81,17 +92,21 @@ const exerciseInstructions: Record<string, { steps: string[]; tip: string }> = {
 
 export default function HomeScreen() {
   const navigate = useNavigate();
-  const { user, setSidebarOpen, todayMood, setTodayMood, sessions, isDark, streak, bestStreak } = useApp();
+  const { user, setSidebarOpen, todayMood, setTodayMood, sessions, streak, bestStreak, favoriteIds } = useApp();
   const c = useColors();
   const [goalView, setGoalView] = useState<"weekly" | "monthly">("weekly");
   const [instructionsExId, setInstructionsExId] = useState<string | null>(null);
   const [showDailyBanner, setShowDailyBanner] = useState(true);
+  const [showFavorites, setShowFavorites] = useState(false);
 
   const firstName = user.name ? user.name.split(" ")[0] : "there";
   const today = new Date();
 
-  // Exercises filtered by user's primary goal
   const recommended = allExercises[user.goal || "Recovery & Performance"] || allExercises["Recovery & Performance"];
+
+  const favoriteExercises = useMemo(() =>
+    allExercisesList.filter((ex) => favoriteIds.includes(ex.id)),
+  [favoriteIds]);
 
   const thisWeekSessions = useMemo(() => {
     const start = new Date(today);
@@ -105,12 +120,11 @@ export default function HomeScreen() {
       return d.getMonth() === today.getMonth() && d.getFullYear() === today.getFullYear();
     }), [sessions]);
 
-  // Today's sessions
   const todaySessions = useMemo(() => {
     const todayStr = today.toISOString().split("T")[0];
     return sessions.filter(s => s.date === todayStr).length;
   }, [sessions]);
-  const todayGoal = 1; // planned exercises today from calendar
+  const todayGoal = 1;
 
   const totalCaloriesWeek = thisWeekSessions.reduce((sum, s) => sum + s.calories, 0);
   const totalDurationWeek = thisWeekSessions.reduce((sum, s) => sum + s.duration, 0);
@@ -137,7 +151,7 @@ export default function HomeScreen() {
     { label: "Calories", value: totalCaloriesWeek >= 1000 ? `${(totalCaloriesWeek / 1000).toFixed(1)}k` : `${totalCaloriesWeek}`, unit: "kcal", icon: "🔥", color: "#F97316" },
     { label: "Active", value: totalDurationWeek >= 60 ? `${(totalDurationWeek / 60).toFixed(1)}` : `${totalDurationWeek}`, unit: totalDurationWeek >= 60 ? "hrs" : "min", icon: "⏱️", color: "#3B82F6" },
     { label: "Sessions", value: `${thisWeekSessions.length}`, unit: "week", icon: "💪", color: "#A855F7" },
-    { label: "Streak", value: `${streak}`, unit: "days", icon: "⚡", color: "#EAB308" },
+    { label: "Streak", value: `${streak}`, unit: "days", icon: "⚡", color: "#A855F7" },
   ];
 
   const getGreeting = () => {
@@ -227,6 +241,88 @@ export default function HomeScreen() {
         )}
       </AnimatePresence>
 
+      {/* ── Favorites Bottom Sheet ──────────────────────────────────── */}
+      <AnimatePresence>
+        {showFavorites && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              className="absolute inset-0 z-40"
+              style={{ background: "rgba(0,0,0,0.6)", backdropFilter: "blur(4px)" }}
+              onClick={() => setShowFavorites(false)}
+            />
+            <motion.div
+              initial={{ y: "100%", opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: "100%", opacity: 0 }}
+              transition={{ type: "spring", stiffness: 350, damping: 35 }}
+              className="absolute left-0 right-0 bottom-0 z-50 rounded-t-3xl px-5 pt-6 pb-10"
+              style={{ background: c.card, maxHeight: "75%", overflowY: "auto" }}
+            >
+              <div className="w-10 h-1 rounded-full mx-auto mb-5" style={{ background: c.divider }} />
+              <div className="flex items-center justify-between mb-5">
+                <div className="flex items-center gap-2">
+                  <span style={{ fontSize: 20 }}>❤️</span>
+                  <h3 className="font-black" style={{ fontSize: 18, color: c.text }}>Favorite Exercises</h3>
+                </div>
+                <span className="text-xs font-bold px-2.5 py-1 rounded-full" style={{ background: "rgba(37,109,233,0.12)", color: "#256DE9" }}>
+                  {favoriteExercises.length} saved
+                </span>
+              </div>
+
+              {favoriteExercises.length === 0 ? (
+                <div className="flex flex-col items-center py-10 text-center">
+                  <div className="text-5xl mb-4">🤍</div>
+                  <p className="font-bold text-sm mb-1" style={{ color: c.text }}>No favorites yet</p>
+                  <p className="text-xs" style={{ color: c.textMuted }}>Tap the heart ♡ on any exercise in the Exercises tab to save it here.</p>
+                  <motion.button
+                    whileTap={{ scale: 0.97 }}
+                    onClick={() => { setShowFavorites(false); navigate("/exercises"); }}
+                    className="mt-5 px-6 py-3 rounded-2xl font-bold text-white text-sm"
+                    style={{ background: "linear-gradient(135deg, #256DE9, #1a4bb5)" }}
+                  >
+                    Browse Exercises
+                  </motion.button>
+                </div>
+              ) : (
+                <div className="space-y-3 pb-2">
+                  {favoriteExercises.map((ex) => {
+                    const ic = intensityColors[ex.intensity];
+                    return (
+                      <motion.div
+                        key={ex.id}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={() => { setShowFavorites(false); navigate(`/exercises/${ex.id}`); }}
+                        className="flex items-center gap-3 p-3 rounded-2xl cursor-pointer"
+                        style={{ background: c.secondaryCard, border: `1px solid ${c.cardBorder}` }}
+                      >
+                        <div className="w-[72px] h-[64px] rounded-xl overflow-hidden shrink-0">
+                          <img src={ex.img} alt={ex.title} className="w-full h-full object-cover" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <span className="text-[10px] font-bold uppercase tracking-wider block mb-0.5" style={{ color: "#256DE9" }}>{ex.category}</span>
+                          <h3 className="font-bold text-sm truncate" style={{ color: c.text }}>{ex.title}</h3>
+                          <div className="flex items-center gap-2 mt-1">
+                            <span className="text-xs" style={{ color: c.textMuted }}>⏱ {ex.duration}</span>
+                            <span style={{ color: c.textMuted }} className="text-xs">•</span>
+                            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: ic.bg, color: ic.text }}>{ex.intensity}</span>
+                          </div>
+                        </div>
+                        <button
+                          onClick={(e) => { e.stopPropagation(); navigate(`/workout/${ex.id}`); }}
+                          className="w-9 h-9 rounded-full flex items-center justify-center shrink-0"
+                          style={{ background: "#256DE9" }}
+                        >
+                          <svg width="13" height="13" viewBox="0 0 24 24" fill="white"><path d="M8 5L19 12L8 19V5Z" /></svg>
+                        </button>
+                      </motion.div>
+                    );
+                  })}
+                </div>
+              )}
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+
       {/* ── CURVED HEADER ─────────────────────────────────────────── */}
       <div
         className="shrink-0 relative overflow-hidden"
@@ -240,11 +336,9 @@ export default function HomeScreen() {
           zIndex: 2,
         }}
       >
-        {/* Decorative glow */}
         <div className="absolute top-0 left-0 right-0 h-full pointer-events-none"
           style={{ background: "radial-gradient(ellipse at 50% -10%, rgba(37,109,233,0.35) 0%, transparent 65%)" }} />
 
-        {/* Top row: greeting + notif + avatar */}
         <div className="flex items-center justify-between px-5">
           <div>
             <p style={{ fontSize: 12, fontWeight: 500, color: "rgba(255,255,255,0.6)" }}>{getGreeting()},</p>
@@ -253,7 +347,6 @@ export default function HomeScreen() {
             </h1>
           </div>
           <div className="flex items-center gap-3">
-            {/* Notification */}
             <button
               onClick={() => navigate("/notifications")}
               className="relative w-10 h-10 rounded-2xl flex items-center justify-center"
@@ -263,11 +356,8 @@ export default function HomeScreen() {
                 <path d="M18 8C18 6.4087 17.3679 4.88258 16.2426 3.75736C15.1174 2.63214 13.5913 2 12 2C10.4087 2 8.88258 2.63214 7.75736 3.75736C6.63214 4.88258 6 6.4087 6 8C6 15 3 17 3 17H21C21 17 18 15 18 8Z" stroke="white" strokeWidth="1.8" strokeLinecap="round" />
                 <path d="M13.73 21C13.55 21.3 13.3 21.55 13 21.73C12.69 21.9 12.35 22 12 22C11.65 22 11.31 21.9 11 21.73C10.7 21.55 10.45 21.3 10.27 21" stroke="white" strokeWidth="1.8" strokeLinecap="round" />
               </svg>
-              <span className="absolute top-1.5 right-1.5 w-3.5 h-3.5 rounded-full flex items-center justify-center text-white"
-                style={{ background: "#EF4444", fontSize: 8, fontWeight: 700 }}>3</span>
             </button>
 
-            {/* Avatar with green online dot */}
             <button onClick={() => setSidebarOpen(true)} className="relative shrink-0">
               <div
                 className="w-11 h-11 rounded-2xl overflow-hidden flex items-center justify-center"
@@ -291,7 +381,7 @@ export default function HomeScreen() {
       {/* ── Scroll area ───────────────────────────────────────────── */}
       <div className="flex-1 overflow-y-auto pb-[90px] pt-4">
 
-        {/* Daily exercise banner (like image-1) */}
+        {/* Daily exercise banner */}
         <AnimatePresence>
           {showDailyBanner && (
             <motion.div
@@ -316,7 +406,7 @@ export default function HomeScreen() {
                 <p className="text-sm font-bold" style={{ color: "#256DE9" }}>
                   It's your turn{" "}
                   <span style={{ color: c.text }}>{todaySessions}/{todayGoal}</span>
-                  {" "}Exercise{todayGoal > 1 ? "s" : ""}!
+                  {" "}Exercise!
                 </p>
                 <p className="text-[10px] mt-0.5" style={{ color: c.textMuted }}>
                   {todaySessions >= todayGoal ? "Daily goal achieved! 🎉" : "Tap to start your scheduled session"}
@@ -414,7 +504,7 @@ export default function HomeScreen() {
           </div>
         </div>
 
-        {/* ── Quick stats below the goal card ──────────────────────── */}
+        {/* Quick stats */}
         <div className="px-5 mb-4">
           <div
             className="grid grid-cols-4 gap-2 p-3 rounded-2xl"
@@ -430,7 +520,7 @@ export default function HomeScreen() {
           </div>
         </div>
 
-        {/* ── Streak Card ───────────────────────────────────────────── */}
+        {/* ── Streak Card — PURPLE/PINK GRADIENT ────────────────────── */}
         <div className="px-5 mb-4">
           <motion.div
             initial={{ opacity: 0, y: 12 }}
@@ -439,20 +529,19 @@ export default function HomeScreen() {
             className="relative overflow-hidden rounded-3xl p-4"
             style={{
               background: streak > 0
-                ? "linear-gradient(135deg, #1a1200 0%, #2a1a00 50%, #1a0d00 100%)"
+                ? "linear-gradient(135deg, #1a0530 0%, #2d1060 50%, #3d0a4f 100%)"
                 : "linear-gradient(135deg, #0d1220 0%, #111929 100%)",
-              border: streak > 0 ? "1px solid rgba(249,115,22,0.4)" : `1px solid ${c.cardBorder}`,
-              boxShadow: streak > 0 ? "0 8px 32px rgba(249,115,22,0.15)" : c.shadow,
+              border: streak > 0 ? "1px solid rgba(168,85,247,0.5)" : `1px solid ${c.cardBorder}`,
+              boxShadow: streak > 0 ? "0 8px 32px rgba(168,85,247,0.2)" : c.shadow,
             }}
           >
             {/* Glow behind flame */}
             {streak > 0 && (
               <div className="absolute -top-8 -right-8 w-32 h-32 rounded-full pointer-events-none"
-                style={{ background: "radial-gradient(circle, rgba(249,115,22,0.25) 0%, transparent 70%)" }} />
+                style={{ background: "radial-gradient(circle, rgba(236,72,153,0.3) 0%, transparent 70%)" }} />
             )}
 
             <div className="flex items-center justify-between relative">
-              {/* Left: flame + number */}
               <div className="flex items-center gap-3">
                 <div className="relative">
                   <motion.div
@@ -467,58 +556,54 @@ export default function HomeScreen() {
                       animate={{ opacity: [0.5, 1, 0.5] }}
                       transition={{ repeat: Infinity, duration: 1.8 }}
                       className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-6 h-2 rounded-full"
-                      style={{ background: "rgba(249,115,22,0.4)", filter: "blur(3px)" }}
+                      style={{ background: "rgba(236,72,153,0.5)", filter: "blur(3px)" }}
                     />
                   )}
                 </div>
                 <div>
                   <div className="flex items-baseline gap-1">
-                    <span style={{ fontSize: 36, fontWeight: 900, color: streak > 0 ? "#F97316" : c.textMuted, lineHeight: 1 }}>
+                    <span style={{ fontSize: 36, fontWeight: 900, color: streak > 0 ? "#D946EF" : c.textMuted, lineHeight: 1 }}>
                       {streak}
                     </span>
-                    <span style={{ fontSize: 13, fontWeight: 700, color: streak > 0 ? "#FB923C" : c.textMuted }}>
+                    <span style={{ fontSize: 13, fontWeight: 700, color: streak > 0 ? "#E879F9" : c.textMuted }}>
                       {streak === 1 ? "day" : "days"}
                     </span>
                   </div>
-                  <p style={{ fontSize: 11, fontWeight: 600, color: streak > 0 ? "rgba(251,146,60,0.8)" : c.textMuted }}>
+                  <p style={{ fontSize: 11, fontWeight: 600, color: streak > 0 ? "rgba(232,121,249,0.85)" : c.textMuted }}>
                     {streak === 0 ? "No active streak" : streak >= 30 ? "Legendary streak! 🏆" : streak >= 14 ? "Unstoppable! 💪" : streak >= 7 ? "On fire! Keep going!" : "Streak going!"}
                   </p>
                 </div>
               </div>
 
-              {/* Right: best streak */}
               <div className="flex flex-col items-end gap-2">
-                <div className="px-3 py-1.5 rounded-2xl" style={{ background: streak > 0 ? "rgba(249,115,22,0.15)" : c.secondaryCard }}>
-                  <p style={{ fontSize: 9, fontWeight: 700, color: streak > 0 ? "#FB923C" : c.textMuted, letterSpacing: "0.08em" }}>BEST</p>
-                  <p style={{ fontSize: 16, fontWeight: 900, color: streak > 0 ? "#F97316" : c.textMuted, lineHeight: 1 }}>
+                <div className="px-3 py-1.5 rounded-2xl" style={{ background: streak > 0 ? "rgba(168,85,247,0.2)" : c.secondaryCard }}>
+                  <p style={{ fontSize: 9, fontWeight: 700, color: streak > 0 ? "#E879F9" : c.textMuted, letterSpacing: "0.08em" }}>BEST</p>
+                  <p style={{ fontSize: 16, fontWeight: 900, color: streak > 0 ? "#D946EF" : c.textMuted, lineHeight: 1 }}>
                     {bestStreak} <span style={{ fontSize: 9, fontWeight: 600 }}>days</span>
                   </p>
                 </div>
               </div>
             </div>
 
-            {/* Milestone markers */}
             <div className="mt-3 relative">
               <div className="h-1.5 rounded-full w-full" style={{ background: "rgba(255,255,255,0.08)" }} />
               <div
                 className="absolute top-0 left-0 h-1.5 rounded-full transition-all duration-700"
                 style={{
                   width: `${Math.min((streak / 30) * 100, 100)}%`,
-                  background: streak > 0 ? "linear-gradient(90deg, #EA580C, #F97316, #FBBF24)" : "transparent",
-                  boxShadow: streak > 0 ? "0 0 8px rgba(249,115,22,0.6)" : "none",
+                  background: streak > 0 ? "linear-gradient(90deg, #7C3AED, #D946EF, #EC4899)" : "transparent",
+                  boxShadow: streak > 0 ? "0 0 8px rgba(217,70,239,0.6)" : "none",
                 }}
               />
-              {/* Milestone ticks at 7, 14, 30 */}
               {[7, 14, 30].map((m) => (
                 <div key={m} className="absolute top-1/2 -translate-y-1/2 flex flex-col items-center" style={{ left: `${(m / 30) * 100}%`, transform: "translate(-50%, -50%)" }}>
-                  <div className="w-2 h-2 rounded-full" style={{ background: streak >= m ? "#F97316" : "rgba(255,255,255,0.2)", border: "1px solid rgba(0,0,0,0.3)" }} />
-                  <span className="absolute top-3.5" style={{ fontSize: 8, fontWeight: 700, color: streak >= m ? "#FB923C" : "rgba(255,255,255,0.25)", whiteSpace: "nowrap" }}>{m}d</span>
+                  <div className="w-2 h-2 rounded-full" style={{ background: streak >= m ? "#D946EF" : "rgba(255,255,255,0.2)", border: "1px solid rgba(0,0,0,0.3)" }} />
+                  <span className="absolute top-3.5" style={{ fontSize: 8, fontWeight: 700, color: streak >= m ? "#E879F9" : "rgba(255,255,255,0.25)", whiteSpace: "nowrap" }}>{m}d</span>
                 </div>
               ))}
             </div>
 
-            {/* Motivational footer */}
-            <p className="mt-4 text-center" style={{ fontSize: 10, fontWeight: 600, color: streak > 0 ? "rgba(251,146,60,0.6)" : c.textMuted }}>
+            <p className="mt-4 text-center" style={{ fontSize: 10, fontWeight: 600, color: streak > 0 ? "rgba(232,121,249,0.6)" : c.textMuted }}>
               {streak === 0
                 ? "Log a workout today to start your streak!"
                 : streak < 7
@@ -626,6 +711,28 @@ export default function HomeScreen() {
               );
             })}
           </div>
+
+          {/* Browse Favorites Button */}
+          <motion.button
+            whileTap={{ scale: 0.97 }}
+            onClick={() => setShowFavorites(true)}
+            className="w-full mt-4 py-4 rounded-2xl text-white font-bold flex items-center justify-center gap-2.5"
+            style={{
+              background: "linear-gradient(135deg, #256DE9 0%, #1a4bb5 60%, #3B82F6 100%)",
+              boxShadow: "0 12px 32px rgba(37,109,233,0.35)",
+              fontSize: 15,
+            }}
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" fill="rgba(255,255,255,0.2)" />
+            </svg>
+            Browse Favorite Exercises
+            {favoriteIds.length > 0 && (
+              <span className="px-2 py-0.5 rounded-full text-[11px] font-black" style={{ background: "rgba(255,255,255,0.25)" }}>
+                {favoriteIds.length}
+              </span>
+            )}
+          </motion.button>
         </div>
 
         {/* Mood Tracker */}
