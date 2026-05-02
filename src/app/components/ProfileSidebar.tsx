@@ -33,7 +33,7 @@ const menuItems = [
 
 export function ProfileSidebar() {
   const navigate = useNavigate();
-  const { sidebarOpen, setSidebarOpen, user, updateUser, isDark, setIsDark } = useApp();
+  const { sidebarOpen, setSidebarOpen, user, updateUser, isDark, setIsDark, logout } = useApp();
   const c = useColors();
   const avatarInputRef = useRef<HTMLInputElement>(null);
 
@@ -259,7 +259,7 @@ export function ProfileSidebar() {
             {/* Sign out */}
             <div className="px-3 pb-8 pt-3" style={{ borderTop: `1px solid ${c.divider}` }}>
               <button
-                onClick={() => handleNav("/login")}
+                onClick={() => { logout(); handleNav("/login"); }}
                 className="w-full flex items-center gap-3 px-3 py-3 rounded-xl transition-all"
                 style={{ color: "#EF4444" }}
               >

@@ -2,9 +2,11 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { motion } from "motion/react";
 import logo from "../../imports/Carte_visite_Final.png";
+import { useApp } from "../context/AppContext";
 
 export default function SplashScreen() {
   const navigate = useNavigate();
+  const { isAuthenticated, authLoading, user } = useApp();
   const [progress, setProgress] = useState(0);
 
   useEffect(() => {
@@ -14,9 +16,15 @@ export default function SplashScreen() {
         return p + 2;
       });
     }, 40);
-    const timer = setTimeout(() => navigate("/onboarding"), 2500);
+    const timer = setTimeout(() => {
+      if (!authLoading && isAuthenticated) {
+        navigate(user.profileSetupDone ? "/home" : "/profile-setup", { replace: true });
+      } else {
+        navigate("/onboarding", { replace: true });
+      }
+    }, 2500);
     return () => { clearTimeout(timer); clearInterval(interval); };
-  }, [navigate]);
+  }, [navigate, authLoading, isAuthenticated]);
 
   return (
     <div

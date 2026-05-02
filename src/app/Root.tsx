@@ -1,12 +1,32 @@
-import { Outlet, useLocation } from "react-router";
+import { Outlet, useLocation, useNavigate } from "react-router";
 import { motion, AnimatePresence } from "motion/react";
-import { AppProvider } from "./context/AppContext";
+import { useEffect } from "react";
+import { AppProvider, useApp } from "./context/AppContext";
+
+const PUBLIC_ROUTES = ["/", "/login", "/signup", "/onboarding"];
+
+function RouteGuard() {
+  const { isAuthenticated, authLoading } = useApp();
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (authLoading) return;
+    const isPublic = PUBLIC_ROUTES.some((r) => location.pathname === r);
+    if (!isAuthenticated && !isPublic) {
+      navigate("/login", { replace: true });
+    }
+  }, [isAuthenticated, authLoading, location.pathname]);
+
+  return null;
+}
 
 export default function Root() {
   const location = useLocation();
 
   return (
     <AppProvider>
+      <RouteGuard />
       <div
         className="min-h-screen flex items-center justify-center relative"
         style={{

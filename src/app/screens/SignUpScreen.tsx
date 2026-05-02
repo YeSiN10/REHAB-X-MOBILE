@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
 import { motion, AnimatePresence } from "motion/react";
 import { useApp, useColors } from "../context/AppContext";
@@ -20,7 +20,7 @@ const c_default = "#475569";
 
 export default function SignUpScreen() {
   const navigate = useNavigate();
-  const { updateUser } = useApp();
+  const { register, isAuthenticated } = useApp();
   const c = useColors();
 
   const [name, setName] = useState("");
@@ -29,10 +29,15 @@ export default function SignUpScreen() {
   const [showPass, setShowPass] = useState(false);
   const [loading, setLoading] = useState(false);
   const [demoLoading, setDemoLoading] = useState<string | null>(null);
-  const [errors, setErrors] = useState<{ name?: string; email?: string; password?: string }>({});
+  const [errors, setErrors] = useState<{ name?: string; email?: string; password?: string; general?: string }>({});
   const [showToast, setShowToast] = useState<string | null>(null);
 
   const strength = strengthLevel(password);
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (isAuthenticated) navigate("/profile-setup", { replace: true });
+  }, [isAuthenticated]);
 
   const showToastMsg = (msg: string) => {
     setShowToast(msg);
@@ -50,27 +55,25 @@ export default function SignUpScreen() {
     return Object.keys(e).length === 0;
   };
 
-  const handleSignUp = () => {
+  const handleSignUp = async () => {
     if (!validate()) return;
     setLoading(true);
-    setTimeout(() => {
-      updateUser({ name: name.trim(), email });
-      setLoading(false);
-      navigate("/profile-setup");
-    }, 1300);
+    setErrors({});
+    const result = await register(name.trim(), email, password);
+    setLoading(false);
+    if (result.error) {
+      setErrors({ general: result.error });
+    } else {
+      navigate("/profile-setup", { replace: true });
+    }
   };
 
   const handleSocialSignup = (provider: "Google" | "Apple") => {
     setDemoLoading(provider);
-    const demoNames: Record<string, { name: string; email: string }> = {
-      Google: { name: "Alex Carter", email: "alex.carter@gmail.com" },
-      Apple: { name: "Jordan Lee", email: "jordan.lee@icloud.com" },
-    };
     showToastMsg(`${provider} Sign Up — Demo Mode`);
     setTimeout(() => {
-      updateUser(demoNames[provider]);
       setDemoLoading(null);
-      navigate("/profile-setup");
+      showToastMsg("Social login not available in demo");
     }, 1500);
   };
 
@@ -126,6 +129,12 @@ export default function SignUpScreen() {
       {/* Form */}
       <div className="flex-1 px-6 pb-8">
         <div className="space-y-4">
+          {errors.general && (
+            <div className="px-4 py-3 rounded-xl text-sm font-medium"
+              style={{ background: "rgba(239,68,68,0.1)", color: "#EF4444", border: "1px solid rgba(239,68,68,0.2)" }}>
+              {errors.general}
+            </div>
+          )}
           {/* Username */}
           <div>
             <label className="text-xs font-semibold mb-2 block tracking-wider uppercase" style={{ color: c.textSub }}>Username</label>

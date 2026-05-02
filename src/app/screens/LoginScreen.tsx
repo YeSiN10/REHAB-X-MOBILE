@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
 import { motion, AnimatePresence } from "motion/react";
 import { useApp, useColors } from "../context/AppContext";
@@ -12,7 +12,7 @@ const isStrongPassword = (p: string) =>
 
 export default function LoginScreen() {
   const navigate = useNavigate();
-  const { updateUser } = useApp();
+  const { login, isAuthenticated, user } = useApp();
   const c = useColors();
 
   const [email, setEmail] = useState("");
@@ -22,6 +22,13 @@ export default function LoginScreen() {
   const [demoLoading, setDemoLoading] = useState<string | null>(null);
   const [errors, setErrors] = useState<{ email?: string; password?: string; general?: string }>({});
   const [showToast, setShowToast] = useState<string | null>(null);
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate(user.profileSetupDone ? "/home" : "/profile-setup", { replace: true });
+    }
+  }, [isAuthenticated]);
 
   const showToastMsg = (msg: string) => {
     setShowToast(msg);
@@ -33,34 +40,29 @@ export default function LoginScreen() {
     if (!email) e.email = "Email address is required";
     else if (!emailRegex.test(email)) e.email = "Please enter a valid email address (e.g. name@domain.com)";
     if (!password) e.password = "Password is required";
-    else if (!isStrongPassword(password)) e.password = "Password must be 8+ chars, include a capital letter and a number";
     setErrors(e);
     return Object.keys(e).length === 0;
   };
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
     if (!validate()) return;
     setLoading(true);
-    const emailName = email.split("@")[0];
-    const name = emailName.split(/[._-]/).map((p) => p.charAt(0).toUpperCase() + p.slice(1)).join(" ");
-    setTimeout(() => {
-      updateUser({ email, name });
-      setLoading(false);
-      navigate("/profile-setup");
-    }, 1200);
+    setErrors({});
+    const result = await login(email, password);
+    setLoading(false);
+    if (result.error) {
+      setErrors({ general: result.error });
+    } else {
+      navigate(user.profileSetupDone ? "/home" : "/profile-setup", { replace: true });
+    }
   };
 
   const handleSocialLogin = (provider: "Google" | "Apple") => {
     setDemoLoading(provider);
-    const demoNames: Record<string, { name: string; email: string }> = {
-      Google: { name: "Alex Carter", email: "alex.carter@gmail.com" },
-      Apple: { name: "Jordan Lee", email: "jordan.lee@icloud.com" },
-    };
     showToastMsg(`${provider} Sign In — Demo Mode`);
     setTimeout(() => {
-      updateUser(demoNames[provider]);
       setDemoLoading(null);
-      navigate("/profile-setup");
+      showToastMsg("Social login not available in demo");
     }, 1500);
   };
 

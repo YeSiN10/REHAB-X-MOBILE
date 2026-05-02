@@ -1,19 +1,14 @@
 import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from "react";
 
 const API = "/api";
-const headers = { "Content-Type": "application/json" };
-
-// ── DeviceID ──────────────────────────────────────────────────────────────
-function getDeviceId(): string {
-  let id = localStorage.getItem("rehab_device_id");
-  if (!id) {
-    id = crypto.randomUUID();
-    localStorage.setItem("rehab_device_id", id);
-  }
-  return id;
-}
 
 // ── Types ─────────────────────────────────────────────────────────────────
+export interface AuthUser {
+  id: string;
+  email: string;
+  name: string;
+}
+
 export interface User {
   name: string;
   email: string;
@@ -23,7 +18,7 @@ export interface User {
   goal: string;
   medicalDoc?: string;
   profileSetupDone?: boolean;
-  avatar?: string; // base64 data URL
+  avatar?: string;
 }
 
 export interface WorkoutSession {
@@ -36,7 +31,7 @@ export interface WorkoutSession {
   title?: string;
 }
 
-// ── Generate realistic seed sessions ─────────────────────────────────────
+// ── Seed sessions ─────────────────────────────────────────────────────────
 const generateSeedSessions = (): WorkoutSession[] => {
   const types = ["Cardio", "Strength", "Recovery", "HIIT", "Flexibility", "Core"];
   const titles = ["Morning HIIT", "Lower Body Blast", "Sprint Recovery", "Core Power", "Flex Flow", "Upper Body Push"];
@@ -84,40 +79,38 @@ export const getThemeColors = (isDark: boolean) => ({
   shadow: isDark ? "0 4px 24px rgba(0,0,0,0.4)" : "0 4px 24px rgba(37,109,233,0.1)",
 });
 
-// ── Compute real recovery score ──────────────────────────────────────────
+// ── Recovery score ────────────────────────────────────────────────────────
 export const computeRecoveryScore = (sessions: WorkoutSession[], todayMood: string): number => {
   const today = new Date();
   const last7 = sessions.filter((s) => {
     const d = new Date(s.date);
     return (today.getTime() - d.getTime()) / (1000 * 60 * 60 * 24) <= 7;
   });
-
-  // Frequency score (ideal = 4-5 sessions/week)
   const freq = last7.length;
   let freqScore = freq === 0 ? 40 : freq <= 2 ? 60 : freq <= 5 ? 75 + (freq - 2) * 5 : Math.max(55, 90 - (freq - 5) * 10);
-
-  // Recovery session bonus
   const hasRecovery = last7.some((s) => s.type === "Recovery" || s.type === "Flexibility");
   const recoveryBonus = hasRecovery ? 8 : -4;
-
-  // Variety bonus
   const types = new Set(last7.map((s) => s.type));
   const varietyBonus = types.size >= 3 ? 6 : types.size >= 2 ? 3 : 0;
-
-  // Mood factor
   const moodMap: Record<string, number> = { great: 8, good: 4, ok: 0, low: -6, exhausted: -12, "": 0 };
   const moodBonus = moodMap[todayMood] ?? 0;
-
-  // Rest days (at least 2/week is healthy)
   const restDays = 7 - freq;
   const restBonus = restDays >= 2 && restDays <= 3 ? 4 : restDays === 1 ? 0 : restDays === 0 ? -8 : -2;
-
   const raw = freqScore + recoveryBonus + varietyBonus + moodBonus + restBonus;
   return Math.min(98, Math.max(28, Math.round(raw)));
 };
 
 // ── Context type ─────────────────────────────────────────────────────────
 interface AppContextType {
+  // Auth
+  authUser: AuthUser | null;
+  authToken: string | null;
+  isAuthenticated: boolean;
+  authLoading: boolean;
+  login: (email: string, password: string) => Promise<{ error?: string }>;
+  register: (name: string, email: string, password: string) => Promise<{ error?: string }>;
+  logout: () => void;
+  // App state
   user: User;
   updateUser: (u: Partial<User>) => void;
   isDark: boolean;
@@ -141,6 +134,13 @@ const defaultUser: User = {
 };
 
 const AppContext = createContext<AppContextType>({
+  authUser: null,
+  authToken: null,
+  isAuthenticated: false,
+  authLoading: true,
+  login: async () => ({}),
+  register: async () => ({}),
+  logout: () => {},
   user: defaultUser,
   updateUser: () => {},
   isDark: false,
@@ -159,9 +159,22 @@ const AppContext = createContext<AppContextType>({
 
 // ── Provider ──────────────────────────────────────────────────────────────
 export function AppProvider({ children }: { children: ReactNode }) {
-  const [deviceId] = useState(() => getDeviceId());
   const [isSyncing, setIsSyncing] = useState(false);
 
+  // ── Auth state ─────────────────────────────────────────────────────────
+  const [authToken, setAuthToken] = useState<string | null>(() =>
+    localStorage.getItem("rehab_auth_token")
+  );
+  const [authUser, setAuthUser] = useState<AuthUser | null>(() => {
+    try {
+      const stored = localStorage.getItem("rehab_auth_user");
+      return stored ? JSON.parse(stored) : null;
+    } catch { return null; }
+  });
+  const [authLoading, setAuthLoading] = useState(true);
+  const isAuthenticated = !!authToken && !!authUser;
+
+  // ── App state ──────────────────────────────────────────────────────────
   const [user, setUser] = useState<User>(() => {
     try { return { ...defaultUser, ...JSON.parse(localStorage.getItem("rehab_user") || "{}") }; }
     catch { return defaultUser; }
@@ -172,9 +185,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
     catch { return false; }
   });
 
-  const [todayMood, setTodayMoodState] = useState(() => {
-    return localStorage.getItem("rehab_mood_today") || "";
-  });
+  const [todayMood, setTodayMoodState] = useState(() =>
+    localStorage.getItem("rehab_mood_today") || ""
+  );
 
   const [sessions, setSessions] = useState<WorkoutSession[]>(() => {
     try {
@@ -188,68 +201,174 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const recoveryScore = computeRecoveryScore(sessions, todayMood);
 
-  // ── Sync from Supabase on mount ──────────────────────────────────────
+  // ── Authenticated headers helper ──────────────────────────────────────
+  const authHeaders = useCallback((token?: string | null) => {
+    const t = token ?? authToken;
+    return {
+      "Content-Type": "application/json",
+      ...(t ? { Authorization: `Bearer ${t}` } : {}),
+    };
+  }, [authToken]);
+
+  // ── Auth: Login ───────────────────────────────────────────────────────
+  const login = useCallback(async (email: string, password: string) => {
+    try {
+      const res = await fetch(`${API}/auth/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+      const data = await res.json();
+      if (!res.ok) return { error: data.error || "Login failed" };
+      const { token, user: au } = data;
+      setAuthToken(token);
+      setAuthUser(au);
+      localStorage.setItem("rehab_auth_token", token);
+      localStorage.setItem("rehab_auth_user", JSON.stringify(au));
+      // Sync user profile name/email to app state
+      setUser((prev) => ({ ...prev, name: au.name, email: au.email }));
+      // Sync remote data for this user
+      syncRemoteData(token);
+      return {};
+    } catch {
+      return { error: "Network error. Please check your connection." };
+    }
+  }, []);
+
+  // ── Auth: Register ────────────────────────────────────────────────────
+  const register = useCallback(async (name: string, email: string, password: string) => {
+    try {
+      const res = await fetch(`${API}/auth/register`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, email, password }),
+      });
+      const data = await res.json();
+      if (!res.ok) return { error: data.error || "Registration failed" };
+      const { token, user: au } = data;
+      setAuthToken(token);
+      setAuthUser(au);
+      localStorage.setItem("rehab_auth_token", token);
+      localStorage.setItem("rehab_auth_user", JSON.stringify(au));
+      setUser((prev) => ({ ...prev, name: au.name, email: au.email }));
+      return {};
+    } catch {
+      return { error: "Network error. Please check your connection." };
+    }
+  }, []);
+
+  // ── Auth: Logout ──────────────────────────────────────────────────────
+  const logout = useCallback(() => {
+    setAuthToken(null);
+    setAuthUser(null);
+    localStorage.removeItem("rehab_auth_token");
+    localStorage.removeItem("rehab_auth_user");
+    localStorage.removeItem("rehab_user");
+    localStorage.removeItem("rehab_sessions");
+    localStorage.removeItem("rehab_dark");
+    localStorage.removeItem("rehab_mood_today");
+    setSessions(generateSeedSessions());
+    setUser(defaultUser);
+    setTodayMoodState("");
+  }, []);
+
+  // ── Sync remote data after login ──────────────────────────────────────
+  const syncRemoteData = async (token: string) => {
+    setIsSyncing(true);
+    try {
+      const headers = authHeaders(token);
+      // User profile
+      const uRes = await fetch(`${API}/user`, { headers });
+      if (uRes.ok) {
+        const uData = await uRes.json();
+        if (uData) {
+          const merged = { ...defaultUser, ...uData };
+          setUser(merged);
+          localStorage.setItem("rehab_user", JSON.stringify(merged));
+        }
+      }
+      // Sessions
+      const sRes = await fetch(`${API}/sessions`, { headers });
+      if (sRes.ok) {
+        const sData = await sRes.json();
+        if (Array.isArray(sData) && sData.length > 0) {
+          setSessions(sData);
+          localStorage.setItem("rehab_sessions", JSON.stringify(sData));
+        }
+      }
+      // Settings
+      const settRes = await fetch(`${API}/settings`, { headers });
+      if (settRes.ok) {
+        const settData = await settRes.json();
+        if (settData?.isDark !== undefined) {
+          setIsDarkState(settData.isDark);
+          localStorage.setItem("rehab_dark", JSON.stringify(settData.isDark));
+        }
+      }
+    } catch (e) {
+      console.log("Sync failed (offline fallback):", e);
+    } finally {
+      setIsSyncing(false);
+    }
+  };
+
+  // ── Verify token on mount ─────────────────────────────────────────────
   useEffect(() => {
-    const syncFromServer = async () => {
-      setIsSyncing(true);
+    const verifyToken = async () => {
+      if (!authToken) { setAuthLoading(false); return; }
       try {
-        // Fetch user
-        const uRes = await fetch(`${API}/user/${deviceId}`, { headers });
-        if (uRes.ok) {
-          const uData = await uRes.json();
-          if (uData && uData.name !== undefined) {
-            const merged = { ...defaultUser, ...uData };
-            setUser(merged);
-            localStorage.setItem("rehab_user", JSON.stringify(merged));
-          }
+        const res = await fetch(`${API}/auth/me`, {
+          headers: { Authorization: `Bearer ${authToken}` },
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setAuthUser({ id: data.id, email: data.email, name: data.name });
+          localStorage.setItem("rehab_auth_user", JSON.stringify({ id: data.id, email: data.email, name: data.name }));
+          syncRemoteData(authToken);
+        } else {
+          // Token invalid or expired
+          setAuthToken(null);
+          setAuthUser(null);
+          localStorage.removeItem("rehab_auth_token");
+          localStorage.removeItem("rehab_auth_user");
         }
-        // Fetch sessions
-        const sRes = await fetch(`${API}/sessions/${deviceId}`, { headers });
-        if (sRes.ok) {
-          const sData = await sRes.json();
-          if (Array.isArray(sData) && sData.length > 0) {
-            setSessions(sData);
-            localStorage.setItem("rehab_sessions", JSON.stringify(sData));
-          }
-        }
-        // Fetch settings (dark mode)
-        const settRes = await fetch(`${API}/settings/${deviceId}`, { headers });
-        if (settRes.ok) {
-          const settData = await settRes.json();
-          if (settData && settData.isDark !== undefined) {
-            setIsDarkState(settData.isDark);
-            localStorage.setItem("rehab_dark", JSON.stringify(settData.isDark));
-          }
-        }
-      } catch (e) {
-        console.log("Supabase sync failed (offline fallback):", e);
+      } catch {
+        // Offline — trust cached auth user
       } finally {
-        setIsSyncing(false);
+        setAuthLoading(false);
       }
     };
-    syncFromServer();
-  }, [deviceId]);
+    verifyToken();
+  }, []);
 
-  // ── Persist user ─────────────────────────────────────────────────────
+  // ── Persist user profile ──────────────────────────────────────────────
   const updateUser = useCallback((u: Partial<User>) => {
     setUser((prev) => {
       const next = { ...prev, ...u };
       localStorage.setItem("rehab_user", JSON.stringify(next));
-      fetch(`${API}/user/${deviceId}`, {
-        method: "POST", headers, body: JSON.stringify(next),
-      }).catch((e) => console.log("User sync error:", e));
+      if (authToken) {
+        fetch(`${API}/user`, {
+          method: "POST",
+          headers: authHeaders(),
+          body: JSON.stringify(next),
+        }).catch((e) => console.log("User sync error:", e));
+      }
       return next;
     });
-  }, [deviceId]);
+  }, [authToken, authHeaders]);
 
   // ── Persist dark mode ─────────────────────────────────────────────────
   const setIsDark = useCallback((v: boolean) => {
     setIsDarkState(v);
     localStorage.setItem("rehab_dark", JSON.stringify(v));
-    fetch(`${API}/settings/${deviceId}`, {
-      method: "POST", headers, body: JSON.stringify({ isDark: v }),
-    }).catch((e) => console.log("Settings sync error:", e));
-  }, [deviceId]);
+    if (authToken) {
+      fetch(`${API}/settings`, {
+        method: "POST",
+        headers: authHeaders(),
+        body: JSON.stringify({ isDark: v }),
+      }).catch((e) => console.log("Settings sync error:", e));
+    }
+  }, [authToken, authHeaders]);
 
   // ── Persist mood ──────────────────────────────────────────────────────
   const setTodayMood = useCallback((m: string) => {
@@ -262,17 +381,22 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setSessions((prev) => {
       const updated = [...prev, { ...s, id: s.id || crypto.randomUUID() }];
       localStorage.setItem("rehab_sessions", JSON.stringify(updated));
-      // Log to server
-      fetch(`${API}/log/${deviceId}`, {
-        method: "POST", headers, body: JSON.stringify(s),
-      }).catch((e) => console.log("Session log error:", e));
+      if (authToken) {
+        fetch(`${API}/log`, {
+          method: "POST",
+          headers: authHeaders(),
+          body: JSON.stringify(s),
+        }).catch((e) => console.log("Session log error:", e));
+      }
       return updated;
     });
-  }, [deviceId]);
+  }, [authToken, authHeaders]);
 
   return (
     <AppContext.Provider
       value={{
+        authUser, authToken, isAuthenticated, authLoading,
+        login, register, logout,
         user, updateUser,
         isDark, setIsDark,
         todayMood, setTodayMood,

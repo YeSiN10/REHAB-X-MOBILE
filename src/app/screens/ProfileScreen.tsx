@@ -38,7 +38,7 @@ const menuSections = [
 
 export default function ProfileScreen() {
   const navigate = useNavigate();
-  const { user, sessions } = useApp();
+  const { user, sessions, logout } = useApp();
   const c = useColors();
 
   const displayName = user.name || "User";
@@ -217,7 +217,12 @@ export default function ProfileScreen() {
               {section.items.map((item: any, i) => (
                 <button
                   key={item.label}
-                  onClick={() => navigate(item.path)}
+                  onClick={() => {
+                    if (item.danger && item.label === "Sign Out") {
+                      logout();
+                    }
+                    navigate(item.path);
+                  }}
                   className={`w-full flex items-center gap-3 px-4 py-4 transition-all ${i < section.items.length - 1 ? "border-b" : ""}`}
                   style={{ borderColor: c.divider }}
                 >
