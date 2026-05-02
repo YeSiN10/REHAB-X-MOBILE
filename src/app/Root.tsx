@@ -62,7 +62,9 @@ export default function Root() {
                 transition={{ duration: 0.16, ease: "easeOut" }}
                 className="absolute inset-0"
               >
-                <Outlet />
+                <div className="absolute inset-0">
+                  <Outlet />
+                </div>
               </motion.div>
             </AnimatePresence>
           </div>
