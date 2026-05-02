@@ -2,6 +2,8 @@ import { useState, useRef } from "react";
 import { useNavigate } from "react-router";
 import { motion, AnimatePresence } from "motion/react";
 import { useApp, useColors } from "../context/AppContext";
+import { AvatarCropModal } from "../components/AvatarCropModal";
+import { compressImage } from "../utils/imageUtils";
 import logo from "../../imports/Carte_visite_Final.png";
 
 const genderOptions = [
@@ -36,13 +38,23 @@ export default function ProfileSetupScreen() {
   const [medicalDoc, setMedicalDoc] = useState(user.medicalDoc || "");
   const [avatar, setAvatar] = useState(user.avatar || "");
   const [completing, setCompleting] = useState(false);
+  const [cropSrc, setCropSrc] = useState<string | null>(null);
 
-  const handleAvatarUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => setAvatar(reader.result as string);
-    reader.readAsDataURL(file);
+    e.target.value = "";
+    try {
+      const compressed = await compressImage(file);
+      setCropSrc(compressed);
+    } catch {
+      console.error("Failed to load image");
+    }
+  };
+
+  const handleCropConfirm = (cropped: string) => {
+    setAvatar(cropped);
+    setCropSrc(null);
   };
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -98,6 +110,13 @@ export default function ProfileSetupScreen() {
 
   return (
     <div className="absolute inset-0 flex flex-col overflow-y-auto" style={{ background: c.bg }}>
+      {cropSrc && (
+        <AvatarCropModal
+          src={cropSrc}
+          onConfirm={handleCropConfirm}
+          onCancel={() => setCropSrc(null)}
+        />
+      )}
       {/* Header */}
       <div className="px-6 pt-14 pb-5 shrink-0" style={{ borderBottom: `1px solid ${c.divider}` }}>
         <div className="flex items-center gap-3 mb-5">

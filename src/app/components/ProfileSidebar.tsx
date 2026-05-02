@@ -1,7 +1,9 @@
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { useNavigate } from "react-router";
 import { motion, AnimatePresence } from "motion/react";
 import { useApp, useColors } from "../context/AppContext";
+import { AvatarCropModal } from "./AvatarCropModal";
+import { compressImage } from "../utils/imageUtils";
 import logo from "../../imports/Carte_visite_Final.png";
 
 const menuItems = [
@@ -36,20 +38,28 @@ export function ProfileSidebar() {
   const { sidebarOpen, setSidebarOpen, user, updateUser, isDark, setIsDark, logout } = useApp();
   const c = useColors();
   const avatarInputRef = useRef<HTMLInputElement>(null);
+  const [cropSrc, setCropSrc] = useState<string | null>(null);
 
   const handleNav = (path: string) => {
     setSidebarOpen(false);
     setTimeout(() => navigate(path), 200);
   };
 
-  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => {
-      updateUser({ avatar: reader.result as string });
-    };
-    reader.readAsDataURL(file);
+    e.target.value = "";
+    try {
+      const compressed = await compressImage(file);
+      setCropSrc(compressed);
+    } catch {
+      console.error("Failed to load image");
+    }
+  };
+
+  const handleCropConfirm = (cropped: string) => {
+    updateUser({ avatar: cropped });
+    setCropSrc(null);
   };
 
   const displayName = user.name || "User";
@@ -57,6 +67,13 @@ export function ProfileSidebar() {
 
   return (
     <AnimatePresence>
+      {cropSrc && (
+        <AvatarCropModal
+          src={cropSrc}
+          onConfirm={handleCropConfirm}
+          onCancel={() => setCropSrc(null)}
+        />
+      )}
       {sidebarOpen && (
         <>
           {/* Backdrop */}
