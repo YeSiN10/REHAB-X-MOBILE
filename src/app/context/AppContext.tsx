@@ -157,6 +157,20 @@ const AppContext = createContext<AppContextType>({
   isSyncing: false,
 });
 
+// ── Safe localStorage helpers ─────────────────────────────────────────────
+// Strip large binary fields before persisting; keep them in memory only.
+const LARGE_FIELDS: (keyof User)[] = ["avatar", "medicalDoc"];
+
+function userForStorage(u: User): Partial<User> {
+  const copy = { ...u };
+  LARGE_FIELDS.forEach((k) => delete copy[k]);
+  return copy;
+}
+
+function safeSet(key: string, value: string) {
+  try { localStorage.setItem(key, value); } catch { /* quota exceeded — skip */ }
+}
+
 // ── Provider ──────────────────────────────────────────────────────────────
 export function AppProvider({ children }: { children: ReactNode }) {
   const [isSyncing, setIsSyncing] = useState(false);
@@ -223,8 +237,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       const { token, user: au } = data;
       setAuthToken(token);
       setAuthUser(au);
-      localStorage.setItem("rehab_auth_token", token);
-      localStorage.setItem("rehab_auth_user", JSON.stringify(au));
+      safeSet("rehab_auth_token", token);
+      safeSet("rehab_auth_user", JSON.stringify(au));
       // Sync user profile name/email to app state
       setUser((prev) => ({ ...prev, name: au.name, email: au.email }));
       // Sync remote data for this user
@@ -248,8 +262,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       const { token, user: au } = data;
       setAuthToken(token);
       setAuthUser(au);
-      localStorage.setItem("rehab_auth_token", token);
-      localStorage.setItem("rehab_auth_user", JSON.stringify(au));
+      safeSet("rehab_auth_token", token);
+      safeSet("rehab_auth_user", JSON.stringify(au));
       setUser((prev) => ({ ...prev, name: au.name, email: au.email }));
       return {};
     } catch {
@@ -284,7 +298,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         if (uData) {
           const merged = { ...defaultUser, ...uData };
           setUser(merged);
-          localStorage.setItem("rehab_user", JSON.stringify(merged));
+          safeSet("rehab_user", JSON.stringify(userForStorage(merged)));
         }
       }
       // Sessions
@@ -293,7 +307,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         const sData = await sRes.json();
         if (Array.isArray(sData) && sData.length > 0) {
           setSessions(sData);
-          localStorage.setItem("rehab_sessions", JSON.stringify(sData));
+          safeSet("rehab_sessions", JSON.stringify(sData.slice(-100)));
         }
       }
       // Settings
@@ -302,7 +316,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         const settData = await settRes.json();
         if (settData?.isDark !== undefined) {
           setIsDarkState(settData.isDark);
-          localStorage.setItem("rehab_dark", JSON.stringify(settData.isDark));
+          safeSet("rehab_dark", JSON.stringify(settData.isDark));
         }
       }
     } catch (e) {
@@ -323,7 +337,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         if (res.ok) {
           const data = await res.json();
           setAuthUser({ id: data.id, email: data.email, name: data.name });
-          localStorage.setItem("rehab_auth_user", JSON.stringify({ id: data.id, email: data.email, name: data.name }));
+          safeSet("rehab_auth_user", JSON.stringify({ id: data.id, email: data.email, name: data.name }));
           syncRemoteData(authToken);
         } else {
           // Token invalid or expired
@@ -345,7 +359,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const updateUser = useCallback((u: Partial<User>) => {
     setUser((prev) => {
       const next = { ...prev, ...u };
-      localStorage.setItem("rehab_user", JSON.stringify(next));
+      safeSet("rehab_user", JSON.stringify(userForStorage(next)));
       if (authToken) {
         fetch(`${API}/user`, {
           method: "POST",
@@ -360,7 +374,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   // ── Persist dark mode ─────────────────────────────────────────────────
   const setIsDark = useCallback((v: boolean) => {
     setIsDarkState(v);
-    localStorage.setItem("rehab_dark", JSON.stringify(v));
+    safeSet("rehab_dark", JSON.stringify(v));
     if (authToken) {
       fetch(`${API}/settings`, {
         method: "POST",
@@ -373,14 +387,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
   // ── Persist mood ──────────────────────────────────────────────────────
   const setTodayMood = useCallback((m: string) => {
     setTodayMoodState(m);
-    localStorage.setItem("rehab_mood_today", m);
+    safeSet("rehab_mood_today", m);
   }, []);
 
   // ── Add session ───────────────────────────────────────────────────────
   const addSession = useCallback((s: WorkoutSession) => {
     setSessions((prev) => {
       const updated = [...prev, { ...s, id: s.id || crypto.randomUUID() }];
-      localStorage.setItem("rehab_sessions", JSON.stringify(updated));
+      safeSet("rehab_sessions", JSON.stringify(updated.slice(-100)));
       if (authToken) {
         fetch(`${API}/log`, {
           method: "POST",
