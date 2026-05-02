@@ -79,6 +79,34 @@ export const getThemeColors = (isDark: boolean) => ({
   shadow: isDark ? "0 4px 24px rgba(0,0,0,0.4)" : "0 4px 24px rgba(37,109,233,0.1)",
 });
 
+// ── Streak computation ────────────────────────────────────────────────────
+export function computeStreak(sessions: WorkoutSession[]): number {
+  if (sessions.length === 0) return 0;
+  const dates = new Set(sessions.map((s) => s.date));
+  const today = new Date();
+  const todayStr = today.toISOString().split("T")[0];
+  const d = new Date(today);
+  if (!dates.has(todayStr)) d.setDate(d.getDate() - 1);
+  let count = 0;
+  while (count <= 365) {
+    if (dates.has(d.toISOString().split("T")[0])) { count++; d.setDate(d.getDate() - 1); }
+    else break;
+  }
+  return count;
+}
+
+export function computeBestStreak(sessions: WorkoutSession[]): number {
+  if (sessions.length === 0) return 0;
+  const sorted = [...new Set(sessions.map((s) => s.date))].sort();
+  let best = 1, current = 1;
+  for (let i = 1; i < sorted.length; i++) {
+    const diff = (new Date(sorted[i]).getTime() - new Date(sorted[i - 1]).getTime()) / 86400000;
+    if (diff === 1) { current++; if (current > best) best = current; }
+    else current = 1;
+  }
+  return best;
+}
+
 // ── Recovery score ────────────────────────────────────────────────────────
 export const computeRecoveryScore = (sessions: WorkoutSession[], todayMood: string): number => {
   const today = new Date();
@@ -124,6 +152,8 @@ interface AppContextType {
   isPremium: boolean;
   setIsPremium: (v: boolean) => void;
   recoveryScore: number;
+  streak: number;
+  bestStreak: number;
   isSyncing: boolean;
 }
 
@@ -154,6 +184,8 @@ const AppContext = createContext<AppContextType>({
   isPremium: false,
   setIsPremium: () => {},
   recoveryScore: 72,
+  streak: 0,
+  bestStreak: 0,
   isSyncing: false,
 });
 
@@ -214,6 +246,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [isPremium, setIsPremiumState] = useState(false);
 
   const recoveryScore = computeRecoveryScore(sessions, todayMood);
+  const streak = computeStreak(sessions);
+  const bestStreak = Math.max(computeBestStreak(sessions), streak);
 
   // ── Authenticated headers helper ──────────────────────────────────────
   const authHeaders = useCallback((token?: string | null) => {
@@ -418,6 +452,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
         sidebarOpen, setSidebarOpen,
         isPremium, setIsPremium: setIsPremiumState,
         recoveryScore,
+        streak,
+        bestStreak,
         isSyncing,
       }}
     >

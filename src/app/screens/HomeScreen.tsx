@@ -81,7 +81,7 @@ const exerciseInstructions: Record<string, { steps: string[]; tip: string }> = {
 
 export default function HomeScreen() {
   const navigate = useNavigate();
-  const { user, setSidebarOpen, todayMood, setTodayMood, sessions, isDark } = useApp();
+  const { user, setSidebarOpen, todayMood, setTodayMood, sessions, isDark, streak, bestStreak } = useApp();
   const c = useColors();
   const [goalView, setGoalView] = useState<"weekly" | "monthly">("weekly");
   const [instructionsExId, setInstructionsExId] = useState<string | null>(null);
