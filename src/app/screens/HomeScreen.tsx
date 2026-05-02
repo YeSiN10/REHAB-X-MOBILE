@@ -133,17 +133,6 @@ export default function HomeScreen() {
   const monthlyProgress = Math.min(thisMonthSessions.length, monthlyGoal);
   const monthlyPercent = Math.round((monthlyProgress / monthlyGoal) * 100);
 
-  const streak = useMemo(() => {
-    const dates = new Set(sessions.map((s) => s.date));
-    let count = 0;
-    const d = new Date(today);
-    while (count <= 30) {
-      if (dates.has(d.toISOString().split("T")[0])) { count++; d.setDate(d.getDate() - 1); }
-      else break;
-    }
-    return count;
-  }, [sessions]);
-
   const quickStats = [
     { label: "Calories", value: totalCaloriesWeek >= 1000 ? `${(totalCaloriesWeek / 1000).toFixed(1)}k` : `${totalCaloriesWeek}`, unit: "kcal", icon: "🔥", color: "#F97316" },
     { label: "Active", value: totalDurationWeek >= 60 ? `${(totalDurationWeek / 60).toFixed(1)}` : `${totalDurationWeek}`, unit: totalDurationWeek >= 60 ? "hrs" : "min", icon: "⏱️", color: "#3B82F6" },
@@ -439,6 +428,108 @@ export default function HomeScreen() {
               </div>
             ))}
           </div>
+        </div>
+
+        {/* ── Streak Card ───────────────────────────────────────────── */}
+        <div className="px-5 mb-4">
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="relative overflow-hidden rounded-3xl p-4"
+            style={{
+              background: streak > 0
+                ? "linear-gradient(135deg, #1a1200 0%, #2a1a00 50%, #1a0d00 100%)"
+                : "linear-gradient(135deg, #0d1220 0%, #111929 100%)",
+              border: streak > 0 ? "1px solid rgba(249,115,22,0.4)" : `1px solid ${c.cardBorder}`,
+              boxShadow: streak > 0 ? "0 8px 32px rgba(249,115,22,0.15)" : c.shadow,
+            }}
+          >
+            {/* Glow behind flame */}
+            {streak > 0 && (
+              <div className="absolute -top-8 -right-8 w-32 h-32 rounded-full pointer-events-none"
+                style={{ background: "radial-gradient(circle, rgba(249,115,22,0.25) 0%, transparent 70%)" }} />
+            )}
+
+            <div className="flex items-center justify-between relative">
+              {/* Left: flame + number */}
+              <div className="flex items-center gap-3">
+                <div className="relative">
+                  <motion.div
+                    animate={streak > 0 ? { scale: [1, 1.12, 1], rotate: [-4, 4, -4, 0] } : {}}
+                    transition={{ repeat: Infinity, duration: 2.2, ease: "easeInOut" }}
+                    style={{ fontSize: 40, lineHeight: 1, display: "block" }}
+                  >
+                    🔥
+                  </motion.div>
+                  {streak > 0 && (
+                    <motion.div
+                      animate={{ opacity: [0.5, 1, 0.5] }}
+                      transition={{ repeat: Infinity, duration: 1.8 }}
+                      className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-6 h-2 rounded-full"
+                      style={{ background: "rgba(249,115,22,0.4)", filter: "blur(3px)" }}
+                    />
+                  )}
+                </div>
+                <div>
+                  <div className="flex items-baseline gap-1">
+                    <span style={{ fontSize: 36, fontWeight: 900, color: streak > 0 ? "#F97316" : c.textMuted, lineHeight: 1 }}>
+                      {streak}
+                    </span>
+                    <span style={{ fontSize: 13, fontWeight: 700, color: streak > 0 ? "#FB923C" : c.textMuted }}>
+                      {streak === 1 ? "day" : "days"}
+                    </span>
+                  </div>
+                  <p style={{ fontSize: 11, fontWeight: 600, color: streak > 0 ? "rgba(251,146,60,0.8)" : c.textMuted }}>
+                    {streak === 0 ? "No active streak" : streak >= 30 ? "Legendary streak! 🏆" : streak >= 14 ? "Unstoppable! 💪" : streak >= 7 ? "On fire! Keep going!" : "Streak going!"}
+                  </p>
+                </div>
+              </div>
+
+              {/* Right: best streak */}
+              <div className="flex flex-col items-end gap-2">
+                <div className="px-3 py-1.5 rounded-2xl" style={{ background: streak > 0 ? "rgba(249,115,22,0.15)" : c.secondaryCard }}>
+                  <p style={{ fontSize: 9, fontWeight: 700, color: streak > 0 ? "#FB923C" : c.textMuted, letterSpacing: "0.08em" }}>BEST</p>
+                  <p style={{ fontSize: 16, fontWeight: 900, color: streak > 0 ? "#F97316" : c.textMuted, lineHeight: 1 }}>
+                    {bestStreak} <span style={{ fontSize: 9, fontWeight: 600 }}>days</span>
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Milestone markers */}
+            <div className="mt-3 relative">
+              <div className="h-1.5 rounded-full w-full" style={{ background: "rgba(255,255,255,0.08)" }} />
+              <div
+                className="absolute top-0 left-0 h-1.5 rounded-full transition-all duration-700"
+                style={{
+                  width: `${Math.min((streak / 30) * 100, 100)}%`,
+                  background: streak > 0 ? "linear-gradient(90deg, #EA580C, #F97316, #FBBF24)" : "transparent",
+                  boxShadow: streak > 0 ? "0 0 8px rgba(249,115,22,0.6)" : "none",
+                }}
+              />
+              {/* Milestone ticks at 7, 14, 30 */}
+              {[7, 14, 30].map((m) => (
+                <div key={m} className="absolute top-1/2 -translate-y-1/2 flex flex-col items-center" style={{ left: `${(m / 30) * 100}%`, transform: "translate(-50%, -50%)" }}>
+                  <div className="w-2 h-2 rounded-full" style={{ background: streak >= m ? "#F97316" : "rgba(255,255,255,0.2)", border: "1px solid rgba(0,0,0,0.3)" }} />
+                  <span className="absolute top-3.5" style={{ fontSize: 8, fontWeight: 700, color: streak >= m ? "#FB923C" : "rgba(255,255,255,0.25)", whiteSpace: "nowrap" }}>{m}d</span>
+                </div>
+              ))}
+            </div>
+
+            {/* Motivational footer */}
+            <p className="mt-4 text-center" style={{ fontSize: 10, fontWeight: 600, color: streak > 0 ? "rgba(251,146,60,0.6)" : c.textMuted }}>
+              {streak === 0
+                ? "Log a workout today to start your streak!"
+                : streak < 7
+                ? `${7 - streak} more day${7 - streak > 1 ? "s" : ""} to reach your 7-day milestone`
+                : streak < 14
+                ? `${14 - streak} more days to hit 2 weeks!`
+                : streak < 30
+                ? `${30 - streak} more days to reach the legendary 30-day streak!`
+                : "You've hit the legendary 30-day streak! You're unstoppable!"}
+            </p>
+          </motion.div>
         </div>
 
         {/* Featured Session */}
