@@ -7,6 +7,17 @@ import {
   AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, BarChart, Bar,
 } from "recharts";
 
+type TooltipPayload = {
+  value?: number | string;
+  name?: string;
+};
+
+type TooltipProps = {
+  active?: boolean;
+  payload?: TooltipPayload[];
+  label?: string;
+};
+
 export default function ProgressScreen() {
   const navigate = useNavigate();
   const { sessions, todayMood } = useApp();
@@ -143,7 +154,7 @@ export default function ProgressScreen() {
     { icon: "🧘", label: "Recovery Pro", desc: "7 recovery sessions", earned: sessions.filter(s => s.type === "Recovery").length >= 5 },
   ], [sessions, streak, totalCalories]);
 
-  const CustomTooltip = ({ active, payload, label }: any) => {
+  const CustomTooltip = ({ active, payload, label }: TooltipProps) => {
     if (!active || !payload?.length) return null;
     return (
       <div className="px-3 py-2 rounded-xl" style={{ background: c.card, border: "1px solid rgba(37,109,233,0.3)" }}>
