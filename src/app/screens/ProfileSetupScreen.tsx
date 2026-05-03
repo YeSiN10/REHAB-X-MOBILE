@@ -33,7 +33,28 @@ export default function ProfileSetupScreen() {
   const [username, setUsername] = useState(user.name || "");
   const [usernameError, setUsernameError] = useState<string | null>(null);
   const [checkingUsername, setCheckingUsername] = useState(false);
-  const [age, setAge] = useState(user.age || "");
+  const [dob, setDob] = useState(user.dob || "");
+
+  const calcAge = (dateStr: string): number => {
+    if (!dateStr) return 0;
+    const birth = new Date(dateStr);
+    const today = new Date();
+    let age = today.getFullYear() - birth.getFullYear();
+    const m = today.getMonth() - birth.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--;
+    return age;
+  };
+
+  const maxDob = (() => {
+    const d = new Date();
+    d.setFullYear(d.getFullYear() - 10);
+    return d.toISOString().split("T")[0];
+  })();
+  const minDob = (() => {
+    const d = new Date();
+    d.setFullYear(d.getFullYear() - 100);
+    return d.toISOString().split("T")[0];
+  })();
   const [phone, setPhone] = useState(user.phone || "");
   const [gender, setGender] = useState(user.gender || "");
   const [fitnessLevel, setFitnessLevel] = useState(user.fitnessLevel || "Intermediate");
@@ -99,7 +120,9 @@ export default function ProfileSetupScreen() {
     setCompleting(true);
     updateUser({
       name: username.trim() || user.name,
-      age, phone, gender, fitnessLevel, goal,
+      dob,
+      age: dob ? String(calcAge(dob)) : "",
+      phone, gender, fitnessLevel, goal,
       medicalDoc: medicalDocs[0] || "",
       medicalDocs,
       profileSetupDone: true,
@@ -302,17 +325,33 @@ export default function ProfileSetupScreen() {
                 </div>
               </div>
 
-              {/* Age */}
+              {/* Date of Birth */}
               <div>
-                <label className="text-xs font-semibold mb-2 block tracking-wider uppercase" style={{ color: c.textSub }}>Age</label>
-                <input
-                  type="number" value={age} onChange={(e) => setAge(e.target.value)}
-                  className="w-full px-4 py-4 rounded-2xl text-sm focus:outline-none transition-all"
-                  style={{ background: c.inputBg, border: `1px solid ${c.inputBorder}`, color: c.text, caretColor: "#256DE9" }}
-                  placeholder="Enter your age" min="10" max="100"
-                  onFocus={(e) => (e.target.style.borderColor = "#256DE9")}
-                  onBlur={(e) => (e.target.style.borderColor = c.inputBorder)}
-                />
+                <label className="text-xs font-semibold mb-2 block tracking-wider uppercase" style={{ color: c.textSub }}>Date of Birth</label>
+                <div className="relative">
+                  <div className="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none">
+                      <rect x="3" y="4" width="18" height="18" rx="2" stroke={c.textMuted} strokeWidth="1.8" />
+                      <path d="M16 2V6M8 2V6M3 10H21" stroke={c.textMuted} strokeWidth="1.8" strokeLinecap="round" />
+                    </svg>
+                  </div>
+                  <input
+                    type="date"
+                    value={dob}
+                    max={maxDob}
+                    min={minDob}
+                    onChange={(e) => setDob(e.target.value)}
+                    className="w-full pl-11 pr-4 py-4 rounded-2xl text-sm focus:outline-none transition-all"
+                    style={{ background: c.inputBg, border: `1px solid ${c.inputBorder}`, color: dob ? c.text : c.textMuted, caretColor: "#256DE9" }}
+                    onFocus={(e) => (e.target.style.borderColor = "#256DE9")}
+                    onBlur={(e) => (e.target.style.borderColor = c.inputBorder)}
+                  />
+                </div>
+                {dob && (
+                  <p className="text-xs mt-1.5 ml-1 font-semibold" style={{ color: "#256DE9" }}>
+                    Age: {calcAge(dob)} years old
+                  </p>
+                )}
               </div>
 
               {/* Gender */}

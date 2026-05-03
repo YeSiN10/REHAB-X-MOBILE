@@ -29,6 +29,7 @@ export default function SignUpScreen() {
   const [password, setPassword] = useState("");
   const [showPass, setShowPass] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [checkingName, setCheckingName] = useState(false);
   const [demoLoading, setDemoLoading] = useState<string | null>(null);
   const [errors, setErrors] = useState<{ name?: string; email?: string; password?: string; general?: string }>({});
   const [showToast, setShowToast] = useState<string | null>(null);
@@ -46,9 +47,27 @@ export default function SignUpScreen() {
     setTimeout(() => setShowToast(null), 3000);
   };
 
+  const checkUsernameAvailable = async (val: string) => {
+    if (!val.trim()) return;
+    setCheckingName(true);
+    try {
+      const res = await fetch(`/api/username-available?username=${encodeURIComponent(val.trim())}`);
+      if (res.ok) {
+        const data = await res.json();
+        if (!data.available) {
+          setErrors((e) => ({ ...e, name: "This username is already taken. Please choose another." }));
+        } else {
+          setErrors((e) => ({ ...e, name: undefined }));
+        }
+      }
+    } catch { /* offline — skip check */ }
+    finally { setCheckingName(false); }
+  };
+
   const validate = () => {
     const e: typeof errors = {};
     if (!name.trim()) e.name = "Username is required";
+    else if (errors.name) e.name = errors.name;
     if (!email) e.email = "Email or phone number is required";
     else if (!emailRegex.test(email) && !phoneRegex.test(email)) e.email = "Please enter a valid email or phone number";
     if (!password) e.password = "Password is required";
@@ -63,6 +82,7 @@ export default function SignUpScreen() {
 
   const handleSignUp = async () => {
     if (!validate()) return;
+    if (errors.name) return;
     setLoading(true);
     setErrors({});
     const result = await register(name.trim(), email, password);
@@ -154,12 +174,24 @@ export default function SignUpScreen() {
               <input
                 type="text" value={name}
                 onChange={(e) => { setName(e.target.value); setErrors((x) => ({ ...x, name: undefined })); }}
-                className="w-full pl-11 pr-4 py-4 rounded-2xl text-sm transition-all focus:outline-none"
+                className="w-full pl-11 pr-10 py-4 rounded-2xl text-sm transition-all focus:outline-none"
                 style={{ ...inputStyle, borderColor: errors.name ? "#EF4444" : c.inputBorder }}
                 placeholder="Your username"
                 onFocus={(e) => (e.target.style.borderColor = errors.name ? "#EF4444" : "#256DE9")}
-                onBlur={(e) => (e.target.style.borderColor = errors.name ? "#EF4444" : c.inputBorder)}
+                onBlur={(e) => { e.target.style.borderColor = errors.name ? "#EF4444" : c.inputBorder; checkUsernameAvailable(e.target.value); }}
               />
+              {checkingName && (
+                <div className="absolute right-4 top-1/2 -translate-y-1/2">
+                  <div className="w-4 h-4 border-2 border-[#256DE9]/30 border-t-[#256DE9] rounded-full animate-spin" />
+                </div>
+              )}
+              {!checkingName && name.trim() && !errors.name && (
+                <div className="absolute right-4 top-1/2 -translate-y-1/2">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                    <path d="M20 6L9 17L4 12" stroke="#22C55E" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                </div>
+              )}
             </div>
             {errors.name && <p className="text-xs mt-1.5 ml-1" style={{ color: "#EF4444" }}>{errors.name}</p>}
           </div>

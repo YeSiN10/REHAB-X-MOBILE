@@ -181,6 +181,22 @@ app.get("/api/auth/me", requireAuth, async (req, res) => {
   }
 });
 
+// ── Public: Check username availability (for signup — no auth needed) ────
+app.get("/api/username-available", async (req, res) => {
+  try {
+    const { username } = req.query;
+    if (!username || !String(username).trim()) return res.status(400).json({ error: "Username required" });
+    const { rows } = await pool.query(
+      "SELECT id FROM users WHERE LOWER(name) = LOWER($1)",
+      [String(username).trim()]
+    );
+    res.json({ available: rows.length === 0 });
+  } catch (err) {
+    console.error("Username available error:", err);
+    res.status(500).json({ error: String(err) });
+  }
+});
+
 // ── Check username availability ───────────────────────────────────────────
 app.get("/api/check-username", requireAuth, async (req, res) => {
   try {

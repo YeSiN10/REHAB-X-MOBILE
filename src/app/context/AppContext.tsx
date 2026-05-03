@@ -14,6 +14,7 @@ export interface User {
   email: string;
   gender: string;
   age: string;
+  dob?: string;
   phone?: string;
   fitnessLevel: string;
   goal: string;
