@@ -124,34 +124,23 @@ export default function CalendarScreen() {
     const times   = ["6:00 PM", "7:30 AM", "5:00 PM", "8:00 AM", "4:00 PM", "6:30 AM"];
     const results: { id: string; date: string; title: string; type: string; duration: string; color: string; exId: string }[] = [];
 
-    const tryAddDay = (d: number, i: number) => {
-      const wd = workoutDayData[d];
-      if (!wd) return;
-      if (selectedCat !== "All" && wd.type !== selectedCat) return;
-      const diff = d - TODAY_DAY;
-      let dateLabel: string;
-      if (diff === 0) dateLabel = `Today • ${times[i % times.length]}`;
-      else if (diff === 1) dateLabel = `Tomorrow • ${times[i % times.length]}`;
-      else if (diff < 0) dateLabel = `${MONTHS[month]} ${d} • ${times[i % times.length]} (past)`;
-      else dateLabel = `${MONTHS[month]} ${d} • ${times[i % times.length]}`;
-      results.push({ id: String(d), date: dateLabel, title: wd.title, type: wd.type, duration: durations[i % durations.length], color: wd.color, exId: wd.exId });
-    };
-
-    // Start from selectedDay forward
     let i = 0;
-    for (let d = selectedDay; d <= daysInMonth && results.length < 3; d++) {
-      tryAddDay(d, i);
-      if (workoutDayData[d]) i++;
-    }
-    // If still need more, wrap from today
-    if (results.length < 3) {
-      for (let d = TODAY_DAY; d < selectedDay && results.length < 3; d++) {
-        tryAddDay(d, i);
-        if (workoutDayData[d]) i++;
-      }
+    // Always start from selectedDay and go forward — no wrap
+    for (let d = selectedDay; d <= daysInMonth && results.length < 4; d++) {
+      const wd = workoutDayData[d];
+      if (!wd) continue;
+      if (selectedCat !== "All" && wd.type !== selectedCat) continue;
+      const diff = TODAY_DAY !== -1 ? d - TODAY_DAY : 1;
+      let dateLabel: string;
+      if (diff === 0)      dateLabel = `Today • ${times[i % times.length]}`;
+      else if (diff === 1) dateLabel = `Tomorrow • ${times[i % times.length]}`;
+      else if (diff < 0)  dateLabel = `${MONTHS[month]} ${d} • ${times[i % times.length]}`;
+      else                dateLabel = `${MONTHS[month]} ${d} • ${times[i % times.length]}`;
+      results.push({ id: String(d), date: dateLabel, title: wd.title, type: wd.type, duration: durations[i % durations.length], color: wd.color, exId: wd.exId });
+      i++;
     }
     return results;
-  }, [selectedDay, selectedCat, daysInMonth]);
+  }, [selectedDay, selectedCat, daysInMonth, month, TODAY_DAY]);
 
   // Compute this month stats from sessions
   const thisMonthSessions = sessions.filter(s => {
@@ -371,6 +360,7 @@ export default function CalendarScreen() {
             {calCells.map((day, i) => {
               if (!day) return <div key={i} />;
               const isToday = day === TODAY_DAY;
+              const isPast = TODAY_DAY !== -1 && day < TODAY_DAY;
               const isSelected = day === selectedDay;
               const wData = visibleDays[day];
               return (
@@ -380,18 +370,21 @@ export default function CalendarScreen() {
                   className="flex flex-col items-center py-1.5 rounded-xl transition-all"
                   style={{
                     background: isSelected ? "#256DE9" : isToday && !isSelected ? c.accentBg : "transparent",
+                    opacity: isPast && !isSelected ? 0.45 : 1,
                   }}
                 >
                   <span
                     className="text-sm font-bold"
-                    style={{ color: isSelected ? "white" : isToday ? "#256DE9" : c.textSub }}
+                    style={{
+                      color: isSelected ? "white" : isToday ? "#256DE9" : isPast ? c.textMuted : c.textSub,
+                    }}
                   >
                     {day}
                   </span>
                   {wData && (
                     <div
                       className="w-1.5 h-1.5 rounded-full mt-0.5"
-                      style={{ background: isSelected ? "white" : wData.color }}
+                      style={{ background: isSelected ? "white" : isPast ? c.textMuted : wData.color }}
                     />
                   )}
                 </button>
