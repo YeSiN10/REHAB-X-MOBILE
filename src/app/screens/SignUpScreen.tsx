@@ -276,33 +276,6 @@ export default function SignUpScreen() {
             )}
           </div>
 
-          {/* I agree checkbox */}
-          <button
-            onClick={() => setAgreed(!agreed)}
-            className="flex items-start gap-3 w-full text-left"
-          >
-            <div
-              className="w-5 h-5 rounded-md flex items-center justify-center shrink-0 mt-0.5 transition-all"
-              style={{
-                background: agreed ? "#256DE9" : "transparent",
-                border: `2px solid ${agreed ? "#256DE9" : c.textMuted}`,
-                boxShadow: agreed ? "0 4px 12px rgba(37,109,233,0.3)" : "none",
-              }}
-            >
-              {agreed && (
-                <svg width="11" height="11" viewBox="0 0 24 24" fill="none">
-                  <path d="M20 6L9 17L4 12" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              )}
-            </div>
-            <span className="text-sm leading-relaxed" style={{ color: c.textMuted }}>
-              I agree to the{" "}
-              <span style={{ color: "#256DE9", fontWeight: 600 }}>Terms & Conditions</span>
-              {" "}and{" "}
-              <span style={{ color: "#256DE9", fontWeight: 600 }}>Privacy Policy</span>
-            </span>
-          </button>
-
           {/* Submit */}
           <motion.button
             whileTap={{ scale: 0.97 }}
