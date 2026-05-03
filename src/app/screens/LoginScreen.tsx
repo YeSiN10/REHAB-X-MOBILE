@@ -35,7 +35,6 @@ export default function LoginScreen() {
   const [socialLoading, setSocialLoading] = useState<string | null>(null);
   const [errors, setErrors] = useState<{ identifier?: string; password?: string; general?: string }>({});
   const [showToast, setShowToast] = useState<{ msg: string; type: "info" | "error" | "success" } | null>(null);
-  const [agreed, setAgreed] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
   const [showForgot, setShowForgot] = useState(false);
   const [forgotId, setForgotId] = useState("");
@@ -111,10 +110,6 @@ export default function LoginScreen() {
       e.identifier = "Please enter a valid email or phone number";
     }
     if (!password) e.password = "Password is required";
-    if (!agreed) {
-      showToastMsg("Please agree to the Terms & Conditions", "error");
-      return false;
-    }
     setErrors(e);
     return Object.keys(e).length === 0;
   };
@@ -441,33 +436,6 @@ export default function LoginScreen() {
             </div>
             <span className="text-xs" style={{ color: c.textMuted }}>
               {rememberMe ? "Stay signed in" : "Sign out on close"}
-            </span>
-          </button>
-
-          {/* I agree checkbox */}
-          <button
-            onClick={() => setAgreed(!agreed)}
-            className="flex items-start gap-3 w-full text-left"
-          >
-            <div
-              className="w-5 h-5 rounded-md flex items-center justify-center shrink-0 mt-0.5 transition-all"
-              style={{
-                background: agreed ? "#256DE9" : "transparent",
-                border: `2px solid ${agreed ? "#256DE9" : c.textMuted}`,
-                boxShadow: agreed ? "0 4px 12px rgba(37,109,233,0.3)" : "none",
-              }}
-            >
-              {agreed && (
-                <svg width="11" height="11" viewBox="0 0 24 24" fill="none">
-                  <path d="M20 6L9 17L4 12" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              )}
-            </div>
-            <span className="text-sm leading-relaxed" style={{ color: c.textMuted }}>
-              I agree to the{" "}
-              <span style={{ color: "#256DE9", fontWeight: 600 }}>Terms & Conditions</span>
-              {" "}and{" "}
-              <span style={{ color: "#256DE9", fontWeight: 600 }}>Privacy Policy</span>
             </span>
           </button>
 
