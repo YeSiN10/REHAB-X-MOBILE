@@ -1,7 +1,7 @@
 import { useState, useMemo, useEffect } from "react";
 import type { ReactElement } from "react";
 import { useNavigate } from "react-router";
-import { motion, AnimatePresence } from "motion/react";
+import { motion } from "motion/react";
 import { BottomNav } from "../components/BottomNav";
 import { useApp, useColors } from "../context/AppContext";
 
@@ -84,7 +84,11 @@ export default function CalendarScreen() {
   const [month, setMonth] = useState(realTodayMonth);
   const [year, setYear] = useState(realTodayYear);
   const [selectedCat, setSelectedCat] = useState("All");
-  const [showAddWorkout, setShowAddWorkout] = useState(false);
+  const [now, setNow] = useState(() => new Date());
+  useEffect(() => {
+    const timer = setInterval(() => setNow(new Date()), 60_000);
+    return () => clearInterval(timer);
+  }, []);
 
   const TODAY_DAY = year === realTodayYear && month === realTodayMonth ? realTodayDay : -1;
 
@@ -161,13 +165,15 @@ export default function CalendarScreen() {
     return { h, m };
   };
 
-  const now = new Date();
   const currentH = now.getHours();
   const currentM = now.getMinutes();
 
+  // A session is locked if: different month, future day, past day, or today but time not yet reached
   const isSessionFuture = (day: number, timeStr: string): boolean => {
-    if (day > TODAY_DAY) return true;
-    if (day < TODAY_DAY) return false;
+    if (TODAY_DAY === -1) return true;          // different month — all locked
+    if (day > TODAY_DAY) return true;           // future day — not yet
+    if (day < TODAY_DAY) return true;           // past day — missed, locked
+    // today: check real clock
     const t = parseTimeStr(timeStr);
     if (!t) return false;
     return t.h > currentH || (t.h === currentH && t.m > currentM);
@@ -243,105 +249,46 @@ export default function CalendarScreen() {
       >
         <div className="absolute inset-0 pointer-events-none"
           style={{ background: "radial-gradient(ellipse at 50% -10%, rgba(37,109,233,0.35) 0%, transparent 65%)" }} />
-        <div className="flex items-center justify-between px-5 mb-1">
-          <button
-            onClick={() => navigate(-1)}
-            className="w-10 h-10 rounded-2xl flex items-center justify-center shrink-0"
-            style={{ background: "rgba(255,255,255,0.12)", border: "1px solid rgba(255,255,255,0.15)" }}
-          >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-              <path d="M15 18L9 12L15 6" stroke="white" strokeWidth="2" strokeLinecap="round" />
-            </svg>
-          </button>
-
-          <div className="flex flex-col items-center">
-            <h1 className="text-white font-black leading-tight" style={{ fontSize: 22 }}>Calendar</h1>
-            <div className="flex items-center gap-2 mt-0.5">
-              <button
-                onClick={prevMonth}
-                className="w-7 h-7 rounded-xl flex items-center justify-center"
-                style={{ background: "rgba(255,255,255,0.12)", border: "1px solid rgba(255,255,255,0.15)" }}
-              >
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-                  <path d="M15 18L9 12L15 6" stroke="white" strokeWidth="2.5" strokeLinecap="round" />
-                </svg>
-              </button>
-              <p className="font-bold text-sm" style={{ color: "rgba(255,255,255,0.9)", minWidth: 110, textAlign: "center" }}>
-                {MONTHS[month]} {year}
-              </p>
-              <button
-                onClick={nextMonth}
-                className="w-7 h-7 rounded-xl flex items-center justify-center"
-                style={{ background: "rgba(255,255,255,0.12)", border: "1px solid rgba(255,255,255,0.15)" }}
-              >
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-                  <path d="M9 18L15 12L9 6" stroke="white" strokeWidth="2.5" strokeLinecap="round" />
-                </svg>
-              </button>
-            </div>
+        <div className="flex items-center justify-between px-5 mb-4">
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => navigate(-1)}
+              className="w-10 h-10 rounded-2xl flex items-center justify-center shrink-0"
+              style={{ background: "rgba(255,255,255,0.12)", border: "1px solid rgba(255,255,255,0.15)" }}
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                <path d="M15 18L9 12L15 6" stroke="white" strokeWidth="2" strokeLinecap="round" />
+              </svg>
+            </button>
+            <h1 className="text-white font-black" style={{ fontSize: 24 }}>Calendar</h1>
           </div>
 
-          <button
-            className="w-10 h-10 rounded-2xl flex items-center justify-center"
-            style={{ background: "#256DE9", boxShadow: "0 4px 16px rgba(37,109,233,0.4)" }}
-            onClick={() => setShowAddWorkout(true)}
-          >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-              <path d="M12 5V19M5 12H19" stroke="white" strokeWidth="2" strokeLinecap="round" />
-            </svg>
-          </button>
+          <div className="flex items-center gap-1.5">
+            <button
+              onClick={prevMonth}
+              className="w-8 h-8 rounded-xl flex items-center justify-center"
+              style={{ background: "rgba(255,255,255,0.12)", border: "1px solid rgba(255,255,255,0.15)" }}
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                <path d="M15 18L9 12L15 6" stroke="white" strokeWidth="2.5" strokeLinecap="round" />
+              </svg>
+            </button>
+            <span className="font-bold" style={{ fontSize: 12, color: "rgba(255,255,255,0.85)", minWidth: 84, textAlign: "center" }}>
+              {MONTHS[month]} {year}
+            </span>
+            <button
+              onClick={nextMonth}
+              className="w-8 h-8 rounded-xl flex items-center justify-center"
+              style={{ background: "rgba(255,255,255,0.12)", border: "1px solid rgba(255,255,255,0.15)" }}
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                <path d="M9 18L15 12L9 6" stroke="white" strokeWidth="2.5" strokeLinecap="round" />
+              </svg>
+            </button>
+          </div>
         </div>
       </div>
 
-      {/* Add Workout Sheet */}
-      <AnimatePresence>
-        {showAddWorkout && (
-          <>
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              className="absolute inset-0 z-40" style={{ background: "rgba(0,0,0,0.55)", backdropFilter: "blur(4px)" }}
-              onClick={() => setShowAddWorkout(false)} />
-            <motion.div
-              initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }}
-              transition={{ type: "spring", stiffness: 340, damping: 34 }}
-              className="absolute bottom-0 left-0 right-0 z-50 rounded-t-3xl px-5 pt-5 pb-10"
-              style={{ background: c.card, border: `1px solid ${c.cardBorder}` }}
-            >
-              <div className="w-10 h-1 rounded-full mx-auto mb-5" style={{ background: c.divider }} />
-              <h3 className="font-black text-lg mb-2" style={{ color: c.text }}>Add Workout</h3>
-              <p className="text-sm mb-5" style={{ color: c.textMuted }}>Choose a workout type to schedule or start now</p>
-              <div className="grid grid-cols-2 gap-3 mb-5">
-                {[
-                  { icon: "⚡", label: "HIIT", color: "#F97316", type: "HIIT" },
-                  { icon: "💪", label: "Strength", color: "#A855F7", type: "Strength" },
-                  { icon: "❤️", label: "Recovery", color: "#22C55E", type: "Recovery" },
-                  { icon: "🏃", label: "Cardio", color: "#256DE9", type: "Cardio" },
-                  { icon: "🧘", label: "Flexibility", color: "#EAB308", type: "Flexibility" },
-                  { icon: "🎯", label: "Core", color: "#EC4899", type: "Core" },
-                ].map((t) => (
-                  <button
-                    key={t.type}
-                    onClick={() => { setShowAddWorkout(false); navigate("/exercises"); }}
-                    className="flex items-center gap-3 p-4 rounded-2xl text-left transition-all"
-                    style={{ background: c.secondaryCard, border: `1px solid ${c.cardBorder}` }}
-                  >
-                    <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style={{ background: `${t.color}20` }}>
-                      <span style={{ fontSize: 20 }}>{t.icon}</span>
-                    </div>
-                    <span className="font-bold text-sm" style={{ color: c.text }}>{t.label}</span>
-                  </button>
-                ))}
-              </div>
-              <button
-                onClick={() => { setShowAddWorkout(false); navigate("/exercises"); }}
-                className="w-full py-4 rounded-2xl text-white font-bold"
-                style={{ background: "linear-gradient(135deg, #256DE9, #1a4bb5)", boxShadow: "0 12px 32px rgba(37,109,233,0.3)" }}
-              >
-                Browse All Exercises
-              </button>
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
 
       <div className="flex-1 overflow-y-auto pb-[110px] px-5 space-y-4 pt-4">
         {/* Calendar */}
