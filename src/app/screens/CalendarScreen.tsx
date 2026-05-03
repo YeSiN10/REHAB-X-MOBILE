@@ -99,7 +99,8 @@ export default function CalendarScreen() {
     return result;
   }, [selectedCat]);
 
-  const TODAY_DAY = 2; // May 2, 2026 is today in the app
+  const now2 = new Date();
+  const TODAY_DAY = now2.getMonth() === 4 && now2.getFullYear() === 2026 ? now2.getDate() : 3;
 
   const upcoming = useMemo(() => {
     const durations = ["45 min", "52 min", "24 min", "38 min", "30 min", "40 min"];

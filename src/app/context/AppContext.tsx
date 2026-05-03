@@ -101,17 +101,22 @@ const initialNotifications: AppNotification[] = [
   { id: "n7", type: "workout", title: "Session Reminder", message: "Don't forget your Lower Body Blast scheduled for tomorrow at 6 PM", time: "4 days ago", read: true },
 ];
 
+// ── Local date helper (avoids UTC midnight timezone drift) ────────────────
+export function toLocalDateStr(d: Date = new Date()): string {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+
 // ── Streak computation ────────────────────────────────────────────────────
 export function computeStreak(sessions: WorkoutSession[]): number {
   if (sessions.length === 0) return 0;
   const dates = new Set(sessions.map((s) => s.date));
   const today = new Date();
-  const todayStr = today.toISOString().split("T")[0];
+  const todayStr = toLocalDateStr(today);
   const d = new Date(today);
   if (!dates.has(todayStr)) d.setDate(d.getDate() - 1);
   let count = 0;
   while (count <= 365) {
-    if (dates.has(d.toISOString().split("T")[0])) { count++; d.setDate(d.getDate() - 1); }
+    if (dates.has(toLocalDateStr(d))) { count++; d.setDate(d.getDate() - 1); }
     else break;
   }
   return count;

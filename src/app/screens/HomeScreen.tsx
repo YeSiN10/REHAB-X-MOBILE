@@ -52,12 +52,12 @@ const allExercisesList = [
   { id: "4",        title: "Upper Body Push",       category: "Strength",    duration: "38 min", calories: 320, intensity: "Medium", img: "https://images.unsplash.com/photo-1605296867724-fa87a8ef53fd?w=400&q=80" },
   { id: "5",        title: "Sprint Recovery",       category: "Recovery",    duration: "24 min", calories: 180, intensity: "Low",    img: "https://images.unsplash.com/photo-1604011237535-628ea8a45753?w=400&q=80" },
   { id: "6",        title: "Aqua Training",         category: "Cardio",      duration: "60 min", calories: 480, intensity: "Medium", img: "https://images.unsplash.com/photo-1774009304081-ca87dd2f5d99?w=400&q=80" },
-  { id: "7",        title: "Sprint Intervals",      category: "HIIT",        duration: "40 min", calories: 580, intensity: "High",   img: "https://images.unsplash.com/photo-1604011237535-628ea8a45753?w=400&q=80" },
+  { id: "7",        title: "Sprint Intervals",      category: "HIIT",        duration: "40 min", calories: 580, intensity: "High",   img: "https://images.unsplash.com/photo-1552674605-db6ffd4facb5?w=400&q=80" },
   { id: "8",        title: "Core Power",            category: "Core",        duration: "35 min", calories: 260, intensity: "Medium", img: "https://images.unsplash.com/photo-1638820870229-00003edce192?w=400&q=80" },
-  { id: "9",        title: "Shoulder Press Pro",    category: "Strength",    duration: "42 min", calories: 310, intensity: "Medium", img: "https://images.unsplash.com/photo-1605296867724-fa87a8ef53fd?w=400&q=80" },
-  { id: "10",       title: "Back Sculpt",           category: "Strength",    duration: "48 min", calories: 380, intensity: "Medium", img: "https://images.unsplash.com/photo-1597376833295-40a54d5e69fc?w=400&q=80" },
-  { id: "11",       title: "Arm Blaster",           category: "Strength",    duration: "30 min", calories: 220, intensity: "Medium", img: "https://images.unsplash.com/photo-1638820870229-00003edce192?w=400&q=80" },
-  { id: "12",       title: "Elite Chest Program",   category: "Strength",    duration: "55 min", calories: 460, intensity: "High",   img: "https://images.unsplash.com/photo-1605296867724-fa87a8ef53fd?w=400&q=80" },
+  { id: "9",        title: "Shoulder Press Pro",    category: "Strength",    duration: "42 min", calories: 310, intensity: "Medium", img: "https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=400&q=80" },
+  { id: "10",       title: "Back Sculpt",           category: "Strength",    duration: "48 min", calories: 380, intensity: "Medium", img: "https://images.unsplash.com/photo-1540497077202-7c8a3999166f?w=400&q=80" },
+  { id: "11",       title: "Arm Blaster",           category: "Strength",    duration: "30 min", calories: 220, intensity: "Medium", img: "https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?w=400&q=80" },
+  { id: "12",       title: "Elite Chest Program",   category: "Strength",    duration: "55 min", calories: 460, intensity: "High",   img: "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=400&q=80" },
   { id: "featured", title: "Post-Sprint Recovery",  category: "Recovery",    duration: "24 min", calories: 180, intensity: "Low",    img: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&q=80" },
 ];
 
@@ -113,9 +113,11 @@ export default function HomeScreen() {
   [favoriteIds]);
 
   const thisWeekSessions = useMemo(() => {
-    const start = new Date(today);
-    start.setDate(today.getDate() - ((today.getDay() + 6) % 7));
-    return sessions.filter((s) => new Date(s.date) >= start);
+    const startOfWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - ((today.getDay() + 6) % 7));
+    return sessions.filter((s) => {
+      const [y, m, d] = s.date.split("-").map(Number);
+      return new Date(y, m - 1, d) >= startOfWeek;
+    });
   }, [sessions]);
 
   const thisMonthSessions = useMemo(() =>
@@ -156,16 +158,17 @@ export default function HomeScreen() {
 
   const totalCaloriesWeek = thisWeekSessions.reduce((sum, s) => sum + s.calories, 0);
   const totalDurationWeek = thisWeekSessions.reduce((sum, s) => sum + s.duration, 0);
-  const weeklyGoalDays = 5;
-  const completedWeekDays = Math.min(thisWeekSessions.length, 7);
+  const weeklyGoalDays = 7;
+  const completedWeekDays = Math.min(thisWeekSessions.length, weeklyGoalDays);
 
   const weekDaysStatus = useMemo(() => {
     const result = [false, false, false, false, false, false, false];
-    const start = new Date(today);
-    start.setDate(today.getDate() - ((today.getDay() + 6) % 7));
+    // Use local midnight to avoid UTC offset shifting sessions by a day
+    const startOfWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - ((today.getDay() + 6) % 7));
     thisWeekSessions.forEach((s) => {
-      const d = new Date(s.date);
-      const diff = Math.floor((d.getTime() - start.getTime()) / (1000 * 60 * 60 * 24));
+      const [y, m, d] = s.date.split("-").map(Number);
+      const sessionDay = new Date(y, m - 1, d); // local midnight — no timezone drift
+      const diff = Math.round((sessionDay.getTime() - startOfWeek.getTime()) / (1000 * 60 * 60 * 24));
       if (diff >= 0 && diff < 7) result[diff] = true;
     });
     return result;

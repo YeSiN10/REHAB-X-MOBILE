@@ -29,12 +29,11 @@ export default function ProgressScreen() {
 
   const weeklyData = useMemo(() => {
     const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-    const startOfWeek = new Date(today);
-    startOfWeek.setDate(today.getDate() - ((today.getDay() + 6) % 7));
+    const todayLocal = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    const startOfWeek = new Date(todayLocal.getFullYear(), todayLocal.getMonth(), todayLocal.getDate() - ((todayLocal.getDay() + 6) % 7));
     return days.map((day, i) => {
-      const date = new Date(startOfWeek);
-      date.setDate(startOfWeek.getDate() + i);
-      const dateStr = date.toISOString().split("T")[0];
+      const date = new Date(startOfWeek.getFullYear(), startOfWeek.getMonth(), startOfWeek.getDate() + i);
+      const dateStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
       const daySessions = sessions.filter((s) => s.date === dateStr);
       return {
         day,
@@ -406,6 +405,73 @@ export default function ProgressScreen() {
               </div>
             ))}
           </div>
+        </div>
+
+        {/* Session History */}
+        <div>
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="font-bold" style={{ fontSize: 15, color: c.text }}>Session History</h3>
+            <span className="text-xs font-semibold px-2.5 py-1 rounded-full" style={{ background: c.accentBg, color: "#256DE9" }}>
+              {sessions.length} total
+            </span>
+          </div>
+
+          {sessions.length === 0 ? (
+            <div className="rounded-2xl p-5 text-center" style={{ background: c.card, border: `1px solid ${c.cardBorder}` }}>
+              <p className="text-sm font-semibold mb-1" style={{ color: c.text }}>No sessions yet</p>
+              <p className="text-xs" style={{ color: c.textMuted }}>Complete a workout to see your history here.</p>
+            </div>
+          ) : (
+            <div className="space-y-2.5">
+              {[...sessions]
+                .sort((a, b) => b.date.localeCompare(a.date))
+                .slice(0, 10)
+                .map((s, i) => {
+                  const typeColor: Record<string, string> = {
+                    Cardio: "#256DE9", Strength: "#A855F7", HIIT: "#F97316",
+                    Recovery: "#22C55E", Flexibility: "#EAB308", Core: "#06B6D4",
+                  };
+                  const color = typeColor[s.type] || "#256DE9";
+                  const formattedDate = (() => {
+                    const [y, m, d] = s.date.split("-").map(Number);
+                    const sessionDate = new Date(y, m - 1, d);
+                    const todayDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+                    const diff = Math.round((todayDate.getTime() - sessionDate.getTime()) / 86400000);
+                    if (diff === 0) return "Today";
+                    if (diff === 1) return "Yesterday";
+                    return sessionDate.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+                  })();
+                  return (
+                    <motion.div
+                      key={s.id || i}
+                      initial={{ opacity: 0, y: 8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: i * 0.04 }}
+                      className="flex items-center gap-3 p-3 rounded-2xl"
+                      style={{ background: c.card, border: `1px solid ${c.cardBorder}` }}
+                    >
+                      <div className="w-10 h-10 rounded-2xl flex items-center justify-center shrink-0"
+                        style={{ background: `${color}18` }}>
+                        <span style={{ fontSize: 18 }}>
+                          {s.type === "Cardio" ? "🏃" : s.type === "Strength" ? "💪" : s.type === "HIIT" ? "⚡" : s.type === "Recovery" ? "🧘" : s.type === "Flexibility" ? "🤸" : "🔥"}
+                        </span>
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-bold text-sm truncate" style={{ color: c.text }}>{s.title || s.type}</p>
+                        <div className="flex items-center gap-2 mt-0.5">
+                          <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: `${color}18`, color }}>{s.type}</span>
+                          <span className="text-[10px]" style={{ color: c.textMuted }}>{formattedDate}</span>
+                        </div>
+                      </div>
+                      <div className="text-right shrink-0">
+                        <p className="font-black text-sm" style={{ color: c.text }}>{s.calories} kcal</p>
+                        <p className="text-[10px]" style={{ color: c.textMuted }}>{s.duration} min</p>
+                      </div>
+                    </motion.div>
+                  );
+                })}
+            </div>
+          )}
         </div>
       </div>
 
