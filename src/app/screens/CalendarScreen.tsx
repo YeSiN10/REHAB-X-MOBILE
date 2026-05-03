@@ -90,6 +90,26 @@ export default function CalendarScreen() {
     return () => clearInterval(timer);
   }, []);
 
+  // ── Done-days persistence ─────────────────────────────────────────────────
+  const [doneDays, setDoneDays] = useState<Set<string>>(() => {
+    try {
+      const raw = localStorage.getItem("rehabx_calendar_done");
+      return raw ? new Set(JSON.parse(raw)) : new Set();
+    } catch { return new Set(); }
+  });
+
+  const doneKey = (d: number) => `${year}-${month}-${d}`;
+  const isDone  = (d: number) => doneDays.has(doneKey(d));
+
+  const markDone = (d: number) => {
+    setDoneDays(prev => {
+      const next = new Set(prev);
+      next.add(doneKey(d));
+      try { localStorage.setItem("rehabx_calendar_done", JSON.stringify([...next])); } catch {}
+      return next;
+    });
+  };
+
   const TODAY_DAY = year === realTodayYear && month === realTodayMonth ? realTodayDay : -1;
   const isPastMonth   = year < realTodayYear || (year === realTodayYear && month < realTodayMonth);
   const isFutureMonth = year > realTodayYear || (year === realTodayYear && month > realTodayMonth);
@@ -317,7 +337,8 @@ export default function CalendarScreen() {
             {calCells.map((day, i) => {
               if (!day) return <div key={i} />;
               const isToday = day === TODAY_DAY;
-              const isPast = TODAY_DAY !== -1 && day < TODAY_DAY;
+              const done    = isDone(day);
+              const isPast  = !done && TODAY_DAY !== -1 && day < TODAY_DAY;
               const isSelected = day === selectedDay;
               const wData = visibleDays[day];
               return (
@@ -326,14 +347,14 @@ export default function CalendarScreen() {
                   onClick={() => setSelectedDay(day)}
                   className="flex flex-col items-center py-1.5 rounded-xl transition-all"
                   style={{
-                    background: isSelected ? "#256DE9" : isToday && !isSelected ? c.accentBg : "transparent",
+                    background: isSelected ? (done ? "#22C55E" : "#256DE9") : isToday && !isSelected ? c.accentBg : "transparent",
                     opacity: isPast && !isSelected ? 0.45 : 1,
                   }}
                 >
                   <span
                     className="text-sm font-bold"
                     style={{
-                      color: isSelected ? "white" : isToday ? "#256DE9" : isPast ? c.textMuted : c.textSub,
+                      color: isSelected ? "white" : done ? "#22C55E" : isToday ? "#256DE9" : isPast ? c.textMuted : c.textSub,
                     }}
                   >
                     {day}
@@ -341,7 +362,7 @@ export default function CalendarScreen() {
                   {wData && (
                     <div
                       className="w-1.5 h-1.5 rounded-full mt-0.5"
-                      style={{ background: isSelected ? "white" : isPast ? c.textMuted : wData.color }}
+                      style={{ background: isSelected ? "white" : done ? "#22C55E" : isPast ? c.textMuted : wData.color }}
                     />
                   )}
                 </button>
@@ -377,13 +398,14 @@ export default function CalendarScreen() {
         {/* Selected day detail */}
         {visibleDays[selectedDay] && (() => {
           const wd = visibleDays[selectedDay];
+          const done = isDone(selectedDay);
           return (
             <motion.div
               key={selectedDay}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               className="rounded-2xl p-4"
-              style={{ background: c.card, border: `1px solid ${wd.color}30`, boxShadow: c.shadow }}
+              style={{ background: c.card, border: `1px solid ${done ? "#22C55E40" : wd.color + "30"}`, boxShadow: c.shadow }}
             >
               {(() => {
                 const sessionTimeKey = Object.entries(workoutDayData).findIndex(([d]) => parseInt(d) === selectedDay);
@@ -395,32 +417,44 @@ export default function CalendarScreen() {
                     <div className="flex items-center gap-3">
                       <div
                         className="w-11 h-11 rounded-xl flex items-center justify-center"
-                        style={{ background: `${wd.color}20` }}
+                        style={{ background: done ? "#22C55E20" : `${wd.color}20` }}
                       >
-                        <span style={{ color: wd.color }}>{categoryIcons[wd.type]}</span>
+                        {done ? (
+                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                            <path d="M5 13L9 17L19 7" stroke="#22C55E" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+                          </svg>
+                        ) : (
+                          <span style={{ color: wd.color }}>{categoryIcons[wd.type]}</span>
+                        )}
                       </div>
                       <div>
-                        <span
-                          className="text-[10px] font-bold uppercase tracking-wider block"
-                          style={{ color: wd.color }}
-                        >
+                        <span className="text-[10px] font-bold uppercase tracking-wider block" style={{ color: done ? "#22C55E" : wd.color }}>
                           {wd.type} • {sessionTime}
                         </span>
                         <p className="font-bold text-sm" style={{ color: c.text }}>{wd.title}</p>
-                        {future && (
-                          <p className="text-[10px] font-medium mt-0.5" style={{ color: c.textMuted }}>
-                            🔒 Not yet available
-                          </p>
-                        )}
+                        {done ? (
+                          <p className="text-[10px] font-medium mt-0.5" style={{ color: "#22C55E" }}>✓ Completed</p>
+                        ) : future ? (
+                          <p className="text-[10px] font-medium mt-0.5" style={{ color: c.textMuted }}>🔒 Not yet available</p>
+                        ) : null}
                       </div>
                     </div>
                     <button
-                      onClick={() => { if (!future) navigate(`/exercises/${wd.exId}`); }}
+                      onClick={() => { if (!future) { markDone(selectedDay); navigate(`/exercises/${wd.exId}`); } }}
                       disabled={future}
-                      className="w-9 h-9 rounded-xl flex items-center justify-center transition-opacity"
-                      style={{ background: future ? c.secondaryCard : "#256DE9", border: future ? `1px solid ${c.cardBorder}` : "none", opacity: future ? 0.6 : 1, cursor: future ? "not-allowed" : "pointer" }}
+                      className="w-9 h-9 rounded-xl flex items-center justify-center transition-all"
+                      style={{
+                        background: done ? "#22C55E" : future ? c.secondaryCard : "#256DE9",
+                        border: future && !done ? `1px solid ${c.cardBorder}` : "none",
+                        opacity: future ? 0.6 : 1,
+                        cursor: future ? "not-allowed" : "pointer",
+                      }}
                     >
-                      {future ? (
+                      {done ? (
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                          <path d="M5 13L9 17L19 7" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                      ) : future ? (
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
                           <rect x="5" y="11" width="14" height="10" rx="2" fill={c.textMuted} />
                           <path d="M8 11V7C8 5.34 9.34 4 11 4H13C14.66 4 16 5.34 16 7V11" stroke={c.textMuted} strokeWidth="2" strokeLinecap="round" />
@@ -447,29 +481,42 @@ export default function CalendarScreen() {
             {upcoming.map((session, idx) => {
               const sessionTimeStr = extractTime(session.date);
               const future = isSessionFuture(parseInt(session.id), sessionTimeStr);
+              const sessionDone = isDone(parseInt(session.id));
               return (
                 <motion.div
                   key={session.id}
                   initial={{ opacity: 0, x: -10 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: idx * 0.08 }}
-                  onClick={() => { if (!future) navigate(`/exercises/${session.exId}`); }}
+                  onClick={() => { if (!future) { markDone(parseInt(session.id)); navigate(`/exercises/${session.exId}`); } }}
                   className="flex items-center gap-3 p-3 rounded-2xl"
-                  style={{ background: c.card, border: `1px solid ${future ? c.cardBorder : session.color + "30"}`, boxShadow: c.shadow, cursor: future ? "default" : "pointer" }}
+                  style={{
+                    background: c.card,
+                    border: `1px solid ${sessionDone ? "#22C55E40" : future ? c.cardBorder : session.color + "30"}`,
+                    boxShadow: c.shadow,
+                    cursor: future ? "default" : "pointer",
+                  }}
                 >
-                  <div className="w-1 h-12 rounded-full shrink-0" style={{ background: future ? c.divider : session.color }} />
+                  <div className="w-1 h-12 rounded-full shrink-0" style={{ background: sessionDone ? "#22C55E" : future ? c.divider : session.color }} />
                   <div className="flex-1">
                     <p className="text-xs mb-0.5" style={{ color: c.textMuted }}>{session.date}</p>
                     <p className="font-bold text-sm" style={{ color: future ? c.textSub : c.text }}>{session.title}</p>
-                    <p className="text-xs font-semibold mt-0.5" style={{ color: future ? c.textMuted : session.color }}>
-                      {session.type} • {session.duration}
+                    <p className="text-xs font-semibold mt-0.5" style={{ color: sessionDone ? "#22C55E" : future ? c.textMuted : session.color }}>
+                      {sessionDone ? "✓ Completed" : `${session.type} • ${session.duration}`}
                     </p>
                   </div>
                   <div
                     className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0"
-                    style={{ background: future ? c.secondaryCard : `${session.color}15`, border: `1px solid ${future ? c.cardBorder : session.color + "30"}` }}
+                    style={{
+                      background: sessionDone ? "#22C55E20" : future ? c.secondaryCard : `${session.color}15`,
+                      border: `1px solid ${sessionDone ? "#22C55E40" : future ? c.cardBorder : session.color + "30"}`,
+                    }}
                   >
-                    {future ? (
+                    {sessionDone ? (
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
+                        <path d="M5 13L9 17L19 7" stroke="#22C55E" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                    ) : future ? (
                       <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
                         <rect x="5" y="11" width="14" height="10" rx="2" fill={c.textMuted} fillOpacity="0.6" />
                         <path d="M8 11V7C8 5.34 9.34 4 11 4H13C14.66 4 16 5.34 16 7V11" stroke={c.textMuted} strokeWidth="2" strokeLinecap="round" />
@@ -497,7 +544,7 @@ export default function CalendarScreen() {
           <div className="grid grid-cols-3 gap-3">
             {[
               { label: "Planned",   value: "20", color: "#256DE9" },
-              { label: "Completed", value: String(completedDays || 12), color: "#22C55E" },
+              { label: "Completed", value: String([...doneDays].filter(k => k.startsWith(`${year}-${month}-`)).length || completedDays || 0), color: "#22C55E" },
               { label: "Skipped",   value: "3",  color: "#EF4444" },
             ].map((s) => (
               <div key={s.label} className="text-center">
