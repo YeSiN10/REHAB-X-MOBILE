@@ -13,7 +13,7 @@ const exerciseData: Record<string, {
     title: "Post-Sprint Recovery",
     category: "Recovery", duration: "24 min", calories: 180,
     intensity: "Low", level: "All Levels",
-    img: "https://images.unsplash.com/photo-1713711437257-0232e837f40c?w=800&q=80",
+    img: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=800&q=80",
     description: "A science-backed VR recovery protocol designed to reduce muscle soreness, improve circulation, and accelerate recovery after high-intensity sprint training. Camera tracks your form in real time.",
     steps: [
       { title: "Light Walk Warm-Down", desc: "Start with 5 minutes of light walking at 40% of your normal pace. Camera will detect gait and ensure proper cadence.", tip: "Keep breathing steady and controlled throughout" },

@@ -53,7 +53,7 @@ const programs = [
     desc: "Improve range of motion and prevent injuries with daily stretching",
     sessions: 21, duration: "3 weeks", level: "Beginner",
     category: "Recovery", color: "#EAB308", progress: 0,
-    img: "https://images.unsplash.com/photo-1713711437257-0232e837f40c?w=400&q=80",
+    img: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&q=80",
     active: false,
   },
 ];
