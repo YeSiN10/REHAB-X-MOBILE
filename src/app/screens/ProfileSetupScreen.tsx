@@ -52,7 +52,7 @@ export default function ProfileSetupScreen() {
   };
 
   const currentYear = new Date().getFullYear();
-  const maxYear = currentYear - 10;
+  const maxYear = currentYear;
   const minYear = currentYear - 100;
   const daysInMonth = dobYear && dobMonth ? new Date(parseInt(dobYear), parseInt(dobMonth), 0).getDate() : 31;
   const [phone, setPhone] = useState(user.phone || "");
