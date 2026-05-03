@@ -9,7 +9,6 @@ import logo from "../../imports/Carte_visite_Final.png";
 const genderOptions = [
   { value: "male",   label: "Male",   emoji: "👨" },
   { value: "female", label: "Female", emoji: "👩" },
-  { value: "other",  label: "Other",  emoji: "🧑" },
 ];
 const fitnessLevels = [
   { value: "Beginner",     label: "Beginner",     desc: "Just starting out" },
