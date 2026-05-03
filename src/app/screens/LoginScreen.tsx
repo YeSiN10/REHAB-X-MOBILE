@@ -383,7 +383,12 @@ export default function LoginScreen() {
 
           {/* Password */}
           <div>
-            <label className="text-xs font-semibold mb-2 block tracking-wider uppercase" style={{ color: c.textSub }}>Password</label>
+            <div className="flex items-center justify-between mb-2">
+              <label className="text-xs font-semibold tracking-wider uppercase" style={{ color: c.textSub }}>Password</label>
+              <button onClick={() => setShowForgot(true)} className="text-xs font-semibold" style={{ color: "#256DE9" }}>
+                Forgot Password?
+              </button>
+            </div>
             <div className="relative">
               <div className="absolute left-4 top-1/2 -translate-y-1/2">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
@@ -409,12 +414,6 @@ export default function LoginScreen() {
               </button>
             </div>
             {errors.password && <p className="text-xs mt-1.5 ml-1" style={{ color: "#EF4444" }}>{errors.password}</p>}
-          </div>
-
-          <div className="flex justify-end">
-            <button onClick={() => { setShowForgot(true); setForgotSent(false); setForgotId(""); }} className="text-[#256DE9] text-sm font-semibold">
-              Forgot Password?
-            </button>
           </div>
 
           {/* I agree checkbox */}
