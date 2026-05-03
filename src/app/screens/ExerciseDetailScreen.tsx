@@ -13,7 +13,7 @@ const exerciseData: Record<string, {
     title: "Post-Sprint Recovery",
     category: "Recovery", duration: "24 min", calories: 180,
     intensity: "Low", level: "All Levels",
-    img: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=800&q=80",
+    img: "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=800&q=80",
     description: "A science-backed VR recovery protocol designed to reduce muscle soreness, improve circulation, and accelerate recovery after high-intensity sprint training. Camera tracks your form in real time.",
     steps: [
       { title: "Light Walk Warm-Down", desc: "Start with 5 minutes of light walking at 40% of your normal pace. Camera will detect gait and ensure proper cadence.", tip: "Keep breathing steady and controlled throughout" },
@@ -30,7 +30,7 @@ const exerciseData: Record<string, {
     title: "Morning HIIT",
     category: "Cardio", duration: "45 min", calories: 420,
     intensity: "High", level: "Advanced",
-    img: "https://images.unsplash.com/photo-1724763750864-9e81ee45d036?w=800&q=80",
+    img: "https://images.unsplash.com/photo-1729281008855-71e2506761c0?w=800&q=80",
     description: "An intense high-intensity interval training session powered by VR motion tracking. Camera monitors every rep, ensures proper form, and auto-counts your burpees in real time.",
     steps: [
       { title: "Dynamic Warm-Up", desc: "5 minutes of dynamic stretching — arm circles, leg swings, hip rotations. VR guides each movement.", tip: "Never skip warm-up for HIIT — injury risk is high without it" },
@@ -48,7 +48,7 @@ const exerciseData: Record<string, {
     title: "Lower Body Blast",
     category: "Strength", duration: "52 min", calories: 510,
     intensity: "High", level: "Intermediate",
-    img: "https://images.unsplash.com/photo-1766287453739-c3ffc3f37d05?w=800&q=80",
+    img: "https://images.unsplash.com/photo-1597376833295-40a54d5e69fc?w=800&q=80",
     description: "Build explosive lower body strength. VR camera tracks squat depth, monitors knee alignment, and ensures you achieve full range of motion every rep.",
     steps: [
       { title: "Barbell Back Squats", desc: "4 sets × 8 reps. Camera monitors depth and ensures parallel — virtual line shown on screen.", tip: "Keep your chest up and knees tracking over toes" },

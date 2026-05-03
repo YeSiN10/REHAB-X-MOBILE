@@ -432,6 +432,39 @@ export default function ProgressScreen() {
                     Recovery: "#22C55E", Flexibility: "#EAB308", Core: "#06B6D4",
                   };
                   const color = typeColor[s.type] || "#256DE9";
+                  const exerciseImgById: Record<string, string> = {
+                    "1": "photo-1729281008855-71e2506761c0",
+                    "2": "photo-1597376833295-40a54d5e69fc",
+                    "3": "photo-1769416945759-4660fd121172",
+                    "4": "photo-1605296867724-fa87a8ef53fd",
+                    "5": "photo-1604011237535-628ea8a45753",
+                    "6": "photo-1774009304081-ca87dd2f5d99",
+                    "7": "photo-1552674605-db6ffd4facb5",
+                    "8": "photo-1638820870229-00003edce192",
+                    "9": "photo-1571019614242-c5c5dee9f50b",
+                    "10": "photo-1540497077202-7c8a3999166f",
+                    "11": "photo-1583454110551-21f2fa2afe61",
+                    "12": "photo-1534438327276-14e5300c3a48",
+                    "featured": "photo-1544367567-0f2fcb009e0b",
+                  };
+                  const titleToImg: Record<string, string> = {
+                    "Morning HIIT": "photo-1729281008855-71e2506761c0",
+                    "Lower Body Blast": "photo-1597376833295-40a54d5e69fc",
+                    "Flexibility Flow": "photo-1769416945759-4660fd121172",
+                    "Upper Body Push": "photo-1605296867724-fa87a8ef53fd",
+                    "Sprint Recovery": "photo-1604011237535-628ea8a45753",
+                    "Aqua Training": "photo-1774009304081-ca87dd2f5d99",
+                    "Sprint Intervals": "photo-1552674605-db6ffd4facb5",
+                    "Core Power": "photo-1638820870229-00003edce192",
+                    "Shoulder Press Pro": "photo-1571019614242-c5c5dee9f50b",
+                    "Back Sculpt": "photo-1540497077202-7c8a3999166f",
+                    "Arm Blaster": "photo-1583454110551-21f2fa2afe61",
+                    "Elite Chest Program": "photo-1534438327276-14e5300c3a48",
+                    "Post-Sprint Recovery": "photo-1544367567-0f2fcb009e0b",
+                    "Flex Flow": "photo-1769416945759-4660fd121172",
+                  };
+                  const photoId = s.exerciseId ? exerciseImgById[s.exerciseId] : titleToImg[s.title || ""];
+                  const sessionImg = photoId ? `https://images.unsplash.com/${photoId}?w=80&q=80` : null;
                   const formattedDate = (() => {
                     const [y, m, d] = s.date.split("-").map(Number);
                     const sessionDate = new Date(y, m - 1, d);
@@ -450,11 +483,17 @@ export default function ProgressScreen() {
                       className="flex items-center gap-3 p-3 rounded-2xl"
                       style={{ background: c.card, border: `1px solid ${c.cardBorder}` }}
                     >
-                      <div className="w-10 h-10 rounded-2xl flex items-center justify-center shrink-0"
+                      <div className="w-10 h-10 rounded-2xl overflow-hidden shrink-0"
                         style={{ background: `${color}18` }}>
-                        <span style={{ fontSize: 18 }}>
-                          {s.type === "Cardio" ? "🏃" : s.type === "Strength" ? "💪" : s.type === "HIIT" ? "⚡" : s.type === "Recovery" ? "🧘" : s.type === "Flexibility" ? "🤸" : "🔥"}
-                        </span>
+                        {sessionImg ? (
+                          <img src={sessionImg} alt={s.title} className="w-full h-full object-cover" />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center">
+                            <span style={{ fontSize: 18 }}>
+                              {s.type === "Cardio" ? "🏃" : s.type === "Strength" ? "💪" : s.type === "HIIT" ? "⚡" : s.type === "Recovery" ? "🧘" : s.type === "Flexibility" ? "🤸" : "🔥"}
+                            </span>
+                          </div>
+                        )}
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="font-bold text-sm truncate" style={{ color: c.text }}>{s.title || s.type}</p>

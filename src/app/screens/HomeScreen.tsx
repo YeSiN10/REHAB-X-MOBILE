@@ -21,26 +21,28 @@ const intensityColors: Record<string, { bg: string; text: string }> = {
   Low:    { bg: "rgba(34,197,94,0.15)",   text: "#22C55E" },
 };
 
+const PSR_IMG = "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=400&q=80";
+
 const allExercises: Record<string, { id: string; title: string; category: string; duration: string; calories: number; intensity: string; img: string }[]> = {
   "Recovery & Performance": [
-    { id: "featured", title: "Post-Sprint Recovery", category: "Recovery", duration: "24 min", calories: 180, intensity: "Low", img: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&q=80" },
-    { id: "1", title: "Morning HIIT", category: "Cardio Focus", duration: "45 min", calories: 420, intensity: "High", img: "https://images.unsplash.com/photo-1724763750864-9e81ee45d036?w=400&q=80" },
-    { id: "2", title: "Flexibility Flow", category: "Flexibility", duration: "30 min", calories: 180, intensity: "Low", img: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&q=80" },
+    { id: "featured", title: "Post-Sprint Recovery", category: "Recovery",    duration: "24 min", calories: 180, intensity: "Low",    img: PSR_IMG },
+    { id: "5",        title: "Sprint Recovery",      category: "Recovery",    duration: "24 min", calories: 180, intensity: "Low",    img: "https://images.unsplash.com/photo-1604011237535-628ea8a45753?w=400&q=80" },
+    { id: "3",        title: "Flexibility Flow",     category: "Flexibility", duration: "30 min", calories: 180, intensity: "Low",    img: "https://images.unsplash.com/photo-1769416945759-4660fd121172?w=400&q=80" },
   ],
   "Build Muscle": [
-    { id: "2", title: "Lower Body Blast", category: "Strength", duration: "52 min", calories: 510, intensity: "High", img: "https://images.unsplash.com/photo-1766287453739-c3ffc3f37d05?w=400&q=80" },
-    { id: "1", title: "Morning HIIT", category: "HIIT", duration: "45 min", calories: 420, intensity: "High", img: "https://images.unsplash.com/photo-1724763750864-9e81ee45d036?w=400&q=80" },
-    { id: "featured", title: "Core Power", category: "Strength", duration: "38 min", calories: 340, intensity: "Medium", img: "https://images.unsplash.com/photo-1766287453739-c3ffc3f37d05?w=400&q=80" },
+    { id: "2",  title: "Lower Body Blast",  category: "Strength", duration: "52 min", calories: 510, intensity: "High",   img: "https://images.unsplash.com/photo-1597376833295-40a54d5e69fc?w=400&q=80" },
+    { id: "4",  title: "Upper Body Push",   category: "Strength", duration: "38 min", calories: 320, intensity: "Medium", img: "https://images.unsplash.com/photo-1605296867724-fa87a8ef53fd?w=400&q=80" },
+    { id: "10", title: "Back Sculpt",       category: "Strength", duration: "48 min", calories: 380, intensity: "Medium", img: "https://images.unsplash.com/photo-1540497077202-7c8a3999166f?w=400&q=80" },
   ],
   "Lose Weight": [
-    { id: "1", title: "Morning HIIT", category: "Cardio Focus", duration: "45 min", calories: 520, intensity: "High", img: "https://images.unsplash.com/photo-1724763750864-9e81ee45d036?w=400&q=80" },
-    { id: "2", title: "Sprint Intervals", category: "Cardio", duration: "30 min", calories: 480, intensity: "High", img: "https://images.unsplash.com/photo-1766287453739-c3ffc3f37d05?w=400&q=80" },
-    { id: "featured", title: "Fat Burn Circuit", category: "HIIT", duration: "40 min", calories: 440, intensity: "Medium", img: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&q=80" },
+    { id: "1", title: "Morning HIIT",     category: "Cardio", duration: "45 min", calories: 420, intensity: "High",   img: "https://images.unsplash.com/photo-1729281008855-71e2506761c0?w=400&q=80" },
+    { id: "7", title: "Sprint Intervals", category: "HIIT",   duration: "40 min", calories: 580, intensity: "High",   img: "https://images.unsplash.com/photo-1552674605-db6ffd4facb5?w=400&q=80" },
+    { id: "8", title: "Core Power",       category: "Core",   duration: "35 min", calories: 260, intensity: "Medium", img: "https://images.unsplash.com/photo-1638820870229-00003edce192?w=400&q=80" },
   ],
   "Flexibility": [
-    { id: "featured", title: "Yoga Flow", category: "Flexibility", duration: "30 min", calories: 150, intensity: "Low", img: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&q=80" },
-    { id: "1", title: "Dynamic Stretch", category: "Recovery", duration: "25 min", calories: 120, intensity: "Low", img: "https://images.unsplash.com/photo-1724763750864-9e81ee45d036?w=400&q=80" },
-    { id: "2", title: "Mobility Class", category: "Flexibility", duration: "35 min", calories: 160, intensity: "Low", img: "https://images.unsplash.com/photo-1766287453739-c3ffc3f37d05?w=400&q=80" },
+    { id: "3",        title: "Flexibility Flow",     category: "Flexibility", duration: "30 min", calories: 180, intensity: "Low", img: "https://images.unsplash.com/photo-1769416945759-4660fd121172?w=400&q=80" },
+    { id: "5",        title: "Sprint Recovery",      category: "Recovery",    duration: "24 min", calories: 180, intensity: "Low", img: "https://images.unsplash.com/photo-1604011237535-628ea8a45753?w=400&q=80" },
+    { id: "featured", title: "Post-Sprint Recovery", category: "Recovery",    duration: "24 min", calories: 180, intensity: "Low", img: PSR_IMG },
   ],
 };
 
@@ -58,7 +60,7 @@ const allExercisesList = [
   { id: "10",       title: "Back Sculpt",           category: "Strength",    duration: "48 min", calories: 380, intensity: "Medium", img: "https://images.unsplash.com/photo-1540497077202-7c8a3999166f?w=400&q=80" },
   { id: "11",       title: "Arm Blaster",           category: "Strength",    duration: "30 min", calories: 220, intensity: "Medium", img: "https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?w=400&q=80" },
   { id: "12",       title: "Elite Chest Program",   category: "Strength",    duration: "55 min", calories: 460, intensity: "High",   img: "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=400&q=80" },
-  { id: "featured", title: "Post-Sprint Recovery",  category: "Recovery",    duration: "24 min", calories: 180, intensity: "Low",    img: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&q=80" },
+  { id: "featured", title: "Post-Sprint Recovery",  category: "Recovery",    duration: "24 min", calories: 180, intensity: "Low",    img: PSR_IMG },
 ];
 
 const exerciseInstructions: Record<string, { steps: string[]; tip: string }> = {
@@ -671,7 +673,7 @@ export default function HomeScreen() {
             style={{ height: 195 }}
             onClick={() => navigate("/exercises/featured")}
           >
-            <img src="https://images.unsplash.com/photo-1764314359427-6e685ce5b719?w=800&q=80" alt="Featured" className="absolute inset-0 w-full h-full object-cover" />
+            <img src="https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=800&q=80" alt="Featured" className="absolute inset-0 w-full h-full object-cover" />
             <div className="absolute inset-0" style={{ background: "linear-gradient(to top, rgba(7,9,15,0.95) 0%, rgba(7,9,15,0.3) 60%, transparent 100%)" }} />
             <div className="absolute top-4 left-4">
               <span className="text-white text-[10px] font-bold px-3 py-1.5 rounded-full tracking-wider" style={{ background: "#256DE9" }}>

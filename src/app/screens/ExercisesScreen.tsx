@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
 import { motion, AnimatePresence } from "motion/react";
 import { BottomNav } from "../components/BottomNav";
@@ -128,6 +128,12 @@ export default function ExercisesScreen() {
   const [selectedBodyPart, setSelectedBodyPart] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
   const [showFilterSheet, setShowFilterSheet] = useState(false);
+
+  useEffect(() => {
+    document.body.style.overflow = "";
+    document.body.style.position = "";
+    document.documentElement.style.overflow = "";
+  }, []);
   const [filterType, setFilterType] = useState<string[]>([]);
   const [filterLevel, setFilterLevel] = useState<string[]>([]);
   const [filterIntensity, setFilterIntensity] = useState<string[]>([]);
@@ -304,7 +310,7 @@ export default function ExercisesScreen() {
         </div>
 
         {/* Body Part Icon Filters */}
-        <div className="flex gap-2.5 overflow-x-auto pb-1 px-5" style={{ scrollbarWidth: "none" }}>
+        <div className="flex gap-2.5 overflow-x-auto pb-1 pl-5" style={{ scrollbarWidth: "none", WebkitOverflowScrolling: "touch" } as React.CSSProperties}>
           {bodyPartFilters.map((filter) => {
             const isActive = selectedBodyPart === filter.id;
             return (
@@ -330,6 +336,7 @@ export default function ExercisesScreen() {
               </motion.button>
             );
           })}
+          <div className="w-5 shrink-0" />
         </div>
       </div>
 
