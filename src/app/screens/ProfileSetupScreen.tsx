@@ -25,12 +25,15 @@ const goals = [
 
 export default function ProfileSetupScreen() {
   const navigate = useNavigate();
-  const { user, updateUser } = useApp();
+  const { user, updateUser, authToken } = useApp();
   const c = useColors();
   const fileRef = useRef<HTMLInputElement>(null);
   const avatarRef = useRef<HTMLInputElement>(null);
 
   const [step, setStep] = useState(0);
+  const [username, setUsername] = useState(user.name || "");
+  const [usernameError, setUsernameError] = useState<string | null>(null);
+  const [checkingUsername, setCheckingUsername] = useState(false);
   const [age, setAge] = useState(user.age || "");
   const [phone, setPhone] = useState(user.phone || "");
   const [gender, setGender] = useState(user.gender || "");
@@ -74,9 +77,29 @@ export default function ProfileSetupScreen() {
     setMedicalDocs((prev) => prev.filter((_, i) => i !== idx));
   };
 
+  const checkUsername = async (val: string) => {
+    if (!val.trim()) { setUsernameError("Username is required"); return; }
+    if (!authToken) return;
+    setCheckingUsername(true);
+    setUsernameError(null);
+    try {
+      const res = await fetch(`/api/check-username?username=${encodeURIComponent(val.trim())}`, {
+        headers: { Authorization: `Bearer ${authToken}` },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.taken) setUsernameError("This username is already taken. Please choose another.");
+        else { setUsernameError(null); updateUser({ name: val.trim() }); }
+      }
+    } catch { /* offline — allow */ updateUser({ name: val.trim() }); }
+    finally { setCheckingUsername(false); }
+  };
+
   const handleComplete = () => {
+    if (usernameError) return;
     setCompleting(true);
     updateUser({
+      name: username.trim() || user.name,
       age, phone, gender, fitnessLevel, goal,
       medicalDoc: medicalDocs[0] || "",
       medicalDocs,
@@ -236,15 +259,26 @@ export default function ProfileSetupScreen() {
               {/* Username */}
               <div>
                 <label className="text-xs font-semibold mb-2 block tracking-wider uppercase" style={{ color: c.textSub }}>Username</label>
-                <input
-                  type="text"
-                  defaultValue={user.name || ""}
-                  onBlur={(e) => { updateUser({ name: e.target.value }); e.target.style.borderColor = c.inputBorder; }}
-                  className="w-full px-4 py-4 rounded-2xl text-sm focus:outline-none transition-all"
-                  style={{ background: c.inputBg, border: `1px solid ${c.inputBorder}`, color: c.text, caretColor: "#256DE9" }}
-                  placeholder="Enter your username"
-                  onFocus={(e) => (e.target.style.borderColor = "#256DE9")}
-                />
+                <div className="relative">
+                  <input
+                    type="text"
+                    value={username}
+                    onChange={(e) => { setUsername(e.target.value); setUsernameError(null); }}
+                    onBlur={(e) => { checkUsername(e.target.value); e.target.style.borderColor = usernameError ? "#EF4444" : c.inputBorder; }}
+                    className="w-full px-4 py-4 rounded-2xl text-sm focus:outline-none transition-all"
+                    style={{ background: c.inputBg, border: `1px solid ${usernameError ? "#EF4444" : c.inputBorder}`, color: c.text, caretColor: "#256DE9" }}
+                    placeholder="Enter your username"
+                    onFocus={(e) => (e.target.style.borderColor = usernameError ? "#EF4444" : "#256DE9")}
+                  />
+                  {checkingUsername && (
+                    <div className="absolute right-4 top-1/2 -translate-y-1/2">
+                      <div className="w-4 h-4 border-2 border-[#256DE9]/30 border-t-[#256DE9] rounded-full animate-spin" />
+                    </div>
+                  )}
+                </div>
+                {usernameError && (
+                  <p className="text-xs mt-1.5 ml-1" style={{ color: "#EF4444" }}>{usernameError}</p>
+                )}
               </div>
 
               {/* Phone number */}
@@ -460,12 +494,22 @@ export default function ProfileSetupScreen() {
           )}
           <motion.button
             whileTap={{ scale: 0.97 }}
-            onClick={() => { if (step < 2) setStep((s) => s + 1); else handleComplete(); }}
+            onClick={() => {
+              if (step === 0 && usernameError) return;
+              if (step < 2) setStep((s) => s + 1);
+              else handleComplete();
+            }}
+            disabled={step === 0 && (!!usernameError || checkingUsername)}
             className="flex-1 py-4 rounded-2xl text-white font-bold"
             style={{
-              background: "linear-gradient(135deg, #256DE9 0%, #1a4bb5 100%)",
-              boxShadow: "0 12px 32px rgba(37,109,233,0.35)",
+              background: (step === 0 && (!!usernameError || checkingUsername))
+                ? "#64748B"
+                : "linear-gradient(135deg, #256DE9 0%, #1a4bb5 100%)",
+              boxShadow: (step === 0 && (!!usernameError || checkingUsername))
+                ? "none"
+                : "0 12px 32px rgba(37,109,233,0.35)",
               fontSize: 15,
+              opacity: (step === 0 && (!!usernameError || checkingUsername)) ? 0.6 : 1,
             }}
           >
             {step < 2 ? "Continue" : "Get Started 🚀"}

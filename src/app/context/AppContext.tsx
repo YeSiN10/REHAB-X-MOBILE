@@ -303,21 +303,25 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isPremium, setIsPremiumState] = useState(false);
 
-  // ── Favorites ─────────────────────────────────────────────────────────
+  // ── Favorites (per-user, keyed by userId) ─────────────────────────────
   const [favoriteIds, setFavoriteIds] = useState<string[]>(() => {
     try {
-      const saved = localStorage.getItem("rehab_favorites");
+      const storedUser = localStorage.getItem("rehab_auth_user");
+      const userId = storedUser ? JSON.parse(storedUser)?.id : null;
+      const key = userId ? `rehab_favorites_${userId}` : "rehab_favorites";
+      const saved = localStorage.getItem(key);
       return saved ? JSON.parse(saved) : [];
     } catch { return []; }
   });
 
   const toggleFavorite = useCallback((id: string) => {
+    const key = authUser?.id ? `rehab_favorites_${authUser.id}` : "rehab_favorites";
     setFavoriteIds((prev) => {
       const next = prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id];
-      safeSet("rehab_favorites", JSON.stringify(next));
+      safeSet(key, JSON.stringify(next));
       return next;
     });
-  }, []);
+  }, [authUser?.id]);
 
   // ── Notifications ─────────────────────────────────────────────────────
   const [notifications, setNotifications] = useState<AppNotification[]>(() => {
@@ -398,6 +402,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
       safeSet("rehab_auth_token", token);
       safeSet("rehab_auth_user", JSON.stringify(au));
       setUser((prev) => ({ ...prev, name: au.name, email: au.email }));
+      // Load this user's favorites
+      try {
+        const saved = localStorage.getItem(`rehab_favorites_${au.id}`);
+        setFavoriteIds(saved ? JSON.parse(saved) : []);
+      } catch { setFavoriteIds([]); }
       syncRemoteData(token);
       return {};
     } catch {
@@ -421,6 +430,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
       safeSet("rehab_auth_token", token);
       safeSet("rehab_auth_user", JSON.stringify(au));
       setUser((prev) => ({ ...prev, name: au.name, email: au.email }));
+      // Load this user's favorites
+      try {
+        const saved = localStorage.getItem(`rehab_favorites_${au.id}`);
+        setFavoriteIds(saved ? JSON.parse(saved) : []);
+      } catch { setFavoriteIds([]); }
       syncRemoteData(token);
       return {};
     } catch {
@@ -429,6 +443,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }, []);
 
   // ── Auth: Register ────────────────────────────────────────────────────
+  const phoneRegexAuth = /^[\+]?[\d\s\-\(\)]{7,15}$/;
   const register = useCallback(async (name: string, email: string, password: string) => {
     try {
       const res = await fetch(`${API}/auth/register`, {
@@ -443,9 +458,17 @@ export function AppProvider({ children }: { children: ReactNode }) {
       setAuthUser(au);
       safeSet("rehab_auth_token", token);
       safeSet("rehab_auth_user", JSON.stringify(au));
-      setUser((prev) => ({ ...prev, name: au.name, email: au.email }));
-      // New users start with empty sessions
+      // If they signed up with a phone number, pre-fill the phone field
+      const isPhone = phoneRegexAuth.test(email.trim());
+      setUser((prev) => ({
+        ...prev,
+        name: au.name,
+        email: isPhone ? "" : au.email,
+        ...(isPhone ? { phone: email.trim() } : {}),
+      }));
+      // New users start with empty sessions and empty favorites
       setSessions([]);
+      setFavoriteIds([]);
       localStorage.removeItem("rehab_sessions");
       return {};
     } catch {
@@ -463,11 +486,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
     localStorage.removeItem("rehab_sessions");
     localStorage.removeItem("rehab_mood_today");
     localStorage.removeItem("rehab_notifications");
-    // Reset to empty (not seed) — stays on login screen
+    // Reset all per-user state
     setSessions([]);
     setUser(defaultUser);
     setTodayMoodState("");
     setNotifications(initialNotifications);
+    setFavoriteIds([]);
   }, []);
 
   // ── Sync remote data after login ──────────────────────────────────────
