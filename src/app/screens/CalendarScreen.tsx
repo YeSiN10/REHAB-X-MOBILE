@@ -114,6 +114,9 @@ export default function CalendarScreen() {
   const isPastMonth   = year < realTodayYear || (year === realTodayYear && month < realTodayMonth);
   const isFutureMonth = year > realTodayYear || (year === realTodayYear && month > realTodayMonth);
 
+  // Past months: all workout days are auto-completed (already gone)
+  const isCompleted = (d: number) => isDone(d) || isPastMonth;
+
   const prevMonth = () => {
     setSelectedDay(1);
     if (month === 0) { setMonth(11); setYear(y => y - 1); }
@@ -337,7 +340,7 @@ export default function CalendarScreen() {
             {calCells.map((day, i) => {
               if (!day) return <div key={i} />;
               const isToday = day === TODAY_DAY;
-              const done    = isDone(day);
+              const done    = isCompleted(day);
               const isPast  = !done && TODAY_DAY !== -1 && day < TODAY_DAY;
               const isSelected = day === selectedDay;
               const wData = visibleDays[day];
@@ -398,7 +401,7 @@ export default function CalendarScreen() {
         {/* Selected day detail */}
         {visibleDays[selectedDay] && (() => {
           const wd = visibleDays[selectedDay];
-          const done = isDone(selectedDay);
+          const done = isCompleted(selectedDay);
           return (
             <motion.div
               key={selectedDay}
@@ -440,8 +443,8 @@ export default function CalendarScreen() {
                       </div>
                     </div>
                     <button
-                      onClick={() => { if (!future) { markDone(selectedDay); navigate(`/exercises/${wd.exId}`); } }}
-                      disabled={future}
+                      onClick={() => { if (!future && !done) { markDone(selectedDay); navigate(`/exercises/${wd.exId}`); } }}
+                      disabled={future || done}
                       className="w-9 h-9 rounded-xl flex items-center justify-center transition-all"
                       style={{
                         background: done ? "#22C55E" : future ? c.secondaryCard : "#256DE9",
@@ -481,14 +484,14 @@ export default function CalendarScreen() {
             {upcoming.map((session, idx) => {
               const sessionTimeStr = extractTime(session.date);
               const future = isSessionFuture(parseInt(session.id), sessionTimeStr);
-              const sessionDone = isDone(parseInt(session.id));
+              const sessionDone = isCompleted(parseInt(session.id));
               return (
                 <motion.div
                   key={session.id}
                   initial={{ opacity: 0, x: -10 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: idx * 0.08 }}
-                  onClick={() => { if (!future) { markDone(parseInt(session.id)); navigate(`/exercises/${session.exId}`); } }}
+                  onClick={() => { if (!future && !sessionDone) { markDone(parseInt(session.id)); navigate(`/exercises/${session.exId}`); } }}
                   className="flex items-center gap-3 p-3 rounded-2xl"
                   style={{
                     background: c.card,
@@ -544,7 +547,7 @@ export default function CalendarScreen() {
           <div className="grid grid-cols-3 gap-3">
             {[
               { label: "Planned",   value: "20", color: "#256DE9" },
-              { label: "Completed", value: String([...doneDays].filter(k => k.startsWith(`${year}-${month}-`)).length || completedDays || 0), color: "#22C55E" },
+              { label: "Completed", value: String(isPastMonth ? Object.keys(workoutDayData).length : ([...doneDays].filter(k => k.startsWith(`${year}-${month}-`)).length || completedDays || 0)), color: "#22C55E" },
               { label: "Skipped",   value: "3",  color: "#EF4444" },
             ].map((s) => (
               <div key={s.label} className="text-center">
