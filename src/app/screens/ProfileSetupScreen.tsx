@@ -90,34 +90,56 @@ export default function ProfileSetupScreen() {
 
   if (completing) {
     return (
-      <div className="absolute inset-0 flex flex-col items-center justify-center" style={{ background: c.bg }}>
-        <div className="absolute inset-0" style={{ background: "radial-gradient(circle at 50% 50%, rgba(37,109,233,0.12) 0%, transparent 65%)" }} />
+      <div className="absolute inset-0 flex flex-col items-center justify-center"
+        style={{ background: "linear-gradient(160deg, #1a3a80 0%, #1b2c60 40%, #0d1630 100%)" }}>
+        <div className="absolute inset-0 pointer-events-none"
+          style={{ background: "radial-gradient(ellipse at 50% 30%, rgba(37,109,233,0.45) 0%, transparent 65%)" }} />
         <motion.div
-          initial={{ scale: 0.5, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ duration: 0.5, ease: [0.34, 1.56, 0.64, 1] }}
-          className="flex flex-col items-center gap-6 z-10"
+          initial={{ scale: 0.5, opacity: 0, y: 20 }}
+          animate={{ scale: 1, opacity: 1, y: 0 }}
+          transition={{ type: "spring", stiffness: 280, damping: 22 }}
+          className="flex flex-col items-center gap-5 relative"
         >
-          <div className="relative">
-            <motion.div
-              animate={{ boxShadow: ["0 0 0 0 rgba(37,109,233,0.3)", "0 0 0 20px rgba(37,109,233,0)", "0 0 0 0 rgba(37,109,233,0)"] }}
-              transition={{ duration: 1.5, repeat: Infinity }}
-              className="w-24 h-24 rounded-full flex items-center justify-center overflow-hidden"
-              style={{ background: "#256DE9", border: "3px solid rgba(37,109,233,0.2)" }}
-            >
-              <img src={logo} alt="REHAB X" className="w-16 h-16 object-contain" />
-            </motion.div>
-          </div>
-          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="text-center">
-            <h2 className="font-black mb-2" style={{ fontSize: 24, color: c.text }}>Welcome aboard!</h2>
-            <p className="text-sm" style={{ color: c.textMuted }}>Setting up your experience...</p>
+          <motion.div
+            animate={{ rotate: [0, -8, 8, -4, 0], scale: [1, 1.08, 1] }}
+            transition={{ duration: 0.8, delay: 0.3 }}
+            className="w-20 h-20 rounded-3xl flex items-center justify-center"
+            style={{ background: "rgba(255,255,255,0.15)", border: "2px solid rgba(255,255,255,0.25)", boxShadow: "0 0 48px rgba(37,109,233,0.6)" }}
+          >
+            <img src={logo} alt="REHAB X" className="w-14 h-14 object-contain" />
           </motion.div>
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }} className="w-40 h-1 rounded-full overflow-hidden" style={{ background: c.secondaryCard }}>
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.45 }}
+            className="text-center"
+          >
+            <p className="text-white/70 text-sm font-medium mb-1">Welcome aboard</p>
+            <h2 className="text-white font-black" style={{ fontSize: 28, letterSpacing: "-0.5px" }}>
+              {user.name ? user.name.split(" ")[0] : "Champion"} 🎉
+            </h2>
+          </motion.div>
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.7 }}
+            className="px-5 py-2 rounded-full"
+            style={{ background: "rgba(37,109,233,0.3)", border: "1px solid rgba(37,109,233,0.5)" }}
+          >
+            <span className="text-white text-xs font-semibold tracking-wide">Setting up your journey 💪</span>
+          </motion.div>
+          <motion.div
+            initial={{ opacity: 0, scaleX: 0 }}
+            animate={{ opacity: 1, scaleX: 1 }}
+            transition={{ delay: 0.9, duration: 1.2, ease: "easeInOut" }}
+            className="w-40 h-1 rounded-full bg-white/20 overflow-hidden"
+          >
             <motion.div
               initial={{ width: "0%" }}
               animate={{ width: "100%" }}
-              transition={{ duration: 1.5, ease: "easeInOut" }}
-              className="h-full rounded-full bg-[#256DE9]"
+              transition={{ delay: 0.9, duration: 1.2, ease: "easeInOut" }}
+              className="h-full rounded-full"
+              style={{ background: "linear-gradient(90deg, #60a5fa, #3b82f6)" }}
             />
           </motion.div>
         </motion.div>

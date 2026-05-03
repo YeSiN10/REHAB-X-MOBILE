@@ -81,6 +81,26 @@ export const getThemeColors = (isDark: boolean) => ({
   shadow: isDark ? "0 4px 24px rgba(0,0,0,0.4)" : "0 4px 24px rgba(37,109,233,0.1)",
 });
 
+// ── Notifications ────────────────────────────────────────────────────────
+export interface AppNotification {
+  id: string;
+  type: "workout" | "achievement" | "recovery" | "reminder";
+  title: string;
+  message: string;
+  time: string;
+  read: boolean;
+}
+
+const initialNotifications: AppNotification[] = [
+  { id: "n1", type: "reminder", title: "Time to Work Out! 💪", message: "Your Morning HIIT session is scheduled in 30 minutes", time: "30 min ago", read: false },
+  { id: "n2", type: "achievement", title: "Achievement Unlocked! ⭐", message: "You've earned the 'Streak Master' badge for 5 consecutive days", time: "2 hrs ago", read: false },
+  { id: "n3", type: "workout", title: "Workout Completed", message: "Great job! You finished Aqua Training and burned 480 kcal", time: "Yesterday", read: false },
+  { id: "n4", type: "recovery", title: "Recovery Recommendation", message: "Based on your intensity levels, today is ideal for a recovery session", time: "Yesterday", read: true },
+  { id: "n5", type: "reminder", title: "Weekly Goal Progress", message: "You've completed 5 of 7 planned sessions this week. Keep it up!", time: "2 days ago", read: true },
+  { id: "n6", type: "achievement", title: "Personal Record!", message: "New best time recorded for Sprint Intervals: 38:20", time: "3 days ago", read: true },
+  { id: "n7", type: "workout", title: "Session Reminder", message: "Don't forget your Lower Body Blast scheduled for tomorrow at 6 PM", time: "4 days ago", read: true },
+];
+
 // ── Streak computation ────────────────────────────────────────────────────
 export function computeStreak(sessions: WorkoutSession[]): number {
   if (sessions.length === 0) return 0;
@@ -161,6 +181,14 @@ interface AppContextType {
   // Favorites
   favoriteIds: string[];
   toggleFavorite: (id: string) => void;
+  // Notifications
+  notifications: AppNotification[];
+  unreadNotificationsCount: number;
+  markNotificationRead: (id: string) => void;
+  markAllNotificationsRead: () => void;
+  dismissNotification: (id: string) => void;
+  clearAllNotifications: () => void;
+  addNotification: (n: Omit<AppNotification, "id" | "time" | "read">) => void;
 }
 
 const defaultUser: User = {
@@ -196,6 +224,13 @@ const AppContext = createContext<AppContextType>({
   isSyncing: false,
   favoriteIds: [],
   toggleFavorite: () => {},
+  notifications: [],
+  unreadNotificationsCount: 0,
+  markNotificationRead: () => {},
+  markAllNotificationsRead: () => {},
+  dismissNotification: () => {},
+  clearAllNotifications: () => {},
+  addNotification: () => {},
 });
 
 // ── Safe localStorage helpers ─────────────────────────────────────────────
@@ -275,6 +310,56 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setFavoriteIds((prev) => {
       const next = prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id];
       safeSet("rehab_favorites", JSON.stringify(next));
+      return next;
+    });
+  }, []);
+
+  // ── Notifications ─────────────────────────────────────────────────────
+  const [notifications, setNotifications] = useState<AppNotification[]>(() => {
+    try {
+      const saved = localStorage.getItem("rehab_notifications");
+      return saved ? JSON.parse(saved) : initialNotifications;
+    } catch { return initialNotifications; }
+  });
+
+  const saveNotifs = (n: AppNotification[]) => safeSet("rehab_notifications", JSON.stringify(n));
+
+  const unreadNotificationsCount = notifications.filter((n) => !n.read).length;
+
+  const markNotificationRead = useCallback((id: string) => {
+    setNotifications((prev) => {
+      const next = prev.map((n) => (n.id === id ? { ...n, read: true } : n));
+      saveNotifs(next);
+      return next;
+    });
+  }, []);
+
+  const markAllNotificationsRead = useCallback(() => {
+    setNotifications((prev) => {
+      const next = prev.map((n) => ({ ...n, read: true }));
+      saveNotifs(next);
+      return next;
+    });
+  }, []);
+
+  const dismissNotification = useCallback((id: string) => {
+    setNotifications((prev) => {
+      const next = prev.filter((n) => n.id !== id);
+      saveNotifs(next);
+      return next;
+    });
+  }, []);
+
+  const clearAllNotifications = useCallback(() => {
+    setNotifications([]);
+    safeSet("rehab_notifications", "[]");
+  }, []);
+
+  const addNotification = useCallback((n: Omit<AppNotification, "id" | "time" | "read">) => {
+    setNotifications((prev) => {
+      const newNotif: AppNotification = { ...n, id: crypto.randomUUID(), time: "Just now", read: false };
+      const next = [newNotif, ...prev];
+      saveNotifs(next);
       return next;
     });
   }, []);
@@ -372,10 +457,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
     localStorage.removeItem("rehab_user");
     localStorage.removeItem("rehab_sessions");
     localStorage.removeItem("rehab_mood_today");
+    localStorage.removeItem("rehab_notifications");
     // Reset to empty (not seed) — stays on login screen
     setSessions([]);
     setUser(defaultUser);
     setTodayMoodState("");
+    setNotifications(initialNotifications);
   }, []);
 
   // ── Sync remote data after login ──────────────────────────────────────
@@ -514,6 +601,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
         isSyncing,
         favoriteIds,
         toggleFavorite,
+        notifications, unreadNotificationsCount,
+        markNotificationRead, markAllNotificationsRead,
+        dismissNotification, clearAllNotifications, addNotification,
       }}
     >
       {children}

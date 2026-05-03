@@ -25,7 +25,7 @@ const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || "";
 
 export default function LoginScreen() {
   const navigate = useNavigate();
-  const { login, loginWithGoogle, isAuthenticated, user } = useApp();
+  const { login, loginWithGoogle, isAuthenticated, user, updateUser } = useApp();
   const c = useColors();
 
   const [identifier, setIdentifier] = useState("");
@@ -128,6 +128,10 @@ export default function LoginScreen() {
     if (result.error) {
       setErrors({ general: result.error });
     } else {
+      // If logged in with phone number, pre-populate user.phone
+      if (isPhone(identifier)) {
+        updateUser({ phone: identifier });
+      }
       const name = (user?.name || "").split(" ")[0] || "back";
       setWelcomeName(name);
       setShowWelcomeAnim(true);

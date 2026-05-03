@@ -44,17 +44,21 @@ const allExercises: Record<string, { id: string; title: string; category: string
   ],
 };
 
-// All exercises flat list (for favorites lookup)
+// All exercises flat list (for favorites lookup) — must match ExercisesScreen IDs
 const allExercisesList = [
-  { id: "1", title: "Morning HIIT", category: "Cardio", duration: "45 min", calories: 420, intensity: "High", img: "https://images.unsplash.com/photo-1729281008855-71e2506761c0?w=400&q=80" },
-  { id: "2", title: "Lower Body Blast", category: "Strength", duration: "52 min", calories: 510, intensity: "High", img: "https://images.unsplash.com/photo-1597376833295-40a54d5e69fc?w=400&q=80" },
-  { id: "3", title: "Flexibility Flow", category: "Flexibility", duration: "30 min", calories: 180, intensity: "Low", img: "https://images.unsplash.com/photo-1769416945759-4660fd121172?w=400&q=80" },
-  { id: "4", title: "Upper Body Push", category: "Strength", duration: "38 min", calories: 320, intensity: "Medium", img: "https://images.unsplash.com/photo-1605296867724-fa87a8ef53fd?w=400&q=80" },
-  { id: "5", title: "Sprint Recovery", category: "Recovery", duration: "24 min", calories: 180, intensity: "Low", img: "https://images.unsplash.com/photo-1604011237535-628ea8a45753?w=400&q=80" },
-  { id: "8", title: "Core Power", category: "Core", duration: "35 min", calories: 260, intensity: "Medium", img: "https://images.unsplash.com/photo-1638820870229-00003edce192?w=400&q=80" },
-  { id: "10", title: "Back Sculpt", category: "Strength", duration: "48 min", calories: 380, intensity: "Medium", img: "https://images.unsplash.com/photo-1597376833295-40a54d5e69fc?w=400&q=80" },
-  { id: "11", title: "Arm Blaster", category: "Strength", duration: "30 min", calories: 220, intensity: "Medium", img: "https://images.unsplash.com/photo-1638820870229-00003edce192?w=400&q=80" },
-  { id: "featured", title: "Post-Sprint Recovery", category: "Recovery", duration: "24 min", calories: 180, intensity: "Low", img: "https://images.unsplash.com/photo-1713711437257-0232e837f40c?w=400&q=80" },
+  { id: "1",        title: "Morning HIIT",         category: "Cardio",      duration: "45 min", calories: 420, intensity: "High",   img: "https://images.unsplash.com/photo-1729281008855-71e2506761c0?w=400&q=80" },
+  { id: "2",        title: "Lower Body Blast",      category: "Strength",    duration: "52 min", calories: 510, intensity: "High",   img: "https://images.unsplash.com/photo-1597376833295-40a54d5e69fc?w=400&q=80" },
+  { id: "3",        title: "Flexibility Flow",      category: "Flexibility", duration: "30 min", calories: 180, intensity: "Low",    img: "https://images.unsplash.com/photo-1769416945759-4660fd121172?w=400&q=80" },
+  { id: "4",        title: "Upper Body Push",       category: "Strength",    duration: "38 min", calories: 320, intensity: "Medium", img: "https://images.unsplash.com/photo-1605296867724-fa87a8ef53fd?w=400&q=80" },
+  { id: "5",        title: "Sprint Recovery",       category: "Recovery",    duration: "24 min", calories: 180, intensity: "Low",    img: "https://images.unsplash.com/photo-1604011237535-628ea8a45753?w=400&q=80" },
+  { id: "6",        title: "Aqua Training",         category: "Cardio",      duration: "60 min", calories: 480, intensity: "Medium", img: "https://images.unsplash.com/photo-1774009304081-ca87dd2f5d99?w=400&q=80" },
+  { id: "7",        title: "Sprint Intervals",      category: "HIIT",        duration: "40 min", calories: 580, intensity: "High",   img: "https://images.unsplash.com/photo-1604011237535-628ea8a45753?w=400&q=80" },
+  { id: "8",        title: "Core Power",            category: "Core",        duration: "35 min", calories: 260, intensity: "Medium", img: "https://images.unsplash.com/photo-1638820870229-00003edce192?w=400&q=80" },
+  { id: "9",        title: "Shoulder Press Pro",    category: "Strength",    duration: "42 min", calories: 310, intensity: "Medium", img: "https://images.unsplash.com/photo-1605296867724-fa87a8ef53fd?w=400&q=80" },
+  { id: "10",       title: "Back Sculpt",           category: "Strength",    duration: "48 min", calories: 380, intensity: "Medium", img: "https://images.unsplash.com/photo-1597376833295-40a54d5e69fc?w=400&q=80" },
+  { id: "11",       title: "Arm Blaster",           category: "Strength",    duration: "30 min", calories: 220, intensity: "Medium", img: "https://images.unsplash.com/photo-1638820870229-00003edce192?w=400&q=80" },
+  { id: "12",       title: "Elite Chest Program",   category: "Strength",    duration: "55 min", calories: 460, intensity: "High",   img: "https://images.unsplash.com/photo-1605296867724-fa87a8ef53fd?w=400&q=80" },
+  { id: "featured", title: "Post-Sprint Recovery",  category: "Recovery",    duration: "24 min", calories: 180, intensity: "Low",    img: "https://images.unsplash.com/photo-1713711437257-0232e837f40c?w=400&q=80" },
 ];
 
 const exerciseInstructions: Record<string, { steps: string[]; tip: string }> = {
@@ -92,7 +96,7 @@ const exerciseInstructions: Record<string, { steps: string[]; tip: string }> = {
 
 export default function HomeScreen() {
   const navigate = useNavigate();
-  const { user, setSidebarOpen, todayMood, setTodayMood, sessions, streak, bestStreak, favoriteIds } = useApp();
+  const { user, setSidebarOpen, todayMood, setTodayMood, sessions, streak, bestStreak, favoriteIds, unreadNotificationsCount } = useApp();
   const c = useColors();
   const [goalView, setGoalView] = useState<"weekly" | "monthly">("weekly");
   const [instructionsExId, setInstructionsExId] = useState<string | null>(null);
@@ -380,6 +384,14 @@ export default function HomeScreen() {
                 <path d="M18 8C18 6.4087 17.3679 4.88258 16.2426 3.75736C15.1174 2.63214 13.5913 2 12 2C10.4087 2 8.88258 2.63214 7.75736 3.75736C6.63214 4.88258 6 6.4087 6 8C6 15 3 17 3 17H21C21 17 18 15 18 8Z" stroke="white" strokeWidth="1.8" strokeLinecap="round" />
                 <path d="M13.73 21C13.55 21.3 13.3 21.55 13 21.73C12.69 21.9 12.35 22 12 22C11.65 22 11.31 21.9 11 21.73C10.7 21.55 10.45 21.3 10.27 21" stroke="white" strokeWidth="1.8" strokeLinecap="round" />
               </svg>
+              {unreadNotificationsCount > 0 && (
+                <span
+                  className="absolute top-1.5 right-1.5 min-w-[14px] h-[14px] rounded-full flex items-center justify-center text-[9px] font-black text-white"
+                  style={{ background: "#EF4444", boxShadow: "0 0 0 2px rgba(26,58,128,0.8)", lineHeight: 1 }}
+                >
+                  {unreadNotificationsCount > 9 ? "9+" : unreadNotificationsCount}
+                </span>
+              )}
             </button>
 
             <button onClick={() => setSidebarOpen(true)} className="relative shrink-0">

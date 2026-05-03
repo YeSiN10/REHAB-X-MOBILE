@@ -1,8 +1,7 @@
-import { useState } from "react";
 import type { ReactNode } from "react";
 import { useNavigate } from "react-router";
 import { motion, AnimatePresence } from "motion/react";
-import { useColors } from "../context/AppContext";
+import { useApp, useColors } from "../context/AppContext";
 
 const notifTypes: Record<string, { color: string; icon: ReactNode }> = {
   workout: {
@@ -42,34 +41,17 @@ const notifTypes: Record<string, { color: string; icon: ReactNode }> = {
   },
 };
 
-interface Notification {
-  id: string;
-  type: "workout" | "achievement" | "recovery" | "reminder";
-  title: string;
-  message: string;
-  time: string;
-  read: boolean;
-}
-
-const initialNotifications: Notification[] = [
-  { id: "1", type: "reminder", title: "Time to Work Out! 💪", message: "Your Morning HIIT session is scheduled in 30 minutes", time: "30 min ago", read: false },
-  { id: "2", type: "achievement", title: "Achievement Unlocked! ⭐", message: "You've earned the 'Streak Master' badge for 5 consecutive days", time: "2 hrs ago", read: false },
-  { id: "3", type: "workout", title: "Workout Completed", message: "Great job! You finished Aqua Training and burned 480 kcal", time: "Yesterday", read: false },
-  { id: "4", type: "recovery", title: "Recovery Recommendation", message: "Based on your intensity levels, today is ideal for a recovery session", time: "Yesterday", read: true },
-  { id: "5", type: "reminder", title: "Weekly Goal Progress", message: "You've completed 5 of 7 planned sessions this week. Keep it up!", time: "2 days ago", read: true },
-  { id: "6", type: "achievement", title: "Personal Record!", message: "New best time recorded for Sprint Intervals: 38:20", time: "3 days ago", read: true },
-  { id: "7", type: "workout", title: "Session Reminder", message: "Don't forget your Lower Body Blast scheduled for tomorrow at 6 PM", time: "4 days ago", read: true },
-];
-
 export default function NotificationsScreen() {
   const navigate = useNavigate();
   const c = useColors();
-  const [notifications, setNotifications] = useState(initialNotifications);
-
-  const unreadCount = notifications.filter((n) => !n.read).length;
-  const markAllRead = () => setNotifications((n) => n.map((item) => ({ ...item, read: true })));
-  const dismiss = (id: string) => setNotifications((n) => n.filter((item) => item.id !== id));
-  const markRead = (id: string) => setNotifications((n) => n.map((item) => (item.id === id ? { ...item, read: true } : item)));
+  const {
+    notifications,
+    unreadNotificationsCount,
+    markNotificationRead,
+    markAllNotificationsRead,
+    dismissNotification,
+    clearAllNotifications,
+  } = useApp();
 
   const unread = notifications.filter((n) => !n.read);
   const read = notifications.filter((n) => n.read);
@@ -104,21 +86,21 @@ export default function NotificationsScreen() {
             </button>
             <div>
               <h1 className="text-white font-black" style={{ fontSize: 22 }}>Notifications</h1>
-              {unreadCount > 0 && (
-                <p style={{ color: "rgba(255,255,255,0.55)", fontSize: 11 }}>{unreadCount} unread messages</p>
+              {unreadNotificationsCount > 0 && (
+                <p style={{ color: "rgba(255,255,255,0.55)", fontSize: 11 }}>{unreadNotificationsCount} unread messages</p>
               )}
             </div>
           </div>
           <div className="flex flex-col items-end gap-1.5">
-            {unreadCount > 0 && (
-              <button onClick={markAllRead} className="text-xs font-semibold px-3 py-1.5 rounded-xl"
+            {unreadNotificationsCount > 0 && (
+              <button onClick={markAllNotificationsRead} className="text-xs font-semibold px-3 py-1.5 rounded-xl"
                 style={{ background: "rgba(37,109,233,0.25)", color: "#60a5fa", border: "1px solid rgba(37,109,233,0.3)" }}>
                 Mark all read
               </button>
             )}
             {notifications.length > 0 && (
               <button
-                onClick={() => setNotifications([])}
+                onClick={clearAllNotifications}
                 className="text-xs font-semibold px-3 py-1.5 rounded-xl"
                 style={{ background: "rgba(239,68,68,0.15)", color: "#F87171", border: "1px solid rgba(239,68,68,0.25)" }}
               >
@@ -147,7 +129,7 @@ export default function NotificationsScreen() {
                       animate={{ opacity: 1, x: 0 }}
                       exit={{ opacity: 0, x: 60, height: 0 }}
                       transition={{ delay: idx * 0.06 }}
-                      onClick={() => markRead(notif.id)}
+                      onClick={() => markNotificationRead(notif.id)}
                       className="flex items-start gap-3 p-4 rounded-2xl cursor-pointer relative"
                       style={{
                         background: c.card,
@@ -155,21 +137,16 @@ export default function NotificationsScreen() {
                         boxShadow: c.shadow,
                       }}
                     >
-                      {/* Unread dot */}
                       <div
                         className="absolute top-4 right-4 w-2 h-2 rounded-full"
                         style={{ background: type.color }}
                       />
-
-                      {/* Icon */}
                       <div
                         className="w-11 h-11 rounded-2xl flex items-center justify-center shrink-0"
                         style={{ background: `${type.color}15` }}
                       >
                         {type.icon}
                       </div>
-
-                      {/* Content */}
                       <div className="flex-1 pr-4">
                         <p className="font-bold text-sm leading-tight" style={{ color: c.text }}>{notif.title}</p>
                         <p className="text-xs mt-1 leading-relaxed" style={{ color: c.textSub }}>{notif.message}</p>
@@ -198,7 +175,7 @@ export default function NotificationsScreen() {
                       key={notif.id}
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
-                      exit={{ opacity: 0, height: 0 }}
+                      exit={{ opacity: 0, height: 0, marginBottom: 0 }}
                       transition={{ delay: idx * 0.04 }}
                       className="flex items-start gap-3 p-4 rounded-2xl relative"
                       style={{
@@ -218,7 +195,7 @@ export default function NotificationsScreen() {
                         <p className="text-xs mt-0.5 leading-relaxed" style={{ color: c.textMuted }}>{notif.message}</p>
                         <p className="text-[10px] mt-1.5" style={{ color: c.textMuted }}>{notif.time}</p>
                       </div>
-                      <button onClick={() => dismiss(notif.id)} className="shrink-0 mt-1">
+                      <button onClick={(e) => { e.stopPropagation(); dismissNotification(notif.id); }} className="shrink-0 mt-1">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
                           <path d="M18 6L6 18M6 6L18 18" stroke={c.textMuted} strokeWidth="2" strokeLinecap="round" />
                         </svg>

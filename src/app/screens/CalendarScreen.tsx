@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import type { ReactElement } from "react";
 import { useNavigate } from "react-router";
 import { motion, AnimatePresence } from "motion/react";
@@ -73,7 +73,7 @@ const catColors: Record<string, string> = {
 
 export default function CalendarScreen() {
   const navigate = useNavigate();
-  const { sessions } = useApp();
+  const { sessions, addNotification } = useApp();
   const c = useColors();
   const [selectedDay, setSelectedDay] = useState(1);
   const [month] = useState(4); // May
@@ -141,6 +141,83 @@ export default function CalendarScreen() {
     return d.getMonth() === 4 && d.getFullYear() === 2026;
   });
   const completedDays = new Set(thisMonthSessions.map(s => new Date(s.date).getDate())).size;
+
+  // ── Time helpers ─────────────────────────────────────────────────────────
+  const parseTimeStr = (timeStr: string): { h: number; m: number } | null => {
+    const match = timeStr.match(/(\d+):(\d+)\s*(AM|PM)/i);
+    if (!match) return null;
+    let h = parseInt(match[1]);
+    const m = parseInt(match[2]);
+    const period = match[3].toUpperCase();
+    if (period === "PM" && h !== 12) h += 12;
+    if (period === "AM" && h === 12) h = 0;
+    return { h, m };
+  };
+
+  const now = new Date();
+  const currentH = now.getHours();
+  const currentM = now.getMinutes();
+
+  const isSessionFuture = (day: number, timeStr: string): boolean => {
+    if (day > TODAY_DAY) return true;
+    if (day < TODAY_DAY) return false;
+    const t = parseTimeStr(timeStr);
+    if (!t) return false;
+    return t.h > currentH || (t.h === currentH && t.m > currentM);
+  };
+
+  // Extract time from a dateLabel string like "Today • 6:00 PM" or "May 3 • 7:30 AM"
+  const extractTime = (dateLabel: string): string => {
+    const match = dateLabel.match(/(\d+:\d+\s*(?:AM|PM))/i);
+    return match ? match[1] : "";
+  };
+
+  // ── Push notification scheduling ─────────────────────────────────────────
+  useEffect(() => {
+    if (!("Notification" in window)) return;
+    const scheduleNotif = async () => {
+      let perm = Notification.permission;
+      if (perm === "default") perm = await Notification.requestPermission();
+      if (perm !== "granted") return;
+
+      const timesArr = ["6:00 PM", "7:30 AM", "5:00 PM", "8:00 AM", "4:00 PM", "6:30 AM"];
+      let ti = 0;
+      const timers: ReturnType<typeof setTimeout>[] = [];
+
+      for (const [dayStr, wd] of Object.entries(workoutDayData)) {
+        const day = parseInt(dayStr);
+        const timeStr = timesArr[ti % timesArr.length];
+        ti++;
+        if (!isSessionFuture(day, timeStr)) continue;
+
+        const t = parseTimeStr(timeStr);
+        if (!t) continue;
+
+        // Schedule 30-min-before notification
+        const sessionMs = new Date(2026, 4, day, t.h, t.m, 0).getTime();
+        const notifMs = sessionMs - 30 * 60 * 1000;
+        const delay = notifMs - Date.now();
+        if (delay > 0 && delay < 7 * 24 * 60 * 60 * 1000) {
+          const timer = setTimeout(() => {
+            addNotification({
+              type: "reminder",
+              title: "Session in 30 minutes! 🏋️",
+              message: `${wd.title} starts at ${timeStr}. Get ready!`,
+            });
+            new Notification("REHAB X – Session Soon", {
+              body: `${wd.title} starts at ${timeStr}. Get ready!`,
+              icon: "/logo.png",
+            });
+          }, delay);
+          timers.push(timer);
+        }
+      }
+      return () => timers.forEach(clearTimeout);
+    };
+    const cleanup = scheduleNotif();
+    return () => { cleanup.then((fn) => fn && fn()); };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <div className="absolute inset-0 flex flex-col overflow-hidden" style={{ background: c.bg }}>
@@ -318,34 +395,55 @@ export default function CalendarScreen() {
               className="rounded-2xl p-4"
               style={{ background: c.card, border: `1px solid ${wd.color}30`, boxShadow: c.shadow }}
             >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div
-                    className="w-11 h-11 rounded-xl flex items-center justify-center"
-                    style={{ background: `${wd.color}20` }}
-                  >
-                    <span style={{ color: wd.color }}>{categoryIcons[wd.type]}</span>
-                  </div>
-                  <div>
-                    <span
-                      className="text-[10px] font-bold uppercase tracking-wider block"
-                      style={{ color: wd.color }}
+              {(() => {
+                const sessionTimeKey = Object.entries(workoutDayData).findIndex(([d]) => parseInt(d) === selectedDay);
+                const timesArr = ["6:00 PM", "7:30 AM", "5:00 PM", "8:00 AM", "4:00 PM", "6:30 AM"];
+                const sessionTime = timesArr[Math.max(0, sessionTimeKey) % timesArr.length];
+                const future = isSessionFuture(selectedDay, sessionTime);
+                return (
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div
+                        className="w-11 h-11 rounded-xl flex items-center justify-center"
+                        style={{ background: `${wd.color}20` }}
+                      >
+                        <span style={{ color: wd.color }}>{categoryIcons[wd.type]}</span>
+                      </div>
+                      <div>
+                        <span
+                          className="text-[10px] font-bold uppercase tracking-wider block"
+                          style={{ color: wd.color }}
+                        >
+                          {wd.type} • {sessionTime}
+                        </span>
+                        <p className="font-bold text-sm" style={{ color: c.text }}>{wd.title}</p>
+                        {future && (
+                          <p className="text-[10px] font-medium mt-0.5" style={{ color: c.textMuted }}>
+                            🔒 Not yet available
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => { if (!future) navigate(`/exercises/${wd.exId}`); }}
+                      disabled={future}
+                      className="w-9 h-9 rounded-xl flex items-center justify-center transition-opacity"
+                      style={{ background: future ? c.secondaryCard : "#256DE9", border: future ? `1px solid ${c.cardBorder}` : "none", opacity: future ? 0.6 : 1, cursor: future ? "not-allowed" : "pointer" }}
                     >
-                      {wd.type}
-                    </span>
-                    <p className="font-bold text-sm" style={{ color: c.text }}>{wd.title}</p>
+                      {future ? (
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                          <rect x="5" y="11" width="14" height="10" rx="2" fill={c.textMuted} />
+                          <path d="M8 11V7C8 5.34 9.34 4 11 4H13C14.66 4 16 5.34 16 7V11" stroke={c.textMuted} strokeWidth="2" strokeLinecap="round" />
+                        </svg>
+                      ) : (
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="white">
+                          <path d="M8 5L19 12L8 19V5Z" />
+                        </svg>
+                      )}
+                    </button>
                   </div>
-                </div>
-                <button
-                  onClick={() => navigate(`/exercises/${wd.exId}`)}
-                  className="w-9 h-9 rounded-xl flex items-center justify-center"
-                  style={{ background: "#256DE9" }}
-                >
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="white">
-                    <path d="M8 5L19 12L8 19V5Z" />
-                  </svg>
-                </button>
-              </div>
+                );
+              })()}
             </motion.div>
           );
         })()}
@@ -356,34 +454,45 @@ export default function CalendarScreen() {
             Upcoming Sessions
           </h3>
           <div className="space-y-3">
-            {upcoming.map((session, idx) => (
-              <motion.div
-                key={session.id}
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: idx * 0.08 }}
-                onClick={() => navigate(`/exercises/${session.exId}`)}
-                className="flex items-center gap-3 p-3 rounded-2xl cursor-pointer"
-                style={{ background: c.card, border: `1px solid ${c.cardBorder}`, boxShadow: c.shadow }}
-              >
-                <div className="w-1 h-12 rounded-full shrink-0" style={{ background: session.color }} />
-                <div className="flex-1">
-                  <p className="text-xs mb-0.5" style={{ color: c.textMuted }}>{session.date}</p>
-                  <p className="font-bold text-sm" style={{ color: c.text }}>{session.title}</p>
-                  <p className="text-xs font-semibold mt-0.5" style={{ color: session.color }}>
-                    {session.type} • {session.duration}
-                  </p>
-                </div>
-                <div
-                  className="w-8 h-8 rounded-xl flex items-center justify-center"
-                  style={{ background: c.secondaryCard, border: `1px solid ${c.cardBorder}` }}
+            {upcoming.map((session, idx) => {
+              const sessionTimeStr = extractTime(session.date);
+              const future = isSessionFuture(parseInt(session.id), sessionTimeStr);
+              return (
+                <motion.div
+                  key={session.id}
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: idx * 0.08 }}
+                  onClick={() => { if (!future) navigate(`/exercises/${session.exId}`); }}
+                  className="flex items-center gap-3 p-3 rounded-2xl"
+                  style={{ background: c.card, border: `1px solid ${future ? c.cardBorder : session.color + "30"}`, boxShadow: c.shadow, cursor: future ? "default" : "pointer" }}
                 >
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-                    <path d="M9 18L15 12L9 6" stroke={c.textMuted} strokeWidth="2" strokeLinecap="round" />
-                  </svg>
-                </div>
-              </motion.div>
-            ))}
+                  <div className="w-1 h-12 rounded-full shrink-0" style={{ background: future ? c.divider : session.color }} />
+                  <div className="flex-1">
+                    <p className="text-xs mb-0.5" style={{ color: c.textMuted }}>{session.date}</p>
+                    <p className="font-bold text-sm" style={{ color: future ? c.textSub : c.text }}>{session.title}</p>
+                    <p className="text-xs font-semibold mt-0.5" style={{ color: future ? c.textMuted : session.color }}>
+                      {session.type} • {session.duration}
+                    </p>
+                  </div>
+                  <div
+                    className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0"
+                    style={{ background: future ? c.secondaryCard : `${session.color}15`, border: `1px solid ${future ? c.cardBorder : session.color + "30"}` }}
+                  >
+                    {future ? (
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
+                        <rect x="5" y="11" width="14" height="10" rx="2" fill={c.textMuted} fillOpacity="0.6" />
+                        <path d="M8 11V7C8 5.34 9.34 4 11 4H13C14.66 4 16 5.34 16 7V11" stroke={c.textMuted} strokeWidth="2" strokeLinecap="round" />
+                      </svg>
+                    ) : (
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
+                        <path d="M8 5L19 12L8 19V5Z" fill={session.color} />
+                      </svg>
+                    )}
+                  </div>
+                </motion.div>
+              );
+            })}
           </div>
         </div>
 
