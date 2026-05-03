@@ -37,10 +37,10 @@ export default function PremiumScreen() {
   if (isPremium) {
     return (
       <div className="absolute inset-0 flex flex-col items-center justify-center px-6" style={{ background: c.bg }}>
-        <button onClick={() => navigate(-1)} className="absolute top-14 left-5 w-10 h-10 rounded-2xl flex items-center justify-center"
+        <button onClick={() => navigate(-1)} className="absolute top-14 right-5 w-10 h-10 rounded-2xl flex items-center justify-center"
           style={{ background: c.card, border: `1px solid ${c.cardBorder}` }}>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-            <path d="M15 18L9 12L15 6" stroke={c.text} strokeWidth="2" strokeLinecap="round" />
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+            <path d="M18 6L6 18M6 6L18 18" stroke={c.text} strokeWidth="2" strokeLinecap="round" />
           </svg>
         </button>
         <div className="text-center">
@@ -70,14 +70,14 @@ export default function PremiumScreen() {
         }}>
         <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse at 50% 0%, rgba(168,85,247,0.3) 0%, transparent 70%)" }} />
 
-        {/* Back button */}
+        {/* Close button */}
         <button
           onClick={() => navigate(-1)}
-          className="w-10 h-10 rounded-2xl flex items-center justify-center mb-5"
+          className="absolute top-5 right-5 w-10 h-10 rounded-2xl flex items-center justify-center"
           style={{ background: "rgba(255,255,255,0.12)", border: "1px solid rgba(255,255,255,0.15)" }}
         >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-            <path d="M15 18L9 12L15 6" stroke="white" strokeWidth="2" strokeLinecap="round" />
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+            <path d="M18 6L6 18M6 6L18 18" stroke="white" strokeWidth="2" strokeLinecap="round" />
           </svg>
         </button>
 
