@@ -1,7 +1,7 @@
 import { useState, useRef, useCallback } from "react";
 import { useNavigate, useParams } from "react-router";
 import { motion, AnimatePresence } from "motion/react";
-import { useColors } from "../context/AppContext";
+import { useColors, useApp } from "../context/AppContext";
 
 const exerciseData: Record<string, {
   title: string; category: string; duration: string; calories: number;
@@ -73,7 +73,7 @@ export default function ExerciseDetailScreen() {
   const navigate = useNavigate();
   const { id } = useParams();
   const c = useColors();
-  const [saved, setSaved] = useState(false);
+  const { favoriteIds, toggleFavorite } = useApp();
   const [activeTab, setActiveTab] = useState<"overview" | "steps" | "muscles">("overview");
   const [expandedStep, setExpandedStep] = useState<number | null>(null);
   const [showInstructions, setShowInstructions] = useState(false);
@@ -265,12 +265,12 @@ export default function ExerciseDetailScreen() {
             </svg>
           </button>
           <button
-            onClick={() => setSaved(!saved)}
+            onClick={() => toggleFavorite(id || "featured")}
             className="w-10 h-10 rounded-2xl flex items-center justify-center"
-            style={{ background: "rgba(7,9,15,0.6)", backdropFilter: "blur(10px)", border: "1px solid rgba(255,255,255,0.1)" }}
+            style={{ background: "rgba(7,9,15,0.6)", backdropFilter: "blur(10px)", border: `1px solid ${favoriteIds.includes(id || "featured") ? "rgba(239,68,68,0.4)" : "rgba(255,255,255,0.1)"}` }}
           >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill={saved ? "#256DE9" : "none"}>
-              <path d="M19 21L12 16L5 21V5C5 4.46957 5.21071 3.96086 5.58579 3.58579C5.96086 3.21071 6.46957 3 7 3H17C17.5304 3 18.0391 3.21071 18.4142 3.58579C18.7893 3.96086 19 4.46957 19 5V21Z" stroke={saved ? "#256DE9" : "white"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            <svg width="20" height="20" viewBox="0 0 24 24" fill={favoriteIds.includes(id || "featured") ? "#ef4444" : "none"} stroke={favoriteIds.includes(id || "featured") ? "#ef4444" : "white"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
             </svg>
           </button>
         </div>
