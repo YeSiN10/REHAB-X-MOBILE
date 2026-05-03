@@ -341,7 +341,7 @@ export default function ExercisesScreen() {
       </div>
 
       {/* List */}
-      <div className="flex-1 overflow-y-auto pb-[90px] px-5 pt-4">
+      <div className="flex-1 overflow-y-auto pb-[120px] px-5 pt-4" style={{ WebkitOverflowScrolling: "touch", touchAction: "pan-y" } as React.CSSProperties}>
         <p className="text-xs font-semibold mb-4 tracking-wider" style={{ color: c.textMuted }}>
           {filtered.length} EXERCISES
         </p>

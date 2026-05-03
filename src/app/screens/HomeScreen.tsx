@@ -25,9 +25,9 @@ const PSR_IMG = "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=400
 
 const allExercises: Record<string, { id: string; title: string; category: string; duration: string; calories: number; intensity: string; img: string }[]> = {
   "Recovery & Performance": [
-    { id: "featured", title: "Post-Sprint Recovery", category: "Recovery",    duration: "24 min", calories: 180, intensity: "Low",    img: PSR_IMG },
-    { id: "5",        title: "Sprint Recovery",      category: "Recovery",    duration: "24 min", calories: 180, intensity: "Low",    img: "https://images.unsplash.com/photo-1604011237535-628ea8a45753?w=400&q=80" },
-    { id: "3",        title: "Flexibility Flow",     category: "Flexibility", duration: "30 min", calories: 180, intensity: "Low",    img: "https://images.unsplash.com/photo-1769416945759-4660fd121172?w=400&q=80" },
+    { id: "5",  title: "Sprint Recovery",  category: "Recovery",    duration: "24 min", calories: 180, intensity: "Low",    img: "https://images.unsplash.com/photo-1604011237535-628ea8a45753?w=400&q=80" },
+    { id: "3",  title: "Flexibility Flow", category: "Flexibility", duration: "30 min", calories: 180, intensity: "Low",    img: "https://images.unsplash.com/photo-1769416945759-4660fd121172?w=400&q=80" },
+    { id: "6",  title: "Aqua Training",    category: "Cardio",      duration: "60 min", calories: 480, intensity: "Medium", img: "https://images.unsplash.com/photo-1774009304081-ca87dd2f5d99?w=400&q=80" },
   ],
   "Build Muscle": [
     { id: "2",  title: "Lower Body Blast",  category: "Strength", duration: "52 min", calories: 510, intensity: "High",   img: "https://images.unsplash.com/photo-1597376833295-40a54d5e69fc?w=400&q=80" },
@@ -40,9 +40,9 @@ const allExercises: Record<string, { id: string; title: string; category: string
     { id: "8", title: "Core Power",       category: "Core",   duration: "35 min", calories: 260, intensity: "Medium", img: "https://images.unsplash.com/photo-1638820870229-00003edce192?w=400&q=80" },
   ],
   "Flexibility": [
-    { id: "3",        title: "Flexibility Flow",     category: "Flexibility", duration: "30 min", calories: 180, intensity: "Low", img: "https://images.unsplash.com/photo-1769416945759-4660fd121172?w=400&q=80" },
-    { id: "5",        title: "Sprint Recovery",      category: "Recovery",    duration: "24 min", calories: 180, intensity: "Low", img: "https://images.unsplash.com/photo-1604011237535-628ea8a45753?w=400&q=80" },
-    { id: "featured", title: "Post-Sprint Recovery", category: "Recovery",    duration: "24 min", calories: 180, intensity: "Low", img: PSR_IMG },
+    { id: "3",  title: "Flexibility Flow",  category: "Flexibility", duration: "30 min", calories: 180, intensity: "Low",    img: "https://images.unsplash.com/photo-1769416945759-4660fd121172?w=400&q=80" },
+    { id: "5",  title: "Sprint Recovery",   category: "Recovery",    duration: "24 min", calories: 180, intensity: "Low",    img: "https://images.unsplash.com/photo-1604011237535-628ea8a45753?w=400&q=80" },
+    { id: "1",  title: "Morning HIIT",      category: "Cardio",      duration: "45 min", calories: 420, intensity: "High",   img: "https://images.unsplash.com/photo-1729281008855-71e2506761c0?w=400&q=80" },
   ],
 };
 

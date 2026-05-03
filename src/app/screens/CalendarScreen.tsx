@@ -75,13 +75,32 @@ export default function CalendarScreen() {
   const navigate = useNavigate();
   const { sessions, addNotification } = useApp();
   const c = useColors();
-  const [selectedDay, setSelectedDay] = useState(1);
-  const [month] = useState(4); // May
+  const realNow = new Date();
+  const realTodayDay = realNow.getDate();
+  const realTodayMonth = realNow.getMonth();
+  const realTodayYear = realNow.getFullYear();
+
+  const [selectedDay, setSelectedDay] = useState(realTodayDay);
+  const [month, setMonth] = useState(realTodayMonth);
+  const [year, setYear] = useState(realTodayYear);
   const [selectedCat, setSelectedCat] = useState("All");
   const [showAddWorkout, setShowAddWorkout] = useState(false);
 
-  const firstDay = new Date(2026, month, 1).getDay();
-  const daysInMonth = new Date(2026, month + 1, 0).getDate();
+  const TODAY_DAY = year === realTodayYear && month === realTodayMonth ? realTodayDay : -1;
+
+  const prevMonth = () => {
+    setSelectedDay(1);
+    if (month === 0) { setMonth(11); setYear(y => y - 1); }
+    else setMonth(m => m - 1);
+  };
+  const nextMonth = () => {
+    setSelectedDay(1);
+    if (month === 11) { setMonth(0); setYear(y => y + 1); }
+    else setMonth(m => m + 1);
+  };
+
+  const firstDay = new Date(year, month, 1).getDay();
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
   const calCells = Array.from({ length: firstDay + daysInMonth }, (_, i) => {
     const d = i - firstDay + 1;
     return d > 0 ? d : null;
@@ -99,8 +118,6 @@ export default function CalendarScreen() {
     return result;
   }, [selectedCat]);
 
-  const now2 = new Date();
-  const TODAY_DAY = now2.getMonth() === 4 && now2.getFullYear() === 2026 ? now2.getDate() : 3;
 
   const upcoming = useMemo(() => {
     const durations = ["45 min", "52 min", "24 min", "38 min", "30 min", "40 min"];
@@ -115,8 +132,8 @@ export default function CalendarScreen() {
       let dateLabel: string;
       if (diff === 0) dateLabel = `Today • ${times[i % times.length]}`;
       else if (diff === 1) dateLabel = `Tomorrow • ${times[i % times.length]}`;
-      else if (diff < 0) dateLabel = `May ${d} • ${times[i % times.length]} (past)`;
-      else dateLabel = `May ${d} • ${times[i % times.length]}`;
+      else if (diff < 0) dateLabel = `${MONTHS[month]} ${d} • ${times[i % times.length]} (past)`;
+      else dateLabel = `${MONTHS[month]} ${d} • ${times[i % times.length]}`;
       results.push({ id: String(d), date: dateLabel, title: wd.title, type: wd.type, duration: durations[i % durations.length], color: wd.color, exId: wd.exId });
     };
 
@@ -138,8 +155,8 @@ export default function CalendarScreen() {
 
   // Compute this month stats from sessions
   const thisMonthSessions = sessions.filter(s => {
-    const d = new Date(s.date);
-    return d.getMonth() === 4 && d.getFullYear() === 2026;
+    const [y, m] = s.date.split("-").map(Number);
+    return m - 1 === month && y === year;
   });
   const completedDays = new Set(thisMonthSessions.map(s => new Date(s.date).getDate())).size;
 
@@ -195,7 +212,7 @@ export default function CalendarScreen() {
         if (!t) continue;
 
         // Schedule 30-min-before notification
-        const sessionMs = new Date(2026, 4, day, t.h, t.m, 0).getTime();
+        const sessionMs = new Date(year, month, day, t.h, t.m, 0).getTime();
         const notifMs = sessionMs - 30 * 60 * 1000;
         const delay = notifMs - Date.now();
         if (delay > 0 && delay < 7 * 24 * 60 * 60 * 1000) {
@@ -238,21 +255,43 @@ export default function CalendarScreen() {
         <div className="absolute inset-0 pointer-events-none"
           style={{ background: "radial-gradient(ellipse at 50% -10%, rgba(37,109,233,0.35) 0%, transparent 65%)" }} />
         <div className="flex items-center justify-between px-5 mb-1">
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => navigate(-1)}
-              className="w-10 h-10 rounded-2xl flex items-center justify-center shrink-0"
-              style={{ background: "rgba(255,255,255,0.12)", border: "1px solid rgba(255,255,255,0.15)" }}
-            >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                <path d="M15 18L9 12L15 6" stroke="white" strokeWidth="2" strokeLinecap="round" />
-              </svg>
-            </button>
-            <div>
-              <h1 className="text-white font-black" style={{ fontSize: 24 }}>Calendar</h1>
-              <p className="font-semibold text-sm" style={{ color: "rgba(37,109,233,0.9)" }}>{MONTHS[month]} 2026</p>
+          <button
+            onClick={() => navigate(-1)}
+            className="w-10 h-10 rounded-2xl flex items-center justify-center shrink-0"
+            style={{ background: "rgba(255,255,255,0.12)", border: "1px solid rgba(255,255,255,0.15)" }}
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+              <path d="M15 18L9 12L15 6" stroke="white" strokeWidth="2" strokeLinecap="round" />
+            </svg>
+          </button>
+
+          <div className="flex flex-col items-center">
+            <h1 className="text-white font-black leading-tight" style={{ fontSize: 22 }}>Calendar</h1>
+            <div className="flex items-center gap-2 mt-0.5">
+              <button
+                onClick={prevMonth}
+                className="w-7 h-7 rounded-xl flex items-center justify-center"
+                style={{ background: "rgba(255,255,255,0.12)", border: "1px solid rgba(255,255,255,0.15)" }}
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                  <path d="M15 18L9 12L15 6" stroke="white" strokeWidth="2.5" strokeLinecap="round" />
+                </svg>
+              </button>
+              <p className="font-bold text-sm" style={{ color: "rgba(255,255,255,0.9)", minWidth: 110, textAlign: "center" }}>
+                {MONTHS[month]} {year}
+              </p>
+              <button
+                onClick={nextMonth}
+                className="w-7 h-7 rounded-xl flex items-center justify-center"
+                style={{ background: "rgba(255,255,255,0.12)", border: "1px solid rgba(255,255,255,0.15)" }}
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                  <path d="M9 18L15 12L9 6" stroke="white" strokeWidth="2.5" strokeLinecap="round" />
+                </svg>
+              </button>
             </div>
           </div>
+
           <button
             className="w-10 h-10 rounded-2xl flex items-center justify-center"
             style={{ background: "#256DE9", boxShadow: "0 4px 16px rgba(37,109,233,0.4)" }}
@@ -331,7 +370,7 @@ export default function CalendarScreen() {
           <div className="grid grid-cols-7 px-3 pb-4 gap-y-1">
             {calCells.map((day, i) => {
               if (!day) return <div key={i} />;
-              const isToday = day === 1;
+              const isToday = day === TODAY_DAY;
               const isSelected = day === selectedDay;
               const wData = visibleDays[day];
               return (
@@ -503,7 +542,7 @@ export default function CalendarScreen() {
           style={{ background: c.card, border: `1px solid ${c.cardBorder}`, boxShadow: c.shadow }}
         >
           <h3 className="font-bold mb-4" style={{ fontSize: 15, color: c.text }}>
-            May Overview
+            {MONTHS[month]} Overview
           </h3>
           <div className="grid grid-cols-3 gap-3">
             {[
