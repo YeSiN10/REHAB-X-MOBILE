@@ -36,6 +36,7 @@ export default function LoginScreen() {
   const [errors, setErrors] = useState<{ identifier?: string; password?: string; general?: string }>({});
   const [showToast, setShowToast] = useState<{ msg: string; type: "info" | "error" | "success" } | null>(null);
   const [agreed, setAgreed] = useState(false);
+  const [rememberMe, setRememberMe] = useState(true);
   const [showForgot, setShowForgot] = useState(false);
   const [forgotId, setForgotId] = useState("");
   const [forgotSent, setForgotSent] = useState(false);
@@ -128,6 +129,11 @@ export default function LoginScreen() {
     if (result.error) {
       setErrors({ general: result.error });
     } else {
+      // If "remember me" is off, don't persist the token across sessions
+      if (!rememberMe) {
+        localStorage.removeItem("rehab_auth_token");
+        localStorage.removeItem("rehab_auth_user");
+      }
       // If logged in with phone number, pre-populate user.phone
       if (isPhone(identifier)) {
         updateUser({ phone: identifier });
@@ -440,6 +446,28 @@ export default function LoginScreen() {
               <span style={{ color: "#256DE9", fontWeight: 600 }}>Terms & Conditions</span>
               {" "}and{" "}
               <span style={{ color: "#256DE9", fontWeight: 600 }}>Privacy Policy</span>
+            </span>
+          </button>
+
+          {/* Remember me */}
+          <button
+            onClick={() => setRememberMe(!rememberMe)}
+            className="flex items-center justify-between w-full"
+          >
+            <div className="flex items-center gap-3">
+              <div
+                className="w-12 h-6 rounded-full relative transition-all duration-300 shrink-0"
+                style={{ background: rememberMe ? "#256DE9" : c.inputBorder }}
+              >
+                <div
+                  className="absolute top-0.5 w-5 h-5 rounded-full bg-white shadow-sm transition-all duration-300"
+                  style={{ left: rememberMe ? "calc(100% - 22px)" : "2px" }}
+                />
+              </div>
+              <span className="text-sm font-semibold" style={{ color: c.text }}>Remember me</span>
+            </div>
+            <span className="text-xs" style={{ color: c.textMuted }}>
+              {rememberMe ? "Stay signed in" : "Sign out on close"}
             </span>
           </button>
 

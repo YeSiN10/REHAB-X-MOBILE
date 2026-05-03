@@ -357,7 +357,7 @@ export default function ProfileSetupScreen() {
               {/* Gender */}
               <div>
                 <label className="text-xs font-semibold mb-3 block tracking-wider uppercase" style={{ color: c.textSub }}>Gender</label>
-                <div className="grid grid-cols-3 gap-3">
+                <div className="grid grid-cols-2 gap-3">
                   {genderOptions.map((opt) => (
                     <button
                       key={opt.value}
