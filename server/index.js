@@ -197,6 +197,25 @@ app.get("/api/username-available", async (req, res) => {
   }
 });
 
+// ── Sync display username back to users table ─────────────────────────────
+app.post("/api/update-username", requireAuth, async (req, res) => {
+  try {
+    const { username } = req.body;
+    if (!username || !String(username).trim()) return res.status(400).json({ error: "Username required" });
+    const cleaned = String(username).trim();
+    const { rows } = await pool.query(
+      "SELECT id FROM users WHERE LOWER(name) = LOWER($1) AND id != $2",
+      [cleaned, req.userId]
+    );
+    if (rows.length > 0) return res.status(409).json({ error: "Username already taken" });
+    await pool.query("UPDATE users SET name = $1 WHERE id = $2", [cleaned, req.userId]);
+    res.json({ success: true });
+  } catch (err) {
+    console.error("Update username error:", err);
+    res.status(500).json({ error: String(err) });
+  }
+});
+
 // ── Check username availability ───────────────────────────────────────────
 app.get("/api/check-username", requireAuth, async (req, res) => {
   try {

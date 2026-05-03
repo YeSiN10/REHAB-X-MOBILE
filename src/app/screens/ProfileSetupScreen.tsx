@@ -33,7 +33,13 @@ export default function ProfileSetupScreen() {
   const [username, setUsername] = useState(user.name || "");
   const [usernameError, setUsernameError] = useState<string | null>(null);
   const [checkingUsername, setCheckingUsername] = useState(false);
-  const [dob, setDob] = useState(user.dob || "");
+  const parsedExistingDob = user.dob ? user.dob.split("-") : ["", "", ""];
+  const [dobYear, setDobYear] = useState(parsedExistingDob[0] || "");
+  const [dobMonth, setDobMonth] = useState(parsedExistingDob[1] || "");
+  const [dobDay, setDobDay] = useState(parsedExistingDob[2] || "");
+  const dob = dobYear && dobMonth && dobDay ? `${dobYear}-${dobMonth}-${dobDay}` : "";
+
+  const MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"];
 
   const calcAge = (dateStr: string): number => {
     if (!dateStr) return 0;
@@ -45,16 +51,10 @@ export default function ProfileSetupScreen() {
     return age;
   };
 
-  const maxDob = (() => {
-    const d = new Date();
-    d.setFullYear(d.getFullYear() - 10);
-    return d.toISOString().split("T")[0];
-  })();
-  const minDob = (() => {
-    const d = new Date();
-    d.setFullYear(d.getFullYear() - 100);
-    return d.toISOString().split("T")[0];
-  })();
+  const currentYear = new Date().getFullYear();
+  const maxYear = currentYear - 10;
+  const minYear = currentYear - 100;
+  const daysInMonth = dobYear && dobMonth ? new Date(parseInt(dobYear), parseInt(dobMonth), 0).getDate() : 31;
   const [phone, setPhone] = useState(user.phone || "");
   const [gender, setGender] = useState(user.gender || "");
   const [fitnessLevel, setFitnessLevel] = useState(user.fitnessLevel || "Intermediate");
@@ -328,24 +328,64 @@ export default function ProfileSetupScreen() {
               {/* Date of Birth */}
               <div>
                 <label className="text-xs font-semibold mb-2 block tracking-wider uppercase" style={{ color: c.textSub }}>Date of Birth</label>
-                <div className="relative">
-                  <div className="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none">
-                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none">
-                      <rect x="3" y="4" width="18" height="18" rx="2" stroke={c.textMuted} strokeWidth="1.8" />
-                      <path d="M16 2V6M8 2V6M3 10H21" stroke={c.textMuted} strokeWidth="1.8" strokeLinecap="round" />
-                    </svg>
+                <div className="grid grid-cols-3 gap-2">
+                  {/* Day */}
+                  <div className="relative">
+                    <select
+                      value={dobDay}
+                      onChange={(e) => setDobDay(e.target.value)}
+                      className="w-full appearance-none py-4 px-4 rounded-2xl text-sm focus:outline-none transition-all pr-8"
+                      style={{ background: c.inputBg, border: `1.5px solid ${dobDay ? "#256DE9" : c.inputBorder}`, color: dobDay ? c.text : c.textMuted }}
+                    >
+                      <option value="">Day</option>
+                      {Array.from({ length: daysInMonth }, (_, i) => i + 1).map((d) => (
+                        <option key={d} value={String(d).padStart(2, "0")} style={{ background: c.inputBg, color: c.text }}>
+                          {d}
+                        </option>
+                      ))}
+                    </select>
+                    <div className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 9L12 15L18 9" stroke={c.textMuted} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                    </div>
                   </div>
-                  <input
-                    type="date"
-                    value={dob}
-                    max={maxDob}
-                    min={minDob}
-                    onChange={(e) => setDob(e.target.value)}
-                    className="w-full pl-11 pr-4 py-4 rounded-2xl text-sm focus:outline-none transition-all"
-                    style={{ background: c.inputBg, border: `1px solid ${c.inputBorder}`, color: dob ? c.text : c.textMuted, caretColor: "#256DE9" }}
-                    onFocus={(e) => (e.target.style.borderColor = "#256DE9")}
-                    onBlur={(e) => (e.target.style.borderColor = c.inputBorder)}
-                  />
+                  {/* Month */}
+                  <div className="relative">
+                    <select
+                      value={dobMonth}
+                      onChange={(e) => setDobMonth(e.target.value)}
+                      className="w-full appearance-none py-4 px-4 rounded-2xl text-sm focus:outline-none transition-all pr-8"
+                      style={{ background: c.inputBg, border: `1.5px solid ${dobMonth ? "#256DE9" : c.inputBorder}`, color: dobMonth ? c.text : c.textMuted }}
+                    >
+                      <option value="">Month</option>
+                      {MONTHS.map((m, i) => (
+                        <option key={m} value={String(i + 1).padStart(2, "0")} style={{ background: c.inputBg, color: c.text }}>
+                          {m}
+                        </option>
+                      ))}
+                    </select>
+                    <div className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 9L12 15L18 9" stroke={c.textMuted} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                    </div>
+                  </div>
+                  {/* Year */}
+                  <div className="relative">
+                    <select
+                      value={dobYear}
+                      onChange={(e) => setDobYear(e.target.value)}
+                      className="w-full appearance-none py-4 px-4 rounded-2xl text-sm focus:outline-none transition-all pr-8"
+                      style={{ background: c.inputBg, border: `1.5px solid ${dobYear ? "#256DE9" : c.inputBorder}`, color: dobYear ? c.text : c.textMuted }}
+                    >
+                      <option value="">Year</option>
+                      {Array.from({ length: maxYear - minYear + 1 }, (_, i) => maxYear - i).map((y) => (
+                        <option key={y} value={String(y)} style={{ background: c.inputBg, color: c.text }}>
+                          {y}
+                        </option>
+                      ))}
+                    </select>
+                    <div className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 9L12 15L18 9" stroke={c.textMuted} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                    </div>
+                  </div>
                 </div>
                 {dob && (
                   <p className="text-xs mt-1.5 ml-1 font-semibold" style={{ color: "#256DE9" }}>

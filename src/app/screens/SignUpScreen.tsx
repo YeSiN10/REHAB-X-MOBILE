@@ -33,7 +33,6 @@ export default function SignUpScreen() {
   const [demoLoading, setDemoLoading] = useState<string | null>(null);
   const [errors, setErrors] = useState<{ name?: string; email?: string; password?: string; general?: string }>({});
   const [showToast, setShowToast] = useState<string | null>(null);
-  const [agreed, setAgreed] = useState(false);
 
   const strength = strengthLevel(password);
 
@@ -72,17 +71,28 @@ export default function SignUpScreen() {
     else if (!emailRegex.test(email) && !phoneRegex.test(email)) e.email = "Please enter a valid email or phone number";
     if (!password) e.password = "Password is required";
     else if (!isStrongPassword(password)) e.password = "Password must be 8+ chars, 1 uppercase, 1 number";
-    if (!agreed) {
-      showToastMsg("Please agree to the Terms & Conditions");
-      return false;
-    }
     setErrors(e);
     return Object.keys(e).length === 0;
   };
 
   const handleSignUp = async () => {
     if (!validate()) return;
-    if (errors.name) return;
+    // Always re-check username right before submitting (catches cases where user never blurred the field)
+    if (name.trim()) {
+      setCheckingName(true);
+      try {
+        const res = await fetch(`/api/username-available?username=${encodeURIComponent(name.trim())}`);
+        if (res.ok) {
+          const data = await res.json();
+          if (!data.available) {
+            setErrors((e) => ({ ...e, name: "This username is already taken. Please choose another." }));
+            setCheckingName(false);
+            return;
+          }
+        }
+      } catch { /* offline — proceed */ }
+      setCheckingName(false);
+    }
     setLoading(true);
     setErrors({});
     const result = await register(name.trim(), email, password);

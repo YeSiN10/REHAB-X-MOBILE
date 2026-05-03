@@ -574,6 +574,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
           headers: authHeaders(),
           body: JSON.stringify(next),
         }).catch((e) => console.log("User sync error:", e));
+        // Keep users table name in sync so username uniqueness checks work
+        if (u.name && u.name.trim()) {
+          fetch(`${API}/update-username`, {
+            method: "POST",
+            headers: authHeaders(),
+            body: JSON.stringify({ username: u.name.trim() }),
+          }).catch((e) => console.log("Username sync error:", e));
+        }
       }
       return next;
     });
