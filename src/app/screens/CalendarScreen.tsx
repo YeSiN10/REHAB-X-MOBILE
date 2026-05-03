@@ -91,6 +91,8 @@ export default function CalendarScreen() {
   }, []);
 
   const TODAY_DAY = year === realTodayYear && month === realTodayMonth ? realTodayDay : -1;
+  const isPastMonth   = year < realTodayYear || (year === realTodayYear && month < realTodayMonth);
+  const isFutureMonth = year > realTodayYear || (year === realTodayYear && month > realTodayMonth);
 
   const prevMonth = () => {
     setSelectedDay(1);
@@ -134,17 +136,22 @@ export default function CalendarScreen() {
       const wd = workoutDayData[d];
       if (!wd) continue;
       if (selectedCat !== "All" && wd.type !== selectedCat) continue;
-      const diff = TODAY_DAY !== -1 ? d - TODAY_DAY : 1;
       let dateLabel: string;
-      if (diff === 0)      dateLabel = `Today • ${times[i % times.length]}`;
-      else if (diff === 1) dateLabel = `Tomorrow • ${times[i % times.length]}`;
-      else if (diff < 0)  dateLabel = `${MONTHS[month]} ${d} • ${times[i % times.length]}`;
-      else                dateLabel = `${MONTHS[month]} ${d} • ${times[i % times.length]}`;
+      if (TODAY_DAY !== -1) {
+        // Current month — use Today / Tomorrow labels
+        const diff = d - TODAY_DAY;
+        if (diff === 0)      dateLabel = `Today • ${times[i % times.length]}`;
+        else if (diff === 1) dateLabel = `Tomorrow • ${times[i % times.length]}`;
+        else                 dateLabel = `${MONTHS[month]} ${d} • ${times[i % times.length]}`;
+      } else {
+        // Past or future month — just show the date
+        dateLabel = `${MONTHS[month]} ${d} • ${times[i % times.length]}`;
+      }
       results.push({ id: String(d), date: dateLabel, title: wd.title, type: wd.type, duration: durations[i % durations.length], color: wd.color, exId: wd.exId });
       i++;
     }
     return results;
-  }, [selectedDay, selectedCat, daysInMonth, month, TODAY_DAY]);
+  }, [selectedDay, selectedCat, daysInMonth, month, TODAY_DAY, isPastMonth]);
 
   // Compute this month stats from sessions
   const thisMonthSessions = sessions.filter(s => {
@@ -168,12 +175,15 @@ export default function CalendarScreen() {
   const currentH = now.getHours();
   const currentM = now.getMinutes();
 
-  // A session is locked if: different month, future day, past day, or today but time not yet reached
+  // A session is locked if: future month, future day in current month, past day in current month,
+  // or today but time not yet reached. Past months are fully accessible.
   const isSessionFuture = (day: number, timeStr: string): boolean => {
-    if (TODAY_DAY === -1) return true;          // different month — all locked
-    if (day > TODAY_DAY) return true;           // future day — not yet
-    if (day < TODAY_DAY) return true;           // past day — missed, locked
-    // today: check real clock
+    if (isFutureMonth) return true;             // future month — not yet
+    if (isPastMonth)   return false;            // past month — freely accessible
+    // Current month:
+    if (day > TODAY_DAY) return true;           // future day
+    if (day < TODAY_DAY) return true;           // past day — missed
+    // Today: check real clock
     const t = parseTimeStr(timeStr);
     if (!t) return false;
     return t.h > currentH || (t.h === currentH && t.m > currentM);
