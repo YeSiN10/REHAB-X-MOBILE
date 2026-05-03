@@ -208,7 +208,7 @@ export default function ProgressScreen() {
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto pb-[90px] px-5 space-y-4 pt-5">
+      <div className="flex-1 overflow-y-auto pb-[120px] px-5 space-y-4 pt-5">
 
         {/* Empty state for new users */}
         {sessions.length === 0 && (
