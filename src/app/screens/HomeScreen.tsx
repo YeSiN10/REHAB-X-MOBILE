@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router";
 import { motion, AnimatePresence } from "motion/react";
 import { BottomNav } from "../components/BottomNav";
@@ -124,7 +124,31 @@ export default function HomeScreen() {
     const todayStr = today.toISOString().split("T")[0];
     return sessions.filter(s => s.date === todayStr).length;
   }, [sessions]);
-  const todayGoal = 1;
+
+  // Vary goal per day of month (consistent pattern, not random)
+  const todayGoal = useMemo(() => {
+    const dayPattern = [2, 1, 3, 2, 4, 1, 2, 3, 1, 2, 4, 3, 2, 1, 3, 2, 4, 1, 2, 3, 1, 2, 4, 2, 1, 3, 2, 4, 1, 2, 3];
+    return dayPattern[(today.getDate() - 1) % dayPattern.length];
+  }, []);
+
+  // Auto-hide banner when daily goal achieved
+  useEffect(() => {
+    if (todaySessions >= todayGoal && showDailyBanner) {
+      const timer = setTimeout(() => {
+        setShowDailyBanner(false);
+        if (typeof Notification !== "undefined") {
+          Notification.requestPermission().then((perm) => {
+            if (perm === "granted") {
+              new Notification("🎉 Daily goal achieved!", {
+                body: `You completed ${todayGoal} session${todayGoal > 1 ? "s" : ""} today! Great work!`,
+              });
+            }
+          });
+        }
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [todaySessions, todayGoal, showDailyBanner]);
 
   const totalCaloriesWeek = thisWeekSessions.reduce((sum, s) => sum + s.calories, 0);
   const totalDurationWeek = thisWeekSessions.reduce((sum, s) => sum + s.duration, 0);

@@ -66,14 +66,8 @@ export function ProfileSidebar() {
   const initials = displayName.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2);
 
   return (
+    <>
     <AnimatePresence>
-      {cropSrc && (
-        <AvatarCropModal
-          src={cropSrc}
-          onConfirm={handleCropConfirm}
-          onCancel={() => setCropSrc(null)}
-        />
-      )}
       {sidebarOpen && (
         <>
           {/* Backdrop */}
@@ -291,5 +285,15 @@ export function ProfileSidebar() {
         </>
       )}
     </AnimatePresence>
+    <AnimatePresence>
+      {cropSrc && (
+        <AvatarCropModal
+          src={cropSrc}
+          onConfirm={handleCropConfirm}
+          onCancel={() => setCropSrc(null)}
+        />
+      )}
+    </AnimatePresence>
+    </>
   );
 }

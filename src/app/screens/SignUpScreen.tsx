@@ -7,6 +7,7 @@ import imgApple from "../../imports/Frame5/1124af59bd4f33acef499c3ca25ecd39752b1
 import logo from "../../imports/Carte_visite_Final.png";
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const phoneRegex = /^[\+]?[\d\s\-\(\)]{7,15}$/;
 const isStrongPassword = (p: string) => p.length >= 8 && /[A-Z]/.test(p) && /[0-9]/.test(p);
 
 const strengthLevel = (p: string): { label: string; color: string; bars: number } => {
@@ -31,6 +32,7 @@ export default function SignUpScreen() {
   const [demoLoading, setDemoLoading] = useState<string | null>(null);
   const [errors, setErrors] = useState<{ name?: string; email?: string; password?: string; general?: string }>({});
   const [showToast, setShowToast] = useState<string | null>(null);
+  const [agreed, setAgreed] = useState(false);
 
   const strength = strengthLevel(password);
 
@@ -47,10 +49,14 @@ export default function SignUpScreen() {
   const validate = () => {
     const e: typeof errors = {};
     if (!name.trim()) e.name = "Username is required";
-    if (!email) e.email = "Email address is required";
-    else if (!emailRegex.test(email)) e.email = "Please enter a valid email (e.g. name@domain.com)";
+    if (!email) e.email = "Email or phone number is required";
+    else if (!emailRegex.test(email) && !phoneRegex.test(email)) e.email = "Please enter a valid email or phone number";
     if (!password) e.password = "Password is required";
     else if (!isStrongPassword(password)) e.password = "Password must be 8+ chars, 1 uppercase, 1 number";
+    if (!agreed) {
+      showToastMsg("Please agree to the Terms & Conditions");
+      return false;
+    }
     setErrors(e);
     return Object.keys(e).length === 0;
   };
@@ -158,9 +164,9 @@ export default function SignUpScreen() {
             {errors.name && <p className="text-xs mt-1.5 ml-1" style={{ color: "#EF4444" }}>{errors.name}</p>}
           </div>
 
-          {/* Email */}
+          {/* Email or Phone */}
           <div>
-            <label className="text-xs font-semibold mb-2 block tracking-wider uppercase" style={{ color: c.textSub }}>Email Address</label>
+            <label className="text-xs font-semibold mb-2 block tracking-wider uppercase" style={{ color: c.textSub }}>Email or Phone Number</label>
             <div className="relative">
               <div className="absolute left-4 top-1/2 -translate-y-1/2">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
@@ -169,11 +175,11 @@ export default function SignUpScreen() {
                 </svg>
               </div>
               <input
-                type="email" value={email}
+                type="text" value={email}
                 onChange={(e) => { setEmail(e.target.value); setErrors((x) => ({ ...x, email: undefined })); }}
                 className="w-full pl-11 pr-4 py-4 rounded-2xl text-sm transition-all focus:outline-none"
                 style={{ ...inputStyle, borderColor: errors.email ? "#EF4444" : c.inputBorder }}
-                placeholder="your@email.com"
+                placeholder="email@example.com or +1 234 567 8900"
                 onFocus={(e) => (e.target.style.borderColor = errors.email ? "#EF4444" : "#256DE9")}
                 onBlur={(e) => (e.target.style.borderColor = errors.email ? "#EF4444" : c.inputBorder)}
               />
@@ -227,6 +233,33 @@ export default function SignUpScreen() {
               </p>
             )}
           </div>
+
+          {/* I agree checkbox */}
+          <button
+            onClick={() => setAgreed(!agreed)}
+            className="flex items-start gap-3 w-full text-left"
+          >
+            <div
+              className="w-5 h-5 rounded-md flex items-center justify-center shrink-0 mt-0.5 transition-all"
+              style={{
+                background: agreed ? "#256DE9" : "transparent",
+                border: `2px solid ${agreed ? "#256DE9" : c.textMuted}`,
+                boxShadow: agreed ? "0 4px 12px rgba(37,109,233,0.3)" : "none",
+              }}
+            >
+              {agreed && (
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none">
+                  <path d="M20 6L9 17L4 12" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              )}
+            </div>
+            <span className="text-sm leading-relaxed" style={{ color: c.textMuted }}>
+              I agree to the{" "}
+              <span style={{ color: "#256DE9", fontWeight: 600 }}>Terms & Conditions</span>
+              {" "}and{" "}
+              <span style={{ color: "#256DE9", fontWeight: 600 }}>Privacy Policy</span>
+            </span>
+          </button>
 
           {/* Submit */}
           <motion.button

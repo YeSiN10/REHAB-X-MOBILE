@@ -123,7 +123,7 @@ const intensityColors: Record<string, { bg: string; text: string }> = {
 
 export default function ExercisesScreen() {
   const navigate = useNavigate();
-  const { isPremium } = useApp();
+  const { isPremium, toggleFavorite, favoriteIds } = useApp();
   const c = useColors();
   const [selectedBodyPart, setSelectedBodyPart] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
@@ -360,6 +360,15 @@ export default function ExercisesScreen() {
                 🔥 TRENDING
               </span>
             </div>
+            <button
+              onClick={(e) => { e.stopPropagation(); toggleFavorite(filtered[0].id); }}
+              className="absolute top-3 right-3 w-8 h-8 rounded-full flex items-center justify-center"
+              style={{ background: "rgba(0,0,0,0.45)", backdropFilter: "blur(4px)" }}
+            >
+              <svg width="15" height="15" viewBox="0 0 24 24" fill={favoriteIds.includes(filtered[0].id) ? "#ef4444" : "none"} stroke={favoriteIds.includes(filtered[0].id) ? "#ef4444" : "white"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+              </svg>
+            </button>
             <div className="absolute bottom-3 left-4 right-14">
               <h3 className="text-white font-bold" style={{ fontSize: 17 }}>
                 {filtered[0].title}
@@ -406,6 +415,15 @@ export default function ExercisesScreen() {
                         {ex.intensity}
                       </span>
                     </div>
+                    <button
+                      onClick={(e) => { e.stopPropagation(); toggleFavorite(ex.id); }}
+                      className="absolute top-2 left-2 w-7 h-7 rounded-full flex items-center justify-center"
+                      style={{ background: "rgba(0,0,0,0.45)", backdropFilter: "blur(4px)" }}
+                    >
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill={favoriteIds.includes(ex.id) ? "#ef4444" : "none"} stroke={favoriteIds.includes(ex.id) ? "#ef4444" : "rgba(255,255,255,0.8)"} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+                      </svg>
+                    </button>
                     <button
                       onClick={(e) => { e.stopPropagation(); navigate(`/workout/${ex.id}`); }}
                       className="absolute bottom-2 right-2 w-8 h-8 rounded-full flex items-center justify-center"

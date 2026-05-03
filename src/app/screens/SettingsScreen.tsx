@@ -214,59 +214,77 @@ export default function SettingsScreen() {
             <motion.div
               initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.8, opacity: 0 }}
               transition={{ type: "spring", stiffness: 400, damping: 30 }}
-              className="absolute inset-x-5 z-50 rounded-3xl p-6"
-              style={{ top: "50%", transform: "translateY(-50%)", background: c.card, border: `1px solid ${c.cardBorder}`, boxShadow: "0 24px 60px rgba(0,0,0,0.4)" }}
+              className="absolute inset-x-5 z-50 rounded-3xl p-6 overflow-hidden"
+              style={{ top: "50%", transform: "translateY(-50%)", background: "linear-gradient(160deg, #1a3a80 0%, #1b2c60 45%, #0d1630 100%)", border: "1px solid rgba(37,109,233,0.35)", boxShadow: "0 24px 60px rgba(0,0,0,0.5)" }}
             >
+              <div className="absolute inset-0 pointer-events-none"
+                style={{ background: "radial-gradient(ellipse at 50% -15%, rgba(37,109,233,0.5) 0%, transparent 60%)" }} />
               {ratingDone ? (
-                <div className="flex flex-col items-center py-4 text-center">
+                <div className="flex flex-col items-center py-4 text-center relative">
                   <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: "spring", stiffness: 500, damping: 25 }}>
-                    <span style={{ fontSize: 56 }}>🎉</span>
+                    <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto" style={{ background: "rgba(37,109,233,0.25)", border: "2px solid rgba(37,109,233,0.5)" }}>
+                      <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+                        <path d="M20 6L9 17L4 12" stroke="#60a5fa" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                    </div>
                   </motion.div>
-                  <h3 className="font-black mt-4 mb-2" style={{ fontSize: 22, color: c.text }}>Thank You!</h3>
-                  <p className="text-sm" style={{ color: c.textMuted }}>Your {selectedRating}-star rating means the world to us.</p>
+                  <h3 className="font-black mt-4 mb-2" style={{ fontSize: 22, color: "white" }}>Thank You!</h3>
+                  <p className="text-sm" style={{ color: "rgba(255,255,255,0.6)" }}>Your {selectedRating}-star rating means the world to us.</p>
                   <button
                     onClick={() => { setShowRatingModal(false); setRatingDone(false); setSelectedRating(0); }}
                     className="mt-6 px-8 py-3 rounded-2xl text-white font-bold"
-                    style={{ background: "linear-gradient(135deg, #256DE9, #1a4bb5)" }}
+                    style={{ background: "rgba(37,109,233,0.4)", border: "1px solid rgba(37,109,233,0.6)" }}
                   >
                     Close
                   </button>
                 </div>
               ) : (
-                <>
+                <div className="relative">
                   <div className="flex items-center gap-3 mb-5">
-                    <div className="w-12 h-12 rounded-2xl flex items-center justify-center" style={{ background: "rgba(234,179,8,0.15)" }}>
-                      <span style={{ fontSize: 24 }}>⭐</span>
+                    <div className="w-12 h-12 rounded-2xl flex items-center justify-center" style={{ background: "rgba(37,109,233,0.25)", border: "1px solid rgba(37,109,233,0.4)" }}>
+                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                        <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" fill="#60a5fa" stroke="#60a5fa" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
                     </div>
                     <div>
-                      <h3 className="font-black" style={{ fontSize: 18, color: c.text }}>Rate REHAB X</h3>
-                      <p className="text-xs" style={{ color: c.textMuted }}>How are we doing? Let us know!</p>
+                      <h3 className="font-black" style={{ fontSize: 18, color: "white" }}>Rate REHAB X</h3>
+                      <p className="text-xs" style={{ color: "rgba(255,255,255,0.55)" }}>How are we doing? Let us know!</p>
                     </div>
                   </div>
 
-                  <div className="flex justify-center gap-3 mb-3">
-                    {[1, 2, 3, 4, 5].map((star) => (
-                      <motion.button
-                        key={star}
-                        whileTap={{ scale: 0.85 }}
-                        onMouseEnter={() => setHoveredStar(star)}
-                        onMouseLeave={() => setHoveredStar(0)}
-                        onClick={() => setSelectedRating(star)}
-                        style={{ fontSize: 38, lineHeight: 1, filter: (hoveredStar || selectedRating) >= star ? "drop-shadow(0 2px 6px rgba(234,179,8,0.5))" : "none" }}
-                      >
-                        {(hoveredStar || selectedRating) >= star ? "⭐" : "☆"}
-                      </motion.button>
-                    ))}
+                  <div className="flex justify-center gap-2 mb-3">
+                    {[1, 2, 3, 4, 5].map((star) => {
+                      const active = (hoveredStar || selectedRating) >= star;
+                      return (
+                        <motion.button
+                          key={star}
+                          whileTap={{ scale: 0.82 }}
+                          onMouseEnter={() => setHoveredStar(star)}
+                          onMouseLeave={() => setHoveredStar(0)}
+                          onClick={() => setSelectedRating(star)}
+                          className="w-12 h-12 rounded-2xl flex items-center justify-center transition-all"
+                          style={{
+                            background: active ? "rgba(37,109,233,0.4)" : "rgba(255,255,255,0.07)",
+                            border: `1.5px solid ${active ? "rgba(96,165,250,0.7)" : "rgba(255,255,255,0.12)"}`,
+                            boxShadow: active ? "0 4px 16px rgba(37,109,233,0.4)" : "none",
+                          }}
+                        >
+                          <svg width="22" height="22" viewBox="0 0 24 24" fill={active ? "#60a5fa" : "none"} stroke={active ? "#60a5fa" : "rgba(255,255,255,0.35)"} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
+                          </svg>
+                        </motion.button>
+                      );
+                    })}
                   </div>
 
                   {(hoveredStar || selectedRating) > 0 && (
-                    <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center text-sm font-bold mb-4" style={{ color: "#EAB308" }}>
+                    <motion.p initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} className="text-center text-sm font-bold mb-4" style={{ color: "#60a5fa" }}>
                       {starLabels[(hoveredStar || selectedRating) - 1]}
                     </motion.p>
                   )}
 
                   <div className="flex gap-3 mt-4">
-                    <button onClick={() => setShowRatingModal(false)} className="flex-1 py-3 rounded-2xl font-semibold text-sm" style={{ background: c.secondaryCard, color: c.textSub }}>
+                    <button onClick={() => setShowRatingModal(false)} className="flex-1 py-3 rounded-2xl font-semibold text-sm" style={{ background: "rgba(255,255,255,0.08)", color: "rgba(255,255,255,0.6)", border: "1px solid rgba(255,255,255,0.12)" }}>
                       Not now
                     </button>
                     <motion.button
@@ -274,12 +292,12 @@ export default function SettingsScreen() {
                       disabled={selectedRating === 0}
                       onClick={() => setRatingDone(true)}
                       className="flex-1 py-3 rounded-2xl text-white font-bold text-sm disabled:opacity-40"
-                      style={{ background: "linear-gradient(135deg, #EAB308, #F59E0B)" }}
+                      style={{ background: "linear-gradient(135deg, #256DE9, #1a4bb5)", boxShadow: "0 8px 24px rgba(37,109,233,0.4)" }}
                     >
                       Submit Rating
                     </motion.button>
                   </div>
-                </>
+                </div>
               )}
             </motion.div>
           </>
@@ -469,11 +487,13 @@ export default function SettingsScreen() {
               style={{ borderColor: c.divider }}
             >
               <div className="flex items-center gap-3">
-                <span style={{ fontSize: 16 }}>⭐</span>
-                <span className="text-sm font-semibold" style={{ color: "#EAB308" }}>Rate REHAB X</span>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="#256DE9" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
+                </svg>
+                <span className="text-sm font-semibold" style={{ color: "#256DE9" }}>Rate REHAB X</span>
               </div>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-                <path d="M9 18L15 12L9 6" stroke="#EAB308" strokeWidth="2" strokeLinecap="round" />
+                <path d="M9 18L15 12L9 6" stroke="#256DE9" strokeWidth="2" strokeLinecap="round" />
               </svg>
             </button>
             <button

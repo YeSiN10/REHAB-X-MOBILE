@@ -99,12 +99,41 @@ export default function CalendarScreen() {
     return result;
   }, [selectedCat]);
 
-  // Upcoming sessions based on today (May 1, 2026)
-  const upcoming = [
-    { id: "1", date: "Today • 6:00 PM", title: "Morning HIIT", type: "Cardio", duration: "45 min", color: "#256DE9", exId: "1" },
-    { id: "2", date: "Tomorrow • 7:30 AM", title: "Lower Body Blast", type: "Strength", duration: "52 min", color: "#A855F7", exId: "2" },
-    { id: "3", date: "May 3 • 5:00 PM", title: "Sprint Recovery", type: "Recovery", duration: "24 min", color: "#22C55E", exId: "featured" },
-  ];
+  const TODAY_DAY = 2; // May 2, 2026 is today in the app
+
+  const upcoming = useMemo(() => {
+    const durations = ["45 min", "52 min", "24 min", "38 min", "30 min", "40 min"];
+    const times   = ["6:00 PM", "7:30 AM", "5:00 PM", "8:00 AM", "4:00 PM", "6:30 AM"];
+    const results: { id: string; date: string; title: string; type: string; duration: string; color: string; exId: string }[] = [];
+
+    const tryAddDay = (d: number, i: number) => {
+      const wd = workoutDayData[d];
+      if (!wd) return;
+      if (selectedCat !== "All" && wd.type !== selectedCat) return;
+      const diff = d - TODAY_DAY;
+      let dateLabel: string;
+      if (diff === 0) dateLabel = `Today • ${times[i % times.length]}`;
+      else if (diff === 1) dateLabel = `Tomorrow • ${times[i % times.length]}`;
+      else if (diff < 0) dateLabel = `May ${d} • ${times[i % times.length]} (past)`;
+      else dateLabel = `May ${d} • ${times[i % times.length]}`;
+      results.push({ id: String(d), date: dateLabel, title: wd.title, type: wd.type, duration: durations[i % durations.length], color: wd.color, exId: wd.exId });
+    };
+
+    // Start from selectedDay forward
+    let i = 0;
+    for (let d = selectedDay; d <= daysInMonth && results.length < 3; d++) {
+      tryAddDay(d, i);
+      if (workoutDayData[d]) i++;
+    }
+    // If still need more, wrap from today
+    if (results.length < 3) {
+      for (let d = TODAY_DAY; d < selectedDay && results.length < 3; d++) {
+        tryAddDay(d, i);
+        if (workoutDayData[d]) i++;
+      }
+    }
+    return results;
+  }, [selectedDay, selectedCat, daysInMonth]);
 
   // Compute this month stats from sessions
   const thisMonthSessions = sessions.filter(s => {
@@ -208,7 +237,7 @@ export default function CalendarScreen() {
         )}
       </AnimatePresence>
 
-      <div className="flex-1 overflow-y-auto pb-[90px] px-5 space-y-4 pt-4">
+      <div className="flex-1 overflow-y-auto pb-[110px] px-5 space-y-4 pt-4">
         {/* Calendar */}
         <div
           className="rounded-2xl overflow-hidden"
