@@ -133,7 +133,7 @@ export default function LoginScreen() {
       if (isPhone(identifier)) {
         updateUser({ phone: identifier });
       }
-      const name = (user?.name || "").split(" ")[0] || "back";
+      const name = (result.user?.name || result.user?.username || "").split(" ")[0] || "there";
       setWelcomeName(name);
       setShowWelcomeAnim(true);
       setTimeout(() => {
@@ -325,46 +325,73 @@ export default function LoginScreen() {
         )}
       </AnimatePresence>
 
-      {/* Header */}
-      <div className="px-6 pt-16 pb-10 relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-[280px] h-[280px] rounded-full pointer-events-none" style={{ background: c.headerGlow }} />
-        <div className="flex items-center gap-3 mb-10">
-          <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style={{ background: "#256DE9" }}>
-            <img src={logo} alt="REHAB X" className="w-8 h-8 object-contain" />
+      {/* ── Curved Dark Gradient Header ── */}
+      <div className="relative shrink-0" style={{ minHeight: 220 }}>
+        <div
+          className="absolute inset-0"
+          style={{
+            background: "linear-gradient(160deg, #1a3a80 0%, #1b2c60 45%, #0d1630 100%)",
+            borderBottomLeftRadius: 36,
+            borderBottomRightRadius: 36,
+          }}
+        />
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            background: "radial-gradient(ellipse at 60% 0%, rgba(37,109,233,0.5) 0%, transparent 65%)",
+            borderBottomLeftRadius: 36,
+            borderBottomRightRadius: 36,
+          }}
+        />
+        <div className="relative px-6 pt-14 pb-9">
+          <div className="flex items-center gap-3 mb-7">
+            <div className="w-10 h-10 rounded-2xl flex items-center justify-center shrink-0"
+              style={{ background: "rgba(255,255,255,0.15)", border: "1.5px solid rgba(255,255,255,0.25)" }}>
+              <img src={logo} alt="REHAB X" className="w-7 h-7 object-contain" />
+            </div>
+            <span className="tracking-[3px] uppercase text-white/90" style={{ fontSize: 16, fontWeight: 900 }}>
+              REHAB<span style={{ color: "#60A5FA" }}>X</span>
+            </span>
           </div>
-          <span className="tracking-[3px] uppercase" style={{ fontSize: 18, fontWeight: 900, color: c.text }}>
-            REHAB<span style={{ color: "#256DE9" }}>X</span>
-          </span>
+          <h1 className="text-white font-black mb-1.5" style={{ fontSize: 28, letterSpacing: "-0.5px" }}>
+            Welcome back 👋
+          </h1>
+          <p className="text-white/60 text-sm">Sign in to continue your recovery journey</p>
         </div>
-        <h1 className="mb-2" style={{ fontSize: 30, fontWeight: 800, color: c.text }}>Welcome back 👋</h1>
-        <p style={{ fontSize: 14, color: c.textMuted }}>Sign in to continue your recovery journey</p>
       </div>
 
-      {/* Form */}
-      <div className="flex-1 px-6 pb-8">
+      {/* ── Form ── */}
+      <div className="flex-1 px-6 pt-6 pb-8 overflow-y-auto">
         <div className="space-y-4">
           {errors.general && (
-            <div className="px-4 py-3 rounded-xl text-sm font-medium"
-              style={{ background: "rgba(239,68,68,0.1)", color: "#EF4444", border: "1px solid rgba(239,68,68,0.2)" }}>
+            <motion.div
+              initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }}
+              className="flex items-center gap-2.5 px-4 py-3 rounded-2xl text-sm font-medium"
+              style={{ background: "rgba(239,68,68,0.1)", color: "#EF4444", border: "1px solid rgba(239,68,68,0.2)" }}
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="shrink-0">
+                <circle cx="12" cy="12" r="10" stroke="#EF4444" strokeWidth="1.8" />
+                <path d="M12 8v4M12 16h.01" stroke="#EF4444" strokeWidth="1.8" strokeLinecap="round" />
+              </svg>
               {errors.general}
-            </div>
+            </motion.div>
           )}
 
           {/* Email or Phone */}
           <div>
-            <label className="text-xs font-semibold mb-2 block tracking-wider uppercase" style={{ color: c.textSub }}>
+            <label className="text-xs font-bold mb-2 block tracking-wider uppercase" style={{ color: c.textSub }}>
               Email or Phone Number
             </label>
             <div className="relative">
-              <div className="absolute left-4 top-1/2 -translate-y-1/2">
+              <div className="absolute left-4 top-1/2 -translate-y-1/2 z-10">
                 {identifierIsPhone ? (
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-                    <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.95 9.61 19.79 19.79 0 01.88 1C.88.47 1.27 0 1.8 0H4.8a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L5.93 7.88a16 16 0 006.29 6.29l1.23-1.23a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z" stroke={errors.identifier ? "#EF4444" : c.textMuted} strokeWidth="1.6" strokeLinecap="round" />
+                    <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.95 9.61 19.79 19.79 0 01.88 1C.88.47 1.27 0 1.8 0H4.8a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L5.93 7.88a16 16 0 006.29 6.29l1.23-1.23a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z" stroke={errors.identifier ? "#EF4444" : "#256DE9"} strokeWidth="1.6" strokeLinecap="round" />
                   </svg>
                 ) : (
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-                    <rect x="3" y="5" width="18" height="14" rx="2" stroke={errors.identifier ? "#EF4444" : c.textMuted} strokeWidth="1.8" />
-                    <path d="M3 9L12 14L21 9" stroke={errors.identifier ? "#EF4444" : c.textMuted} strokeWidth="1.8" strokeLinecap="round" />
+                    <rect x="3" y="5" width="18" height="14" rx="2" stroke={errors.identifier ? "#EF4444" : "#256DE9"} strokeWidth="1.8" />
+                    <path d="M3 9L12 14L21 9" stroke={errors.identifier ? "#EF4444" : "#256DE9"} strokeWidth="1.8" strokeLinecap="round" />
                   </svg>
                 )}
               </div>
@@ -385,7 +412,7 @@ export default function LoginScreen() {
           {/* Password */}
           <div>
             <div className="flex items-center justify-between mb-2">
-              <label className="text-xs font-semibold tracking-wider uppercase" style={{ color: c.textSub }}>Password</label>
+              <label className="text-xs font-bold tracking-wider uppercase" style={{ color: c.textSub }}>Password</label>
               <button onClick={() => setShowForgot(true)} className="text-xs font-semibold" style={{ color: "#256DE9" }}>
                 Forgot Password?
               </button>
@@ -393,8 +420,8 @@ export default function LoginScreen() {
             <div className="relative">
               <div className="absolute left-4 top-1/2 -translate-y-1/2">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-                  <rect x="5" y="11" width="14" height="10" rx="2" stroke={errors.password ? "#EF4444" : c.textMuted} strokeWidth="1.8" />
-                  <path d="M8 11V7C8 5.34 9.34 4 11 4H13C14.66 4 16 5.34 16 7V11" stroke={errors.password ? "#EF4444" : c.textMuted} strokeWidth="1.8" strokeLinecap="round" />
+                  <rect x="5" y="11" width="14" height="10" rx="2" stroke={errors.password ? "#EF4444" : "#256DE9"} strokeWidth="1.8" />
+                  <path d="M8 11V7C8 5.34 9.34 4 11 4H13C14.66 4 16 5.34 16 7V11" stroke={errors.password ? "#EF4444" : "#256DE9"} strokeWidth="1.8" strokeLinecap="round" />
                 </svg>
               </div>
               <input
@@ -406,7 +433,7 @@ export default function LoginScreen() {
                 onFocus={(e) => (e.target.style.borderColor = errors.password ? "#EF4444" : "#256DE9")}
                 onBlur={(e) => (e.target.style.borderColor = errors.password ? "#EF4444" : c.inputBorder)}
               />
-              <button onClick={() => setShowPass(!showPass)} className="absolute right-4 top-1/2 -translate-y-1/2" style={{ color: c.textMuted }}>
+              <button onClick={() => setShowPass(!showPass)} className="absolute right-4 top-1/2 -translate-y-1/2" style={{ color: "#256DE9" }}>
                 {showPass ? (
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M3 3L21 21M10.584 10.587C10.2187 10.9524 10 11.4501 10 12C10 13.1046 10.8954 14 12 14C12.5499 14 13.0476 13.78 13.413 13.416M7.362 7.36C5.68 8.47 4.273 10.06 3.34 12C4.73 14.9 7.76 17 12 17C13.544 17 14.953 16.64 16.192 16M9.9 4.24C10.588 4.08 11.294 4 12 4C16.24 4 19.27 6.1 20.66 9C20.293 9.74 19.843 10.42 19.32 11.04" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" /></svg>
                 ) : (
@@ -418,19 +445,12 @@ export default function LoginScreen() {
           </div>
 
           {/* Remember me */}
-          <button
-            onClick={() => setRememberMe(!rememberMe)}
-            className="flex items-center justify-between w-full"
-          >
+          <button onClick={() => setRememberMe(!rememberMe)} className="flex items-center justify-between w-full py-1">
             <div className="flex items-center gap-3">
-              <div
-                className="w-12 h-6 rounded-full relative transition-all duration-300 shrink-0"
-                style={{ background: rememberMe ? "#256DE9" : c.inputBorder }}
-              >
-                <div
-                  className="absolute top-0.5 w-5 h-5 rounded-full bg-white shadow-sm transition-all duration-300"
-                  style={{ left: rememberMe ? "calc(100% - 22px)" : "2px" }}
-                />
+              <div className="w-12 h-6 rounded-full relative transition-all duration-300 shrink-0"
+                style={{ background: rememberMe ? "#256DE9" : c.inputBorder }}>
+                <div className="absolute top-0.5 w-5 h-5 rounded-full bg-white shadow-sm transition-all duration-300"
+                  style={{ left: rememberMe ? "calc(100% - 22px)" : "2px" }} />
               </div>
               <span className="text-sm font-semibold" style={{ color: c.text }}>Remember me</span>
             </div>
@@ -439,32 +459,45 @@ export default function LoginScreen() {
             </span>
           </button>
 
-          {/* Login button */}
+          {/* Sign In button */}
           <motion.button
             whileTap={{ scale: 0.97 }}
             onClick={handleLogin}
             disabled={loading}
-            className="w-full py-4 rounded-2xl text-white font-bold"
-            style={{ background: "linear-gradient(135deg, #256DE9 0%, #1a4bb5 100%)", boxShadow: "0 16px 40px rgba(37,109,233,0.35)", fontSize: 16 }}
+            className="w-full py-4 rounded-2xl text-white font-black relative overflow-hidden"
+            style={{
+              background: "linear-gradient(135deg, #3b82f6 0%, #256DE9 40%, #1a3a8f 100%)",
+              boxShadow: "0 8px 32px rgba(37,109,233,0.45), inset 0 1px 0 rgba(255,255,255,0.15)",
+              fontSize: 16,
+              letterSpacing: "0.3px",
+            }}
           >
+            <div className="absolute inset-0 pointer-events-none"
+              style={{ background: "linear-gradient(180deg, rgba(255,255,255,0.12) 0%, transparent 60%)" }} />
             {loading ? (
-              <span className="flex items-center justify-center gap-2">
+              <span className="flex items-center justify-center gap-2 relative">
                 <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                 Signing in...
               </span>
-            ) : "Sign In"}
+            ) : (
+              <span className="flex items-center justify-center gap-2 relative">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                  <path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4M10 17l5-5-5-5M15 12H3" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+                Sign In
+              </span>
+            )}
           </motion.button>
 
           {/* Divider */}
-          <div className="flex items-center gap-3 my-1">
+          <div className="flex items-center gap-3">
             <div className="flex-1 h-px" style={{ background: c.divider }} />
-            <span className="text-xs font-medium" style={{ color: c.textMuted }}>or continue with</span>
+            <span className="text-xs font-medium" style={{ color: c.textMuted }}>or sign in with</span>
             <div className="flex-1 h-px" style={{ background: c.divider }} />
           </div>
 
           {/* Social buttons */}
           <div className="flex gap-3">
-            {/* Google */}
             <div className="relative flex-1">
               <motion.button
                 whileTap={{ scale: GOOGLE_CLIENT_ID ? 0.97 : 1 }}
@@ -473,15 +506,15 @@ export default function LoginScreen() {
                 className="w-full flex items-center justify-center gap-2.5 py-3.5 rounded-2xl font-semibold text-sm transition-all"
                 style={{
                   background: c.card,
-                  border: `1px solid ${c.cardBorder}`,
+                  border: `1.5px solid ${c.cardBorder}`,
                   color: GOOGLE_CLIENT_ID ? c.textSub : c.textMuted,
-                  opacity: GOOGLE_CLIENT_ID ? 1 : 0.5,
+                  opacity: GOOGLE_CLIENT_ID ? 1 : 0.55,
                 }}
               >
                 {socialLoading === "Google" ? (
                   <span className="w-4 h-4 border-2 border-[#4285F4]/30 border-t-[#4285F4] rounded-full animate-spin" />
                 ) : (
-                  <svg width="20" height="20" viewBox="0 0 24 24">
+                  <svg width="18" height="18" viewBox="0 0 24 24">
                     <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
                     <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
                     <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
@@ -492,25 +525,22 @@ export default function LoginScreen() {
               </motion.button>
               {!GOOGLE_CLIENT_ID && (
                 <div className="absolute -top-1 -right-1">
-                  <span className="text-[8px] font-bold px-1.5 py-0.5 rounded-full text-white" style={{ background: "#A855F7" }}>
-                    Soon
-                  </span>
+                  <span className="text-[8px] font-bold px-1.5 py-0.5 rounded-full text-white" style={{ background: "#A855F7" }}>Soon</span>
                 </div>
               )}
             </div>
 
-            {/* Apple */}
             <motion.button
               whileTap={{ scale: 0.97 }}
               onClick={handleAppleLogin}
               disabled={!!socialLoading}
               className="flex-1 flex items-center justify-center gap-2.5 py-3.5 rounded-2xl font-semibold text-sm transition-all"
-              style={{ background: c.card, border: `1px solid ${c.cardBorder}`, color: c.textSub }}
+              style={{ background: c.card, border: `1.5px solid ${c.cardBorder}`, color: c.textSub }}
             >
               {socialLoading === "Apple" ? (
                 <span className="w-4 h-4 border-2 border-gray-400/30 border-t-gray-700 rounded-full animate-spin" />
               ) : (
-                <svg width="20" height="20" viewBox="0 0 814 1000" fill={c.text}>
+                <svg width="18" height="18" viewBox="0 0 814 1000" fill={c.text}>
                   <path d="M788.1 340.9c-5.8 4.5-108.2 62.2-108.2 190.5 0 148.4 130.3 200.9 134.2 202.2-.6 3.2-20.7 71.9-68.7 141.9-42.8 61.6-87.5 123.1-155.5 123.1s-85.5-39.5-164-39.5c-76 0-103.7 40.8-165.9 40.8s-105-57.8-155.5-127.4C46 790.7 0 663 0 541.8c0-207.3 130.3-316.7 258.4-316.7 66.1 0 121.2 43.4 162.7 43.4 39.5 0 101.1-46 176.3-46 28.5 0 130.9 2.6 198.3 99.2zm-234-181.5c31.1-36.9 53.1-88.1 53.1-139.3 0-7.1-.6-14.3-1.9-20.1-50.6 1.9-110.8 33.7-147.1 75.8-28.5 32.4-55.1 83.6-55.1 135.5 0 7.8 1.3 15.6 1.9 18.1 3.2.6 8.4 1.3 13.6 1.3 45.4 0 102.5-30.4 135.5-71.3z"/>
                 </svg>
               )}
@@ -518,9 +548,9 @@ export default function LoginScreen() {
             </motion.button>
           </div>
 
-          <div className="mt-4 text-center">
+          <div className="pt-1 text-center">
             <span className="text-sm" style={{ color: c.textMuted }}>Don't have an account? </span>
-            <button onClick={() => navigate("/signup")} className="text-[#256DE9] text-sm font-bold">Create Account</button>
+            <button onClick={() => navigate("/signup")} className="text-sm font-bold" style={{ color: "#256DE9" }}>Create Account</button>
           </div>
         </div>
       </div>

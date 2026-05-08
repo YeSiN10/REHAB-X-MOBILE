@@ -412,7 +412,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         setFavoriteIds(saved ? JSON.parse(saved) : []);
       } catch { setFavoriteIds([]); }
       syncRemoteData(token);
-      return {};
+      return { user: au };
     } catch {
       return { error: "Network error. Please check your connection." };
     }
