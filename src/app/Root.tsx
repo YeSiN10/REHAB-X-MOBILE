@@ -2,8 +2,9 @@ import { Outlet, useLocation, useNavigate } from "react-router";
 import { motion, AnimatePresence } from "motion/react";
 import { useEffect } from "react";
 import { AppProvider, useApp } from "./context/AppContext";
+import { AiAssistant } from "./components/AiAssistant";
 
-const PUBLIC_ROUTES = ["/", "/login", "/signup", "/onboarding"];
+const PUBLIC_ROUTES = ["/", "/login", "/signup", "/verify-email", "/onboarding"];
 
 function RouteGuard() {
   const { isAuthenticated, authLoading } = useApp();
@@ -87,6 +88,7 @@ export default function Root() {
                 </div>
               </motion.div>
             </AnimatePresence>
+            <AiAssistant />
           </div>
         </div>
       </div>

@@ -100,7 +100,7 @@ export default function SignUpScreen() {
     if (result.error) {
       setErrors({ general: result.error });
     } else {
-      navigate("/profile-setup", { replace: true });
+      navigate("/verify-email", { replace: true, state: { email } });
     }
   };
 

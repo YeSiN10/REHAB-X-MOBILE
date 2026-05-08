@@ -10,16 +10,26 @@ const genderOptions = [
   { value: "male",   label: "Male",   emoji: "👨" },
   { value: "female", label: "Female", emoji: "👩" },
 ];
-const fitnessLevels = [
-  { value: "Beginner",     label: "Beginner",     desc: "Just starting out" },
-  { value: "Intermediate", label: "Intermediate", desc: "Some experience" },
-  { value: "Advanced",     label: "Advanced",     desc: "Well experienced" },
+const rehabilitationLevels = [
+  { value: "Beginner",     label: "Beginner",     desc: "Just starting rehabilitation" },
+  { value: "Intermediate", label: "Intermediate", desc: "Some rehab experience" },
+  { value: "Advanced",     label: "Advanced",     desc: "Well into recovery" },
 ];
 const goals = [
   { value: "Recovery & Performance", label: "Recovery",    emoji: "🏥" },
   { value: "Build Muscle",           label: "Muscle",      emoji: "💪" },
   { value: "Lose Weight",            label: "Weight Loss", emoji: "⚡" },
   { value: "Flexibility",            label: "Flexibility", emoji: "🧘" },
+];
+const PAIN_ZONES = [
+  { id: "lower-back", label: "Lower Back", emoji: "🔻" },
+  { id: "knee",       label: "Knee",       emoji: "🦵" },
+  { id: "shoulder",   label: "Shoulder",   emoji: "💪" },
+  { id: "hip",        label: "Hip",        emoji: "🦴" },
+  { id: "ankle",      label: "Ankle",      emoji: "🦶" },
+  { id: "neck",       label: "Neck",       emoji: "🩺" },
+  { id: "wrist",      label: "Wrist",      emoji: "✋" },
+  { id: "elbow",      label: "Elbow",      emoji: "🦾" },
 ];
 
 export default function ProfileSetupScreen() {
@@ -67,6 +77,13 @@ export default function ProfileSetupScreen() {
   const [avatar, setAvatar] = useState(user.avatar || "");
   const [completing, setCompleting] = useState(false);
   const [cropSrc, setCropSrc] = useState<string | null>(null);
+  const [visitedKine, setVisitedKine] = useState<string>(user.visitedKine || "");
+  const [painLevel, setPainLevel] = useState<number>(user.painLevel ?? 5);
+  const [painZones, setPainZones] = useState<string[]>(user.painZones || []);
+
+  const togglePainZone = (id: string) => {
+    setPainZones((prev) => prev.includes(id) ? prev.filter((z) => z !== id) : [...prev, id]);
+  };
 
   const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -127,11 +144,14 @@ export default function ProfileSetupScreen() {
       medicalDocs,
       profileSetupDone: true,
       avatar,
+      visitedKine,
+      painLevel,
+      painZones,
     });
     setTimeout(() => navigate("/home"), 2000);
   };
 
-  const steps = ["Personal", "Fitness", "Documents"];
+  const steps = ["Personal", "Rehabilitation", "Kiné", "Documents"];
 
   if (completing) {
     return (
@@ -420,13 +440,13 @@ export default function ProfileSetupScreen() {
             </motion.div>
           )}
 
-          {/* ── STEP 1: Fitness ── */}
+          {/* ── STEP 1: Rehabilitation ── */}
           {step === 1 && (
             <motion.div key="step1" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-5">
               <div>
-                <label className="text-xs font-semibold mb-3 block tracking-wider uppercase" style={{ color: c.textSub }}>Fitness Level</label>
+                <label className="text-xs font-semibold mb-3 block tracking-wider uppercase" style={{ color: c.textSub }}>Rehabilitation Level</label>
                 <div className="space-y-2.5">
-                  {fitnessLevels.map((lvl) => (
+                  {rehabilitationLevels.map((lvl) => (
                     <button
                       key={lvl.value}
                       onClick={() => setFitnessLevel(lvl.value)}
@@ -477,9 +497,105 @@ export default function ProfileSetupScreen() {
             </motion.div>
           )}
 
-          {/* ── STEP 2: Documents ── */}
+          {/* ── STEP 2: Kiné ── */}
           {step === 2 && (
-            <motion.div key="step2" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-5">
+            <motion.div key="step2kine" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-6">
+              {/* Visited Kiné */}
+              <div>
+                <label className="text-xs font-semibold mb-3 block tracking-wider uppercase" style={{ color: c.textSub }}>Have you visited a Kiné before?</label>
+                <div className="grid grid-cols-2 gap-3">
+                  {[{ value: "yes", label: "Yes", emoji: "✅" }, { value: "no", label: "No", emoji: "❌" }].map((opt) => (
+                    <button
+                      key={opt.value}
+                      onClick={() => setVisitedKine(opt.value)}
+                      className="flex flex-col items-center gap-2 py-5 rounded-2xl transition-all"
+                      style={
+                        visitedKine === opt.value
+                          ? { background: "#256DE9", boxShadow: "0 8px 24px rgba(37,109,233,0.35)" }
+                          : { background: c.card, border: `1px solid ${c.cardBorder}` }
+                      }
+                    >
+                      <span style={{ fontSize: 26 }}>{opt.emoji}</span>
+                      <span className="text-sm font-black" style={{ color: visitedKine === opt.value ? "white" : c.text }}>{opt.label}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Pain Level */}
+              <div>
+                <div className="flex items-center justify-between mb-3">
+                  <label className="text-xs font-semibold tracking-wider uppercase" style={{ color: c.textSub }}>Pain Level</label>
+                  <div className="px-3 py-1 rounded-full" style={{ background: painLevel <= 3 ? "rgba(34,197,94,0.15)" : painLevel <= 6 ? "rgba(245,158,11,0.15)" : "rgba(239,68,68,0.15)" }}>
+                    <span className="text-xs font-black" style={{ color: painLevel <= 3 ? "#22C55E" : painLevel <= 6 ? "#F59E0B" : "#EF4444" }}>
+                      {painLevel}/10
+                    </span>
+                  </div>
+                </div>
+                <div className="flex gap-1.5">
+                  {Array.from({ length: 10 }, (_, i) => i + 1).map((n) => (
+                    <button
+                      key={n}
+                      onClick={() => setPainLevel(n)}
+                      className="flex-1 h-10 rounded-xl flex items-center justify-center font-bold text-xs transition-all"
+                      style={{
+                        background: n <= painLevel
+                          ? (n <= 3 ? "#22C55E" : n <= 6 ? "#F59E0B" : "#EF4444")
+                          : c.secondaryCard,
+                        color: n <= painLevel ? "white" : c.textMuted,
+                        transform: n === painLevel ? "scale(1.12)" : "scale(1)",
+                      }}
+                    >
+                      {n}
+                    </button>
+                  ))}
+                </div>
+                <div className="flex justify-between mt-1.5 px-0.5">
+                  <span className="text-[10px]" style={{ color: "#22C55E" }}>No pain</span>
+                  <span className="text-[10px]" style={{ color: "#EF4444" }}>Severe</span>
+                </div>
+              </div>
+
+              {/* Pain Zones */}
+              <div>
+                <label className="text-xs font-semibold mb-3 block tracking-wider uppercase" style={{ color: c.textSub }}>
+                  Pain Zones for Rehabilitation
+                  <span className="ml-1 font-normal normal-case" style={{ color: c.textMuted }}>(select all that apply)</span>
+                </label>
+                <div className="grid grid-cols-2 gap-2.5">
+                  {PAIN_ZONES.map((zone) => {
+                    const selected = painZones.includes(zone.id);
+                    return (
+                      <button
+                        key={zone.id}
+                        onClick={() => togglePainZone(zone.id)}
+                        className="flex items-center gap-3 px-4 py-3 rounded-2xl transition-all text-left"
+                        style={
+                          selected
+                            ? { background: "#256DE9", boxShadow: "0 6px 18px rgba(37,109,233,0.3)" }
+                            : { background: c.card, border: `1px solid ${c.cardBorder}` }
+                        }
+                      >
+                        <span style={{ fontSize: 18 }}>{zone.emoji}</span>
+                        <span className="text-sm font-bold" style={{ color: selected ? "white" : c.text }}>{zone.label}</span>
+                        {selected && (
+                          <div className="ml-auto w-4 h-4 rounded-full bg-white/30 flex items-center justify-center">
+                            <svg width="8" height="8" viewBox="0 0 24 24" fill="none">
+                              <path d="M20 6L9 17L4 12" stroke="white" strokeWidth="3" strokeLinecap="round" />
+                            </svg>
+                          </div>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            </motion.div>
+          )}
+
+          {/* ── STEP 3: Documents ── */}
+          {step === 3 && (
+            <motion.div key="step3" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-5">
               <div className="p-4 rounded-2xl" style={{ background: c.accentBg, border: "1px solid rgba(37,109,233,0.2)" }}>
                 <div className="flex items-start gap-3">
                   <div className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0" style={{ background: "rgba(37,109,233,0.2)" }}>
@@ -574,7 +690,7 @@ export default function ProfileSetupScreen() {
             whileTap={{ scale: 0.97 }}
             onClick={() => {
               if (step === 0 && usernameError) return;
-              if (step < 2) setStep((s) => s + 1);
+              if (step < 3) setStep((s) => s + 1);
               else handleComplete();
             }}
             disabled={step === 0 && (!!usernameError || checkingUsername)}
@@ -590,10 +706,10 @@ export default function ProfileSetupScreen() {
               opacity: (step === 0 && (!!usernameError || checkingUsername)) ? 0.6 : 1,
             }}
           >
-            {step < 2 ? "Continue" : "Get Started 🚀"}
+            {step < 3 ? "Continue" : "Get Started 🚀"}
           </motion.button>
         </div>
-        {step === 2 && (
+        {step === 3 && (
           <button onClick={handleComplete} className="w-full text-center mt-3 text-sm font-semibold" style={{ color: c.textMuted }}>
             Skip for now
           </button>

@@ -5,12 +5,12 @@ import { useApp, useColors } from "../context/AppContext";
 import logo from "../../imports/Carte_visite_Final.png";
 
 const features = [
-  { icon: "⚡", title: "Advanced Exercises", desc: "60+ premium VR workout programs", pro: true },
-  { icon: "🤖", title: "AI Recovery Coach", desc: "Personalized rehab protocols", pro: true },
+  { icon: "⚡", title: "Advanced Exercises", desc: "60+ premium rehab programs", pro: true },
+  { icon: "🤖", title: "AI Assistant", desc: "24/7 app & rehab guidance", pro: true },
+  { icon: "👨‍⚕️", title: "Doctor Messaging", desc: "Chat directly with your kinés", pro: true },
   { icon: "📊", title: "Advanced Analytics", desc: "Deep performance insights", pro: true },
   { icon: "🎥", title: "HD Video Guides", desc: "Step-by-step expert demos", pro: true },
   { icon: "💊", title: "Nutrition Plans", desc: "Custom meal planning tools", pro: true },
-  { icon: "👨‍⚕️", title: "Physio Consultation", desc: "Monthly virtual check-ins", pro: true },
 ];
 
 const plans = [

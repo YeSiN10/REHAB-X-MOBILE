@@ -3,6 +3,7 @@ import Root from "./Root";
 import SplashScreen from "./screens/SplashScreen";
 import LoginScreen from "./screens/LoginScreen";
 import SignUpScreen from "./screens/SignUpScreen";
+import VerifyEmailScreen from "./screens/VerifyEmailScreen";
 import OnboardingScreen from "./screens/OnboardingScreen";
 import HomeScreen from "./screens/HomeScreen";
 import SessionHistoryScreen from "./screens/SessionHistoryScreen";
@@ -18,6 +19,7 @@ import NotificationsScreen from "./screens/NotificationsScreen";
 import PlansScreen from "./screens/PlansScreen";
 import ProfileSetupScreen from "./screens/ProfileSetupScreen";
 import PremiumScreen from "./screens/PremiumScreen";
+import DoctorMessagesScreen from "./screens/DoctorMessagesScreen";
 
 export const router = createBrowserRouter([
   {
@@ -27,6 +29,7 @@ export const router = createBrowserRouter([
       { index: true, Component: SplashScreen },
       { path: "login", Component: LoginScreen },
       { path: "signup", Component: SignUpScreen },
+      { path: "verify-email", Component: VerifyEmailScreen },
       { path: "onboarding", Component: OnboardingScreen },
       { path: "profile-setup", Component: ProfileSetupScreen },
       { path: "home", Component: HomeScreen },
@@ -42,6 +45,7 @@ export const router = createBrowserRouter([
       { path: "notifications", Component: NotificationsScreen },
       { path: "plans", Component: PlansScreen },
       { path: "premium", Component: PremiumScreen },
+      { path: "doctor-messages", Component: DoctorMessagesScreen },
     ],
   },
 ]);

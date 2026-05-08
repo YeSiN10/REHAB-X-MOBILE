@@ -143,6 +143,62 @@ app.post("/api/auth/login", async (req, res) => {
   }
 });
 
+// ── Auth: Send Verification Code ─────────────────────────────────────────
+app.post("/api/auth/send-verification", async (req, res) => {
+  try {
+    const { email } = req.body;
+    if (!email) return res.status(400).json({ error: "Email is required" });
+
+    const code = String(Math.floor(100000 + Math.random() * 900000));
+    const expires = Date.now() + 10 * 60 * 1000; // 10 minutes
+
+    await pool.query(
+      `INSERT INTO kv_store (key, value, updated_at) VALUES ($1, $2, NOW())
+       ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value, updated_at = NOW()`,
+      [`verify_${email.toLowerCase()}`, JSON.stringify({ code, expires })]
+    );
+
+    // In production, send via email service. For dev, return the code directly.
+    console.log(`[DEV] Verification code for ${email}: ${code}`);
+    res.json({ success: true, devCode: code });
+  } catch (err) {
+    console.error("Send verification error:", err);
+    res.status(500).json({ error: "Failed to send verification code" });
+  }
+});
+
+// ── Auth: Verify Code ─────────────────────────────────────────────────────
+app.post("/api/auth/verify-code", async (req, res) => {
+  try {
+    const { email, code } = req.body;
+    if (!email || !code) return res.status(400).json({ error: "Email and code are required" });
+
+    const { rows } = await pool.query(
+      "SELECT value FROM kv_store WHERE key = $1",
+      [`verify_${email.toLowerCase()}`]
+    );
+
+    if (rows.length === 0) return res.status(400).json({ error: "No verification code found. Please request a new one." });
+
+    const { code: storedCode, expires } = rows[0].value;
+
+    if (Date.now() > expires) {
+      return res.status(400).json({ error: "Code has expired. Please request a new one." });
+    }
+    if (String(code) !== String(storedCode)) {
+      return res.status(400).json({ error: "Incorrect code. Please try again." });
+    }
+
+    // Mark verified — delete the code
+    await pool.query("DELETE FROM kv_store WHERE key = $1", [`verify_${email.toLowerCase()}`]);
+
+    res.json({ success: true });
+  } catch (err) {
+    console.error("Verify code error:", err);
+    res.status(500).json({ error: "Verification failed. Please try again." });
+  }
+});
+
 // ── Auth: Google ──────────────────────────────────────────────────────────
 app.post("/api/auth/google", async (req, res) => {
   try {

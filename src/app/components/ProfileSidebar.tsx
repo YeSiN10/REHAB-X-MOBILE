@@ -9,33 +9,37 @@ import logo from "../../imports/Carte_visite_Final.png";
 const menuItems = [
   {
     icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M3 9.5L12 3L21 9.5V20C21 20.5523 20.5523 21 20 21H15V15H9V21H4C3.44772 21 3 20.5523 3 20V9.5Z" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" /></svg>,
-    label: "Home", path: "/home",
+    label: "Home", path: "/home", premium: false,
   },
   {
     icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="4" stroke="currentColor" strokeWidth="1.8" /><path d="M4 20C4 17.2386 7.58172 15 12 15C16.4183 15 20 17.2386 20 20" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" /></svg>,
-    label: "Profile", path: "/profile",
+    label: "Profile", path: "/profile", premium: false,
   },
   {
     icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="18" height="18" rx="3" stroke="currentColor" strokeWidth="1.8" /><path d="M3 9H21M8 2V6M16 2V6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" /></svg>,
-    label: "Calendar", path: "/calendar",
+    label: "Calendar", path: "/calendar", premium: false,
   },
   {
     icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M3 17L8 12L13 15L21 7" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" /><path d="M3 21H21" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" /></svg>,
-    label: "Progress", path: "/progress",
+    label: "Progress", path: "/progress", premium: false,
   },
   {
     icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M18 8C18 6.4087 17.3679 4.88258 16.2426 3.75736C15.1174 2.63214 13.5913 2 12 2C10.4087 2 8.88258 2.63214 7.75736 3.75736C6.63214 4.88258 6 6.4087 6 8C6 15 3 17 3 17H21C21 17 18 15 18 8Z" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" /><path d="M13.73 21C13.5542 21.3031 13.3019 21.5547 12.9982 21.7295C12.6946 21.9044 12.3504 21.9965 12 21.9965C11.6496 21.9965 11.3054 21.9044 11.0018 21.7295C10.6982 21.5547 10.4458 21.3031 10.27 21" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" /></svg>,
-    label: "Notifications", path: "/notifications",
+    label: "Notifications", path: "/notifications", premium: false,
+  },
+  {
+    icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M21 15C21 15.5304 20.7893 16.0391 20.4142 16.4142C20.0391 16.7893 19.5304 17 19 17H7L3 21V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H19C19.5304 3 20.0391 3.21071 20.4142 3.58579C20.7893 3.96086 21 4.46957 21 5V15Z" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" /></svg>,
+    label: "Doctor Messages", path: "/doctor-messages", premium: true,
   },
   {
     icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="3" stroke="currentColor" strokeWidth="1.8" /><path d="M12 2v3M12 19v3M4.22 4.22l2.12 2.12M17.66 17.66l2.12 2.12M2 12h3M19 12h3M4.22 19.78l2.12-2.12M17.66 6.34l2.12-2.12" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" /></svg>,
-    label: "Settings", path: "/settings",
+    label: "Settings", path: "/settings", premium: false,
   },
 ];
 
 export function ProfileSidebar() {
   const navigate = useNavigate();
-  const { sidebarOpen, setSidebarOpen, user, updateUser, isDark, setIsDark, logout } = useApp();
+  const { sidebarOpen, setSidebarOpen, user, updateUser, isDark, setIsDark, logout, isPremium } = useApp();
   const c = useColors();
   const avatarInputRef = useRef<HTMLInputElement>(null);
   const [cropSrc, setCropSrc] = useState<string | null>(null);
@@ -194,7 +198,7 @@ export function ProfileSidebar() {
                 Navigation
               </p>
               <div className="space-y-0.5">
-                {menuItems.map((item) => (
+                {menuItems.filter((item) => !item.premium || isPremium).map((item) => (
                   <button
                     key={item.path}
                     onClick={() => handleNav(item.path)}
@@ -211,6 +215,14 @@ export function ProfileSidebar() {
                   >
                     <span>{item.icon}</span>
                     <span className="text-sm font-semibold">{item.label}</span>
+                    {item.premium && (
+                      <div className="ml-auto w-5 h-5 rounded-full flex items-center justify-center shrink-0"
+                        style={{ background: "linear-gradient(135deg, #F59E0B, #EF4444)" }}>
+                        <svg width="10" height="10" viewBox="0 0 24 24" fill="white">
+                          <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
+                        </svg>
+                      </div>
+                    )}
                   </button>
                 ))}
               </div>

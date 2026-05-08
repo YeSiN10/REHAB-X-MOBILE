@@ -22,6 +22,9 @@ export interface User {
   medicalDocs?: string[];
   profileSetupDone?: boolean;
   avatar?: string;
+  visitedKine?: string;
+  painLevel?: number;
+  painZones?: string[];
 }
 
 export interface WorkoutSession {
