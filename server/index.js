@@ -16,6 +16,25 @@ const pool = new Pool({
 const JWT_SECRET = process.env.JWT_SECRET || "rehab-x-fallback-secret-change-in-prod";
 const JWT_EXPIRES = "30d";
 
+// ── DB init ───────────────────────────────────────────────────────────────
+async function initDb() {
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS users (
+      id SERIAL PRIMARY KEY,
+      email TEXT UNIQUE NOT NULL,
+      name TEXT NOT NULL,
+      password_hash TEXT NOT NULL,
+      created_at TIMESTAMPTZ DEFAULT NOW()
+    );
+    CREATE TABLE IF NOT EXISTS kv_store (
+      key TEXT PRIMARY KEY,
+      value JSONB NOT NULL,
+      updated_at TIMESTAMPTZ DEFAULT NOW()
+    );
+  `);
+  console.log("Database tables ready");
+}
+
 // ── KV helpers ────────────────────────────────────────────────────────────
 async function kvGet(key) {
   const { rows } = await pool.query(
@@ -309,6 +328,13 @@ app.post("/api/log", requireAuth, async (req, res) => {
 });
 
 const PORT = process.env.API_PORT || 3001;
-app.listen(PORT, "0.0.0.0", () => {
-  console.log(`API server running on port ${PORT}`);
-});
+initDb()
+  .then(() => {
+    app.listen(PORT, "0.0.0.0", () => {
+      console.log(`API server running on port ${PORT}`);
+    });
+  })
+  .catch((err) => {
+    console.error("Failed to initialize database:", err);
+    process.exit(1);
+  });
