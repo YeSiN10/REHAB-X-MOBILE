@@ -59,12 +59,20 @@ export default function WorkoutCompleteScreen() {
     },
   ];
 
-  // Total sessions this week
+  // Distinct days this week where at least 1 session was logged
   const thisWeekCount = useMemo(() => {
     const today = new Date();
-    const start = new Date(today);
-    start.setDate(today.getDate() - ((today.getDay() + 6) % 7));
-    return sessions.filter((s) => new Date(s.date) >= start).length;
+    const startOfWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - ((today.getDay() + 6) % 7));
+    const uniqueDays = new Set(
+      sessions
+        .filter((s) => {
+          const [y, m, d] = s.date.split("-").map(Number);
+          const sessionDay = new Date(y, m - 1, d);
+          return sessionDay >= startOfWeek;
+        })
+        .map((s) => s.date)
+    );
+    return uniqueDays.size;
   }, [sessions]);
 
   return (

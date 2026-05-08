@@ -161,7 +161,6 @@ export default function HomeScreen() {
   const totalCaloriesWeek = thisWeekSessions.reduce((sum, s) => sum + s.calories, 0);
   const totalDurationWeek = thisWeekSessions.reduce((sum, s) => sum + s.duration, 0);
   const weeklyGoalDays = 7;
-  const completedWeekDays = Math.min(thisWeekSessions.length, weeklyGoalDays);
 
   const weekDaysStatus = useMemo(() => {
     const result = [false, false, false, false, false, false, false];
@@ -175,6 +174,9 @@ export default function HomeScreen() {
     });
     return result;
   }, [thisWeekSessions]);
+
+  // Count distinct days this week where at least 1 session was logged
+  const completedWeekDays = weekDaysStatus.filter(Boolean).length;
 
   const monthlyGoal = 20;
   const monthlyProgress = Math.min(thisMonthSessions.length, monthlyGoal);
