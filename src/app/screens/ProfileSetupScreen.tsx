@@ -500,88 +500,119 @@ export default function ProfileSetupScreen() {
           {/* ── STEP 2: Kiné ── */}
           {step === 2 && (
             <motion.div key="step2kine" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-6">
+
               {/* Visited Kiné */}
               <div>
-                <label className="text-xs font-semibold mb-3 block tracking-wider uppercase" style={{ color: c.textSub }}>Have you visited a Kiné before?</label>
+                <label className="text-xs font-bold mb-3 block tracking-wider uppercase" style={{ color: c.textSub }}>
+                  Have you visited a Kiné before?
+                </label>
                 <div className="grid grid-cols-2 gap-3">
-                  {[{ value: "yes", label: "Yes", emoji: "✅" }, { value: "no", label: "No", emoji: "❌" }].map((opt) => (
-                    <button
-                      key={opt.value}
-                      onClick={() => setVisitedKine(opt.value)}
-                      className="flex flex-col items-center gap-2 py-5 rounded-2xl transition-all"
-                      style={
-                        visitedKine === opt.value
-                          ? { background: "#256DE9", boxShadow: "0 8px 24px rgba(37,109,233,0.35)" }
-                          : { background: c.card, border: `1px solid ${c.cardBorder}` }
-                      }
-                    >
-                      <span style={{ fontSize: 26 }}>{opt.emoji}</span>
-                      <span className="text-sm font-black" style={{ color: visitedKine === opt.value ? "white" : c.text }}>{opt.label}</span>
-                    </button>
-                  ))}
+                  {[
+                    {
+                      value: "yes", label: "Yes",
+                      icon: <svg width="28" height="28" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="1.8"/><path d="M8 12l3 3 5-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>,
+                    },
+                    {
+                      value: "no", label: "No",
+                      icon: <svg width="28" height="28" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="1.8"/><path d="M15 9l-6 6M9 9l6 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/></svg>,
+                    },
+                  ].map((opt) => {
+                    const sel = visitedKine === opt.value;
+                    return (
+                      <button
+                        key={opt.value}
+                        onClick={() => setVisitedKine(opt.value)}
+                        className="flex flex-col items-center gap-3 py-6 rounded-3xl transition-all relative overflow-hidden"
+                        style={
+                          sel
+                            ? { background: "linear-gradient(135deg, #3b82f6 0%, #256DE9 50%, #1a3a8f 100%)", boxShadow: "0 10px 32px rgba(37,109,233,0.4), inset 0 1px 0 rgba(255,255,255,0.15)" }
+                            : { background: c.card, border: `1.5px solid ${c.cardBorder}` }
+                        }
+                      >
+                        {sel && <div className="absolute inset-0 pointer-events-none" style={{ background: "linear-gradient(180deg, rgba(255,255,255,0.1) 0%, transparent 60%)" }} />}
+                        <div style={{ color: sel ? "white" : "#256DE9" }} className="relative">{opt.icon}</div>
+                        <span className="text-sm font-black relative" style={{ color: sel ? "white" : c.text }}>{opt.label}</span>
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
 
               {/* Pain Level */}
               <div>
                 <div className="flex items-center justify-between mb-3">
-                  <label className="text-xs font-semibold tracking-wider uppercase" style={{ color: c.textSub }}>Pain Level</label>
-                  <div className="px-3 py-1 rounded-full" style={{ background: painLevel <= 3 ? "rgba(34,197,94,0.15)" : painLevel <= 6 ? "rgba(245,158,11,0.15)" : "rgba(239,68,68,0.15)" }}>
-                    <span className="text-xs font-black" style={{ color: painLevel <= 3 ? "#22C55E" : painLevel <= 6 ? "#F59E0B" : "#EF4444" }}>
-                      {painLevel}/10
-                    </span>
+                  <label className="text-xs font-bold tracking-wider uppercase" style={{ color: c.textSub }}>Pain Level</label>
+                  <div
+                    className="px-3 py-1 rounded-full font-black text-xs"
+                    style={{
+                      background: painLevel <= 3 ? "rgba(34,197,94,0.15)" : painLevel <= 6 ? "rgba(245,158,11,0.15)" : "rgba(239,68,68,0.15)",
+                      color: painLevel <= 3 ? "#22C55E" : painLevel <= 6 ? "#F59E0B" : "#EF4444",
+                    }}
+                  >
+                    {painLevel}/10
                   </div>
                 </div>
-                <div className="flex gap-1.5">
-                  {Array.from({ length: 10 }, (_, i) => i + 1).map((n) => (
-                    <button
-                      key={n}
-                      onClick={() => setPainLevel(n)}
-                      className="flex-1 h-10 rounded-xl flex items-center justify-center font-bold text-xs transition-all"
-                      style={{
-                        background: n <= painLevel
-                          ? (n <= 3 ? "#22C55E" : n <= 6 ? "#F59E0B" : "#EF4444")
-                          : c.secondaryCard,
-                        color: n <= painLevel ? "white" : c.textMuted,
-                        transform: n === painLevel ? "scale(1.12)" : "scale(1)",
-                      }}
-                    >
-                      {n}
-                    </button>
-                  ))}
+                <div className="flex gap-1.5 mb-2">
+                  {Array.from({ length: 10 }, (_, i) => i + 1).map((n) => {
+                    const active = n <= painLevel;
+                    const isCurrent = n === painLevel;
+                    const col = n <= 3 ? "#22C55E" : n <= 6 ? "#F59E0B" : "#EF4444";
+                    return (
+                      <button
+                        key={n}
+                        onClick={() => setPainLevel(n)}
+                        className="flex-1 rounded-xl flex items-center justify-center font-black text-xs transition-all"
+                        style={{
+                          height: isCurrent ? 44 : 38,
+                          background: active ? col : c.secondaryCard,
+                          color: active ? "white" : c.textMuted,
+                          boxShadow: isCurrent ? `0 6px 16px ${col}55` : "none",
+                          transform: isCurrent ? "translateY(-2px)" : "none",
+                        }}
+                      >
+                        {n}
+                      </button>
+                    );
+                  })}
                 </div>
-                <div className="flex justify-between mt-1.5 px-0.5">
-                  <span className="text-[10px]" style={{ color: "#22C55E" }}>No pain</span>
-                  <span className="text-[10px]" style={{ color: "#EF4444" }}>Severe</span>
+                <div className="flex justify-between px-0.5">
+                  <span className="text-[10px] font-semibold" style={{ color: "#22C55E" }}>No pain</span>
+                  <span className="text-[10px] font-semibold" style={{ color: "#EF4444" }}>Severe</span>
                 </div>
               </div>
 
               {/* Pain Zones */}
               <div>
-                <label className="text-xs font-semibold mb-3 block tracking-wider uppercase" style={{ color: c.textSub }}>
-                  Pain Zones for Rehabilitation
-                  <span className="ml-1 font-normal normal-case" style={{ color: c.textMuted }}>(select all that apply)</span>
-                </label>
-                <div className="grid grid-cols-2 gap-2.5">
+                <div className="flex items-baseline gap-2 mb-3">
+                  <label className="text-xs font-bold tracking-wider uppercase" style={{ color: c.textSub }}>
+                    Pain Zones for Rehabilitation
+                  </label>
+                  <span className="text-[10px]" style={{ color: c.textMuted }}>(select all that apply)</span>
+                </div>
+                <div className="grid grid-cols-2 gap-2">
                   {PAIN_ZONES.map((zone) => {
                     const selected = painZones.includes(zone.id);
                     return (
                       <button
                         key={zone.id}
                         onClick={() => togglePainZone(zone.id)}
-                        className="flex items-center gap-3 px-4 py-3 rounded-2xl transition-all text-left"
+                        className="flex items-center gap-3 px-4 py-3.5 rounded-2xl transition-all text-left relative overflow-hidden"
                         style={
                           selected
-                            ? { background: "#256DE9", boxShadow: "0 6px 18px rgba(37,109,233,0.3)" }
-                            : { background: c.card, border: `1px solid ${c.cardBorder}` }
+                            ? { background: "linear-gradient(135deg, #3b82f6 0%, #256DE9 55%, #1a3a8f 100%)", boxShadow: "0 6px 20px rgba(37,109,233,0.35), inset 0 1px 0 rgba(255,255,255,0.12)" }
+                            : { background: c.card, border: `1.5px solid ${c.cardBorder}` }
                         }
                       >
-                        <span style={{ fontSize: 18 }}>{zone.emoji}</span>
-                        <span className="text-sm font-bold" style={{ color: selected ? "white" : c.text }}>{zone.label}</span>
+                        {selected && <div className="absolute inset-0 pointer-events-none" style={{ background: "linear-gradient(180deg, rgba(255,255,255,0.08) 0%, transparent 60%)" }} />}
+                        <div className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 relative"
+                          style={{ background: selected ? "rgba(255,255,255,0.2)" : "rgba(37,109,233,0.1)" }}>
+                          <span style={{ color: selected ? "white" : "#256DE9", fontSize: 16 }}>{zone.emoji}</span>
+                        </div>
+                        <span className="text-sm font-bold relative" style={{ color: selected ? "white" : c.text }}>{zone.label}</span>
                         {selected && (
-                          <div className="ml-auto w-4 h-4 rounded-full bg-white/30 flex items-center justify-center">
-                            <svg width="8" height="8" viewBox="0 0 24 24" fill="none">
-                              <path d="M20 6L9 17L4 12" stroke="white" strokeWidth="3" strokeLinecap="round" />
+                          <div className="ml-auto w-5 h-5 rounded-full flex items-center justify-center shrink-0 relative" style={{ background: "rgba(255,255,255,0.25)" }}>
+                            <svg width="10" height="10" viewBox="0 0 24 24" fill="none">
+                              <path d="M20 6L9 17L4 12" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
                             </svg>
                           </div>
                         )}

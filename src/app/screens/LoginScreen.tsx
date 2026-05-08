@@ -325,39 +325,20 @@ export default function LoginScreen() {
         )}
       </AnimatePresence>
 
-      {/* ── Curved Dark Gradient Header ── */}
-      <div className="relative shrink-0" style={{ minHeight: 220 }}>
-        <div
-          className="absolute inset-0"
-          style={{
-            background: "linear-gradient(160deg, #1a3a80 0%, #1b2c60 45%, #0d1630 100%)",
-            borderBottomLeftRadius: 36,
-            borderBottomRightRadius: 36,
-          }}
-        />
-        <div
-          className="absolute inset-0 pointer-events-none"
-          style={{
-            background: "radial-gradient(ellipse at 60% 0%, rgba(37,109,233,0.5) 0%, transparent 65%)",
-            borderBottomLeftRadius: 36,
-            borderBottomRightRadius: 36,
-          }}
-        />
-        <div className="relative px-6 pt-14 pb-9">
-          <div className="flex items-center gap-3 mb-7">
-            <div className="w-10 h-10 rounded-2xl flex items-center justify-center shrink-0"
-              style={{ background: "rgba(255,255,255,0.15)", border: "1.5px solid rgba(255,255,255,0.25)" }}>
-              <img src={logo} alt="REHAB X" className="w-7 h-7 object-contain" />
-            </div>
-            <span className="tracking-[3px] uppercase text-white/90" style={{ fontSize: 16, fontWeight: 900 }}>
-              REHAB<span style={{ color: "#60A5FA" }}>X</span>
-            </span>
+      {/* ── Header ── */}
+      <div className="px-6 pt-14 pb-8">
+        <div className="flex items-center gap-3 mb-8">
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style={{ background: "#256DE9" }}>
+            <img src={logo} alt="REHAB X" className="w-7 h-7 object-contain" />
           </div>
-          <h1 className="text-white font-black mb-1.5" style={{ fontSize: 28, letterSpacing: "-0.5px" }}>
-            Welcome back 👋
-          </h1>
-          <p className="text-white/60 text-sm">Sign in to continue your recovery journey</p>
+          <span className="tracking-[3px] uppercase" style={{ fontSize: 17, fontWeight: 900, color: c.text }}>
+            REHAB<span style={{ color: "#256DE9" }}>X</span>
+          </span>
         </div>
+        <h1 className="font-black mb-1.5" style={{ fontSize: 28, letterSpacing: "-0.5px", color: c.text }}>
+          Welcome back 👋
+        </h1>
+        <p style={{ fontSize: 14, color: c.textMuted }}>Sign in to continue your recovery journey</p>
       </div>
 
       {/* ── Form ── */}
