@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
 import { motion, AnimatePresence } from "motion/react";
 import { useApp, useColors } from "../context/AppContext";
+import { useT } from "../i18n";
 import imgGoogle from "../../imports/Frame5/9e370cba9e445e60441d9117342a69eb0f5682cb.png";
 import imgApple from "../../imports/Frame5/1124af59bd4f33acef499c3ca25ecd39752b18c9.png";
 import logo from "../../imports/Carte_visite_Final.png";
@@ -23,6 +24,7 @@ export default function SignUpScreen() {
   const navigate = useNavigate();
   const { register, isAuthenticated } = useApp();
   const c = useColors();
+  const t = useT();
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -158,8 +160,8 @@ export default function SignUpScreen() {
           </div>
         </div>
 
-        <h1 className="mb-2" style={{ fontSize: 28, fontWeight: 800, color: c.text }}>Create Account</h1>
-        <p style={{ fontSize: 14, color: c.textMuted }}>Start your VR rehabilitation journey today</p>
+        <h1 className="mb-2" style={{ fontSize: 28, fontWeight: 800, color: c.text }}>{t.signup.title}</h1>
+        <p style={{ fontSize: 14, color: c.textMuted }}>{t.signup.subtitle}</p>
       </div>
 
       {/* Form */}
@@ -173,7 +175,7 @@ export default function SignUpScreen() {
           )}
           {/* Username */}
           <div>
-            <label className="text-xs font-semibold mb-2 block tracking-wider uppercase" style={{ color: c.textSub }}>Username</label>
+            <label className="text-xs font-semibold mb-2 block tracking-wider uppercase" style={{ color: c.textSub }}>{t.signup.username}</label>
             <div className="relative">
               <div className="absolute left-4 top-1/2 -translate-y-1/2">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
@@ -208,7 +210,7 @@ export default function SignUpScreen() {
 
           {/* Email or Phone */}
           <div>
-            <label className="text-xs font-semibold mb-2 block tracking-wider uppercase" style={{ color: c.textSub }}>Email or Phone Number</label>
+            <label className="text-xs font-semibold mb-2 block tracking-wider uppercase" style={{ color: c.textSub }}>{t.login.emailOrPhone}</label>
             <div className="relative">
               <div className="absolute left-4 top-1/2 -translate-y-1/2">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
@@ -231,7 +233,7 @@ export default function SignUpScreen() {
 
           {/* Password + strength */}
           <div>
-            <label className="text-xs font-semibold mb-2 block tracking-wider uppercase" style={{ color: c.textSub }}>Password</label>
+            <label className="text-xs font-semibold mb-2 block tracking-wider uppercase" style={{ color: c.textSub }}>{t.login.password}</label>
             <div className="relative">
               <div className="absolute left-4 top-1/2 -translate-y-1/2">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
@@ -287,15 +289,15 @@ export default function SignUpScreen() {
             {loading ? (
               <span className="flex items-center justify-center gap-2">
                 <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                Creating Account...
+                {t.signup.creating}
               </span>
-            ) : "Create Account"}
+            ) : t.signup.createAccount}
           </motion.button>
 
           {/* Divider */}
           <div className="flex items-center gap-3 my-1">
             <div className="flex-1 h-px" style={{ background: c.divider }} />
-            <span className="text-xs font-medium" style={{ color: c.textMuted }}>or sign up with</span>
+            <span className="text-xs font-medium" style={{ color: c.textMuted }}>{t.signup.orSignUpWith}</span>
             <div className="flex-1 h-px" style={{ background: c.divider }} />
           </div>
 
@@ -320,8 +322,8 @@ export default function SignUpScreen() {
           </div>
 
           <div className="mt-4 text-center">
-            <span className="text-sm" style={{ color: c.textMuted }}>Already have an account? </span>
-            <button onClick={() => navigate("/login")} className="text-[#256DE9] text-sm font-bold">Sign In</button>
+            <span className="text-sm" style={{ color: c.textMuted }}>{t.signup.alreadyHaveAccount} </span>
+            <button onClick={() => navigate("/login")} className="text-[#256DE9] text-sm font-bold">{t.login.signIn}</button>
           </div>
         </div>
       </div>

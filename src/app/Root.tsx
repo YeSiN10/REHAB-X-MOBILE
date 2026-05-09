@@ -4,6 +4,15 @@ import { useEffect } from "react";
 import { AppProvider, useApp } from "./context/AppContext";
 import { AiAssistant } from "./components/AiAssistant";
 
+function RtlManager() {
+  const { language } = useApp();
+  useEffect(() => {
+    document.documentElement.dir = language === "ar" ? "rtl" : "ltr";
+    document.documentElement.lang = language;
+  }, [language]);
+  return null;
+}
+
 const PUBLIC_ROUTES = ["/", "/login", "/signup", "/verify-email", "/onboarding"];
 
 function RouteGuard() {
@@ -28,6 +37,7 @@ export default function Root() {
   return (
     <AppProvider>
       <RouteGuard />
+      <RtlManager />
       <div
         className="min-h-screen flex items-center justify-center relative"
         style={{

@@ -3,6 +3,7 @@ import { useNavigate } from "react-router";
 import { motion } from "motion/react";
 import { useApp, useColors } from "../context/AppContext";
 import logo from "../../imports/Carte_visite_Final.png";
+import { useT } from "../i18n";
 
 const features = [
   { icon: "⚡", title: "Advanced Exercises", desc: "60+ premium rehab programs", pro: true },
@@ -22,6 +23,7 @@ export default function PremiumScreen() {
   const navigate = useNavigate();
   const { setIsPremium, isPremium } = useApp();
   const c = useColors();
+  const t = useT();
   const [selectedPlan, setSelectedPlan] = useState("annual");
   const [loading, setLoading] = useState(false);
 
@@ -48,11 +50,11 @@ export default function PremiumScreen() {
             style={{ background: "linear-gradient(135deg, rgba(37,109,233,0.15), rgba(168,85,247,0.15))", border: "2px solid rgba(168,85,247,0.3)" }}>
             <span style={{ fontSize: 40 }}>⭐</span>
           </div>
-          <h1 className="font-black mb-2" style={{ fontSize: 26, color: c.text }}>You're Premium!</h1>
-          <p className="text-sm" style={{ color: c.textMuted }}>All VR features are unlocked. Enjoy your full access.</p>
+          <h1 className="font-black mb-2" style={{ fontSize: 26, color: c.text }}>{t.premium.alreadyPremium}</h1>
+          <p className="text-sm" style={{ color: c.textMuted }}>{t.premium.alreadyPremiumDesc}</p>
           <button onClick={() => navigate("/exercises")} className="mt-6 px-8 py-3 rounded-2xl text-white font-bold"
             style={{ background: "linear-gradient(135deg, #256DE9, #1a4bb5)", boxShadow: "0 12px 32px rgba(37,109,233,0.3)" }}>
-            Browse Pro Exercises
+            {t.premium.browseExercises}
           </button>
         </div>
       </div>
@@ -107,9 +109,9 @@ export default function PremiumScreen() {
             <span className="text-[11px] font-bold tracking-[2px]" style={{ color: "#C084FC" }}>⭐ REHAB X PREMIUM</span>
           </div>
 
-          <h1 className="text-white mb-2" style={{ fontSize: 26, fontWeight: 900 }}>Unlock Your Full Potential</h1>
+          <h1 className="text-white mb-2" style={{ fontSize: 26, fontWeight: 900 }}>{t.premium.title}</h1>
           <p className="text-sm" style={{ color: "rgba(255,255,255,0.6)" }}>
-            Access all VR exercises and advanced features
+            {t.premium.subtitle}
           </p>
         </div>
       </div>

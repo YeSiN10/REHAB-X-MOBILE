@@ -3,6 +3,7 @@ import { useRef, useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { BottomNav } from "../components/BottomNav";
 import { useApp, useColors, computeStreak, computeBestStreak } from "../context/AppContext";
+import { useT } from "../i18n";
 import { AvatarCropModal } from "../components/AvatarCropModal";
 import { compressImage } from "../utils/imageUtils";
 
@@ -69,12 +70,13 @@ export default function ProfileScreen() {
   const totalHours = Math.round(sessions.reduce((sum, s) => sum + s.duration, 0) / 60);
   const streak = computeStreak(sessions);
   const bestStreak = computeBestStreak(sessions);
+  const t = useT();
 
   const stats = [
-    { label: "Sessions", value: `${sessions.length}` },
-    { label: "Streak", value: `${streak}d` },
-    { label: "Calories", value: totalCalories >= 1000 ? `${Math.round(totalCalories / 1000)}K` : `${totalCalories}` },
-    { label: "Hours", value: `${totalHours}h` },
+    { label: t.profile.sessions, value: `${sessions.length}` },
+    { label: t.profile.streak, value: `${streak}d` },
+    { label: t.profile.calories, value: totalCalories >= 1000 ? `${Math.round(totalCalories / 1000)}K` : `${totalCalories}` },
+    { label: t.profile.hours, value: `${totalHours}h` },
   ];
 
   const achievements = [

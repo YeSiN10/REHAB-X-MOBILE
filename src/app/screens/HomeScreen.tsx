@@ -4,15 +4,16 @@ import { motion, AnimatePresence } from "motion/react";
 import { BottomNav } from "../components/BottomNav";
 import { ProfileSidebar } from "../components/ProfileSidebar";
 import { useApp, useColors } from "../context/AppContext";
+import { useT } from "../i18n";
 
 const weekDays = ["M", "T", "W", "T", "F", "S", "S"];
 
-const moods = [
-  { emoji: "😩", label: "Exhausted", value: "exhausted", color: "#EF4444" },
-  { emoji: "😔", label: "Low",       value: "low",       color: "#F97316" },
-  { emoji: "😐", label: "OK",        value: "ok",        color: "#EAB308" },
-  { emoji: "😊", label: "Good",      value: "good",      color: "#22C55E" },
-  { emoji: "🤩", label: "Great",     value: "great",     color: "#256DE9" },
+const moodDefs = [
+  { emoji: "😩", value: "exhausted", color: "#EF4444" },
+  { emoji: "😔", value: "low",       color: "#F97316" },
+  { emoji: "😐", value: "ok",        color: "#EAB308" },
+  { emoji: "😊", value: "good",      color: "#22C55E" },
+  { emoji: "🤩", value: "great",     color: "#256DE9" },
 ];
 
 const intensityColors: Record<string, { bg: string; text: string }> = {
@@ -100,6 +101,7 @@ export default function HomeScreen() {
   const navigate = useNavigate();
   const { user, setSidebarOpen, todayMood, setTodayMood, sessions, streak, bestStreak, favoriteIds, unreadNotificationsCount } = useApp();
   const c = useColors();
+  const t = useT();
   const [goalView, setGoalView] = useState<"weekly" | "monthly">("weekly");
   const [instructionsExId, setInstructionsExId] = useState<string | null>(null);
   const [showDailyBanner, setShowDailyBanner] = useState(true);
@@ -191,9 +193,9 @@ export default function HomeScreen() {
 
   const getGreeting = () => {
     const h = new Date().getHours();
-    if (h < 12) return "Good morning";
-    if (h < 17) return "Good afternoon";
-    return "Good evening";
+    if (h < 12) return t.home.goodMorning;
+    if (h < 17) return t.home.goodAfternoon;
+    return t.home.goodEvening;
   };
 
   const instructionData = instructionsExId
@@ -233,14 +235,14 @@ export default function HomeScreen() {
                   </svg>
                 </div>
                 <div>
-                  <h3 className="font-black" style={{ fontSize: 17, color: c.text }}>Camera Setup</h3>
-                  <p className="text-xs" style={{ color: c.textMuted }}>Before you start your VR session</p>
+                  <h3 className="font-black" style={{ fontSize: 17, color: c.text }}>{t.home.cameraSetup}</h3>
+                  <p className="text-xs" style={{ color: c.textMuted }}>{t.home.beforeVr}</p>
                 </div>
               </div>
               <div className="p-3 rounded-2xl mb-4 flex items-start gap-3" style={{ background: "rgba(37,109,233,0.1)", border: "1px solid rgba(37,109,233,0.2)" }}>
                 <span style={{ fontSize: 16 }}>📷</span>
                 <p className="text-xs leading-relaxed" style={{ color: "#256DE9" }}>
-                  <span className="font-bold">Camera required.</span> This VR exercise uses your camera to track movement and correct form in real-time.
+                  <span className="font-bold">{t.home.cameraRequired}</span> {t.home.cameraRequiredDesc}
                 </p>
               </div>
               <div className="space-y-2.5 mb-5">
@@ -266,10 +268,10 @@ export default function HomeScreen() {
                 style={{ background: "linear-gradient(135deg, #256DE9, #1a4bb5)", boxShadow: "0 16px 40px rgba(37,109,233,0.35)", fontSize: 16 }}
               >
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M8 5L19 12L8 19V5Z" /></svg>
-                Start VR Session
+                {t.home.startVrSession}
               </motion.button>
               <button onClick={() => setInstructionsExId(null)} className="w-full text-center mt-3 text-sm font-semibold" style={{ color: c.textMuted }}>
-                Not now
+                {t.home.notNow}
               </button>
             </motion.div>
           </>
@@ -296,7 +298,7 @@ export default function HomeScreen() {
               <div className="flex items-center justify-between mb-5">
                 <div className="flex items-center gap-2">
                   <span style={{ fontSize: 20 }}>❤️</span>
-                  <h3 className="font-black" style={{ fontSize: 18, color: c.text }}>Favorite Exercises</h3>
+                  <h3 className="font-black" style={{ fontSize: 18, color: c.text }}>{t.home.favoriteExercises}</h3>
                 </div>
                 <span className="text-xs font-bold px-2.5 py-1 rounded-full" style={{ background: "rgba(37,109,233,0.12)", color: "#256DE9" }}>
                   {favoriteExercises.length} saved
@@ -484,7 +486,7 @@ export default function HomeScreen() {
                     ? { background: "#256DE9", color: "white", boxShadow: "0 4px 12px rgba(37,109,233,0.3)" }
                     : { color: c.textMuted }}
                 >
-                  {view === "weekly" ? "Weekly Goal" : "Monthly Progress"}
+                  {view === "weekly" ? t.home.weeklyGoal : t.home.monthlyProgress}
                 </button>
               ))}
             </div>
@@ -704,7 +706,7 @@ export default function HomeScreen() {
         <div className="px-5 mb-4">
           <div className="flex justify-between items-center mb-3">
             <div>
-              <h2 className="font-bold" style={{ fontSize: 17, color: c.text }}>For You</h2>
+              <h2 className="font-bold" style={{ fontSize: 17, color: c.text }}>{t.home.recommended}</h2>
               <p className="text-[10px] font-semibold" style={{ color: "#256DE9" }}>
                 Based on: {user.goal || "Recovery & Performance"}
               </p>
@@ -769,7 +771,7 @@ export default function HomeScreen() {
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
               <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" fill="rgba(255,255,255,0.2)" />
             </svg>
-            Browse Favorite Exercises
+            {t.home.favoriteExercises}
             {favoriteIds.length > 0 && (
               <span className="px-2 py-0.5 rounded-full text-[11px] font-black" style={{ background: "rgba(255,255,255,0.25)" }}>
                 {favoriteIds.length}
@@ -782,13 +784,13 @@ export default function HomeScreen() {
         <div className="px-5 mb-2">
           <div className="p-4 rounded-2xl" style={{ background: c.card, border: `1px solid ${c.cardBorder}`, boxShadow: c.shadow }}>
             <div className="flex items-center justify-between mb-3">
-              <h2 className="font-bold" style={{ fontSize: 15, color: c.text }}>How are you feeling today?</h2>
+              <h2 className="font-bold" style={{ fontSize: 15, color: c.text }}>{t.home.mood.label}</h2>
               {todayMood && (
                 <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: c.accentBg, color: "#256DE9" }}>LOGGED</span>
               )}
             </div>
             <div className="flex justify-between">
-              {moods.map((mood) => (
+              {moodDefs.map((mood) => (
                 <motion.button key={mood.value} whileTap={{ scale: 0.9 }} onClick={() => setTodayMood(mood.value)} className="flex flex-col items-center gap-1.5 flex-1">
                   <div
                     className="w-10 h-10 rounded-2xl flex items-center justify-center transition-all"
@@ -798,7 +800,9 @@ export default function HomeScreen() {
                   >
                     <span style={{ fontSize: 20 }}>{mood.emoji}</span>
                   </div>
-                  <span className="text-[9px] font-semibold" style={{ color: todayMood === mood.value ? mood.color : c.textMuted }}>{mood.label}</span>
+                  <span className="text-[9px] font-semibold" style={{ color: todayMood === mood.value ? mood.color : c.textMuted }}>
+                    {t.home.mood[mood.value as keyof typeof t.home.mood] as string}
+                  </span>
                 </motion.button>
               ))}
             </div>

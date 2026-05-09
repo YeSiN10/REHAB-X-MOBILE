@@ -4,9 +4,10 @@ import { useNavigate } from "react-router";
 import { motion } from "motion/react";
 import { BottomNav } from "../components/BottomNav";
 import { useApp, useColors } from "../context/AppContext";
+import { useT } from "../i18n";
 
-const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-const MONTHS = ["January", "February", "March", "April", "May", "June", "July",
+const DAYS_EN = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+const MONTHS_EN = ["January", "February", "March", "April", "May", "June", "July",
   "August", "September", "October", "November", "December"];
 
 const workoutDayData: Record<number, { type: string; color: string; title: string; exId: string }> = {
@@ -75,6 +76,7 @@ export default function CalendarScreen() {
   const navigate = useNavigate();
   const { sessions, addNotification } = useApp();
   const c = useColors();
+  const t = useT();
   const realNow = new Date();
   const realTodayDay = realNow.getDate();
   const realTodayMonth = realNow.getMonth();
@@ -165,10 +167,10 @@ export default function CalendarScreen() {
         const diff = d - TODAY_DAY;
         if (diff === 0)      dateLabel = `Today • ${times[i % times.length]}`;
         else if (diff === 1) dateLabel = `Tomorrow • ${times[i % times.length]}`;
-        else                 dateLabel = `${MONTHS[month]} ${d} • ${times[i % times.length]}`;
+        else                 dateLabel = `${MONTHS_EN[month]} ${d} • ${times[i % times.length]}`;
       } else {
         // Past or future month — just show the date
-        dateLabel = `${MONTHS[month]} ${d} • ${times[i % times.length]}`;
+        dateLabel = `${MONTHS_EN[month]} ${d} • ${times[i % times.length]}`;
       }
       results.push({ id: String(d), date: dateLabel, title: wd.title, type: wd.type, duration: durations[i % durations.length], color: wd.color, exId: wd.exId });
       i++;
@@ -293,7 +295,7 @@ export default function CalendarScreen() {
                 <path d="M15 18L9 12L15 6" stroke="white" strokeWidth="2" strokeLinecap="round" />
               </svg>
             </button>
-            <h1 className="text-white font-black" style={{ fontSize: 24 }}>Calendar</h1>
+            <h1 className="text-white font-black" style={{ fontSize: 24 }}>{t.calendar.title}</h1>
           </div>
 
           <div className="flex items-center gap-1.5">
@@ -307,7 +309,7 @@ export default function CalendarScreen() {
               </svg>
             </button>
             <span className="font-bold" style={{ fontSize: 12, color: "rgba(255,255,255,0.85)", minWidth: 84, textAlign: "center" }}>
-              {MONTHS[month]} {year}
+              {MONTHS_EN[month]} {year}
             </span>
             <button
               onClick={nextMonth}
@@ -330,7 +332,7 @@ export default function CalendarScreen() {
           style={{ background: c.card, border: `1px solid ${c.cardBorder}`, boxShadow: c.shadow }}
         >
           <div className="grid grid-cols-7 px-3 pt-4 pb-2">
-            {DAYS.map((d) => (
+            {DAYS_EN.map((d) => (
               <div key={d} className="text-center text-[11px] font-bold" style={{ color: c.textMuted }}>
                 {d}
               </div>
@@ -542,7 +544,7 @@ export default function CalendarScreen() {
           style={{ background: c.card, border: `1px solid ${c.cardBorder}`, boxShadow: c.shadow }}
         >
           <h3 className="font-bold mb-4" style={{ fontSize: 15, color: c.text }}>
-            {MONTHS[month]} Overview
+            {MONTHS_EN[month]} Overview
           </h3>
           <div className="grid grid-cols-3 gap-3">
             {[

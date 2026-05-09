@@ -4,6 +4,7 @@ import { useNavigate } from "react-router";
 import { motion } from "motion/react";
 import { BottomNav } from "../components/BottomNav";
 import { useColors } from "../context/AppContext";
+import { useT } from "../i18n";
 
 const programs = [
   {
@@ -118,6 +119,7 @@ const categoryFilters: { id: string; label: string; icon: ReactElement; color: s
 ];
 
 export default function PlansScreen() {
+  const t = useT();
   const navigate = useNavigate();
   const c = useColors();
   const [selectedCat, setSelectedCat] = useState("All");
@@ -155,7 +157,7 @@ export default function PlansScreen() {
                 <path d="M15 18L9 12L15 6" stroke="white" strokeWidth="2" strokeLinecap="round" />
               </svg>
             </button>
-            <h1 className="text-white font-black" style={{ fontSize: 24 }}>Programs</h1>
+            <h1 className="text-white font-black" style={{ fontSize: 24 }}>{t.plans.title}</h1>
           </div>
           <div
             className="px-3 py-1.5 rounded-full"

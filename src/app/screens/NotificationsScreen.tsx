@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { useNavigate } from "react-router";
 import { motion, AnimatePresence } from "motion/react";
 import { useApp, useColors } from "../context/AppContext";
+import { useT } from "../i18n";
 
 const notifTypes: Record<string, { color: string; icon: ReactNode }> = {
   workout: {
@@ -44,6 +45,7 @@ const notifTypes: Record<string, { color: string; icon: ReactNode }> = {
 export default function NotificationsScreen() {
   const navigate = useNavigate();
   const c = useColors();
+  const t = useT();
   const {
     notifications,
     unreadNotificationsCount,
@@ -85,9 +87,9 @@ export default function NotificationsScreen() {
               </svg>
             </button>
             <div>
-              <h1 className="text-white font-black" style={{ fontSize: 22 }}>Notifications</h1>
+              <h1 className="text-white font-black" style={{ fontSize: 22 }}>{t.notifications.title}</h1>
               {unreadNotificationsCount > 0 && (
-                <p style={{ color: "rgba(255,255,255,0.55)", fontSize: 11 }}>{unreadNotificationsCount} unread messages</p>
+                <p style={{ color: "rgba(255,255,255,0.55)", fontSize: 11 }}>{unreadNotificationsCount} {t.notifications.unread}</p>
               )}
             </div>
           </div>
@@ -95,7 +97,7 @@ export default function NotificationsScreen() {
             {unreadNotificationsCount > 0 && (
               <button onClick={markAllNotificationsRead} className="text-xs font-semibold px-3 py-1.5 rounded-xl"
                 style={{ background: "rgba(37,109,233,0.25)", color: "#60a5fa", border: "1px solid rgba(37,109,233,0.3)" }}>
-                Mark all read
+                {t.notifications.markAllRead}
               </button>
             )}
             {notifications.length > 0 && (
@@ -104,7 +106,7 @@ export default function NotificationsScreen() {
                 className="text-xs font-semibold px-3 py-1.5 rounded-xl"
                 style={{ background: "rgba(239,68,68,0.15)", color: "#F87171", border: "1px solid rgba(239,68,68,0.25)" }}
               >
-                Clear All
+                {t.notifications.clearAll}
               </button>
             )}
           </div>

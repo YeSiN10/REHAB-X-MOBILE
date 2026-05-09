@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "motion/react";
 import { useApp, useColors } from "../context/AppContext";
 import { useState, useRef } from "react";
 import { jsPDF } from "jspdf";
+import { useT, useLang } from "../i18n";
 
 function Toggle({ value, onChange }: { value: boolean; onChange: (v: boolean) => void }) {
   return (
@@ -29,6 +30,8 @@ export default function SettingsScreen() {
   const navigate = useNavigate();
   const { user, isDark, setIsDark, updateUser, sessions, streak } = useApp();
   const c = useColors();
+  const t = useT();
+  const { language, setLanguage } = useLang();
 
   const [settings, setSettings] = useState({
     pushNotifications: true,
@@ -161,31 +164,31 @@ export default function SettingsScreen() {
 
   const sections = [
     {
-      title: "Notifications",
+      title: t.settings.notifications,
       items: [
-        { key: "pushNotifications", label: "Push Notifications", desc: "Get alerts about your workouts" },
-        { key: "workoutReminders", label: "Workout Reminders", desc: "Daily session reminders" },
-        { key: "restDayAlerts", label: "Rest Day Alerts", desc: "Recovery day recommendations" },
+        { key: "pushNotifications", label: t.settings.pushNotifications, desc: t.settings.pushNotificationsDesc },
+        { key: "workoutReminders", label: t.settings.workoutReminders, desc: t.settings.workoutRemindersDesc },
+        { key: "restDayAlerts", label: t.settings.restDayAlerts, desc: t.settings.restDayAlertsDesc },
       ],
     },
     {
-      title: "Audio & Haptics",
+      title: t.settings.audioHaptics,
       items: [
-        { key: "soundEffects", label: "Sound Effects", desc: "Audio cues during workouts" },
-        { key: "vibration", label: "Vibration", desc: "Haptic feedback on actions" },
-        { key: "autoPlay", label: "Auto-play Videos", desc: "Exercise demonstration videos" },
+        { key: "soundEffects", label: t.settings.soundEffects, desc: t.settings.soundEffectsDesc },
+        { key: "vibration", label: t.settings.vibration, desc: t.settings.vibrationDesc },
+        { key: "autoPlay", label: t.settings.autoPlay, desc: t.settings.autoPlayDesc },
       ],
     },
     {
-      title: "Privacy",
+      title: t.settings.privacy,
       items: [
-        { key: "privacyMode", label: "Privacy Mode", desc: "Hide personal information" },
-        { key: "shareProgress", label: "Share Progress", desc: "Allow community visibility" },
+        { key: "privacyMode", label: t.settings.privacyMode, desc: t.settings.privacyModeDesc },
+        { key: "shareProgress", label: t.settings.shareProgress, desc: t.settings.shareProgressDesc },
       ],
     },
   ];
 
-  const starLabels = ["Poor", "Fair", "Good", "Great", "Excellent"];
+  const starLabels = t.settings.starLabels;
 
   return (
     <div className="absolute inset-0 flex flex-col overflow-hidden" style={{ background: c.bg }}>
@@ -228,14 +231,14 @@ export default function SettingsScreen() {
                       </svg>
                     </div>
                   </motion.div>
-                  <h3 className="font-black mt-4 mb-2" style={{ fontSize: 22, color: "white" }}>Thank You!</h3>
-                  <p className="text-sm" style={{ color: "rgba(255,255,255,0.6)" }}>Your {selectedRating}-star rating means the world to us.</p>
+                  <h3 className="font-black mt-4 mb-2" style={{ fontSize: 22, color: "white" }}>{t.settings.thankYou}</h3>
+                  <p className="text-sm" style={{ color: "rgba(255,255,255,0.6)" }}>{t.settings.starRating.replace("{n}", String(selectedRating))}</p>
                   <button
                     onClick={() => { setShowRatingModal(false); setRatingDone(false); setSelectedRating(0); }}
                     className="mt-6 px-8 py-3 rounded-2xl text-white font-bold"
                     style={{ background: "rgba(37,109,233,0.4)", border: "1px solid rgba(37,109,233,0.6)" }}
                   >
-                    Close
+                    {t.common.close}
                   </button>
                 </div>
               ) : (
@@ -247,8 +250,8 @@ export default function SettingsScreen() {
                       </svg>
                     </div>
                     <div>
-                      <h3 className="font-black" style={{ fontSize: 18, color: "white" }}>Rate REHAB X</h3>
-                      <p className="text-xs" style={{ color: "rgba(255,255,255,0.55)" }}>How are we doing? Let us know!</p>
+                      <h3 className="font-black" style={{ fontSize: 18, color: "white" }}>{t.settings.rateTitle}</h3>
+                      <p className="text-xs" style={{ color: "rgba(255,255,255,0.55)" }}>{t.settings.rateSubtitle}</p>
                     </div>
                   </div>
 
@@ -285,7 +288,7 @@ export default function SettingsScreen() {
 
                   <div className="flex gap-3 mt-4">
                     <button onClick={() => setShowRatingModal(false)} className="flex-1 py-3 rounded-2xl font-semibold text-sm" style={{ background: "rgba(255,255,255,0.08)", color: "rgba(255,255,255,0.6)", border: "1px solid rgba(255,255,255,0.12)" }}>
-                      Not now
+                      {t.settings.notNow}
                     </button>
                     <motion.button
                       whileTap={{ scale: 0.97 }}
@@ -294,7 +297,7 @@ export default function SettingsScreen() {
                       className="flex-1 py-3 rounded-2xl text-white font-bold text-sm disabled:opacity-40"
                       style={{ background: "linear-gradient(135deg, #256DE9, #1a4bb5)", boxShadow: "0 8px 24px rgba(37,109,233,0.4)" }}
                     >
-                      Submit Rating
+                      {t.settings.submitRating}
                     </motion.button>
                   </div>
                 </div>
@@ -318,7 +321,7 @@ export default function SettingsScreen() {
               style={{ background: c.card, border: `1px solid ${c.cardBorder}` }}
             >
               <div className="w-10 h-1 rounded-full mx-auto mb-5" style={{ background: c.divider }} />
-              <h3 className="font-black text-lg mb-5" style={{ color: c.text }}>Edit {editSheet.label}</h3>
+              <h3 className="font-black text-lg mb-5" style={{ color: c.text }}>{t.settings.editField} {editSheet.label}</h3>
 
               {editSheet.options ? (
                 <div className="space-y-2 mb-6">
@@ -354,11 +357,11 @@ export default function SettingsScreen() {
 
               <div className="flex gap-3">
                 <button onClick={() => setEditSheet(null)} className="flex-1 py-4 rounded-2xl font-bold text-sm" style={{ background: c.secondaryCard, color: c.textSub }}>
-                  Cancel
+                  {t.common.cancel}
                 </button>
                 <motion.button whileTap={{ scale: 0.97 }} onClick={saveEdit} className="flex-1 py-4 rounded-2xl text-white font-bold text-sm"
                   style={{ background: "linear-gradient(135deg, #256DE9, #1a4bb5)", boxShadow: "0 12px 28px rgba(37,109,233,0.3)" }}>
-                  Save Changes
+                  {t.settings.saveChanges}
                 </motion.button>
               </div>
             </motion.div>
@@ -391,14 +394,14 @@ export default function SettingsScreen() {
               <path d="M15 18L9 12L15 6" stroke="white" strokeWidth="2" strokeLinecap="round" />
             </svg>
           </button>
-          <h1 className="text-white font-black" style={{ fontSize: 22 }}>Settings</h1>
+          <h1 className="text-white font-black" style={{ fontSize: 22 }}>{t.settings.title}</h1>
         </div>
       </div>
 
       <div className="flex-1 overflow-y-auto pb-10 px-5 space-y-5 pt-5">
         {/* Profile info */}
         <div>
-          <p className="text-xs font-bold uppercase tracking-wider mb-2" style={{ color: c.textMuted }}>Profile Information</p>
+          <p className="text-xs font-bold uppercase tracking-wider mb-2" style={{ color: c.textMuted }}>{t.settings.profileInformation}</p>
           <div className="rounded-2xl overflow-hidden" style={{ background: c.card, border: `1px solid ${c.cardBorder}` }}>
             {profileFields.map((field, i) => (
               <button
@@ -414,7 +417,7 @@ export default function SettingsScreen() {
                 <span className="text-sm" style={{ color: c.textSub }}>{field.label}</span>
                 <div className="flex items-center gap-2">
                   <span className="text-sm font-semibold" style={{ color: !field.value || field.value === "Not set" ? c.textMuted : c.text }}>
-                    {field.value || "Not set"}
+                    {field.value || t.common.notSet}
                   </span>
                   {!field.readonly && (
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
@@ -435,19 +438,49 @@ export default function SettingsScreen() {
 
         {/* Appearance */}
         <div>
-          <p className="text-xs font-bold uppercase tracking-wider mb-2" style={{ color: c.textMuted }}>Appearance</p>
+          <p className="text-xs font-bold uppercase tracking-wider mb-2" style={{ color: c.textMuted }}>{t.settings.appearance}</p>
           <div className="rounded-2xl overflow-hidden" style={{ background: c.card, border: `1px solid ${c.cardBorder}` }}>
             <div className="flex items-center justify-between px-4 py-4">
               <div className="flex-1">
                 <div className="flex items-center gap-2">
                   <span style={{ fontSize: 18 }}>{isDark ? "🌙" : "☀️"}</span>
-                  <p className="text-sm font-semibold" style={{ color: c.text }}>Dark Mode</p>
+                  <p className="text-sm font-semibold" style={{ color: c.text }}>{t.settings.darkMode}</p>
                 </div>
                 <p className="text-xs mt-0.5" style={{ color: c.textMuted }}>
-                  {isDark ? "Dark theme active" : "Light theme active (default)"}
+                  {isDark ? t.settings.darkModeActive : t.settings.lightModeActive}
                 </p>
               </div>
               <Toggle value={isDark} onChange={setIsDark} />
+            </div>
+          </div>
+        </div>
+
+        {/* Language picker */}
+        <div>
+          <p className="text-xs font-bold uppercase tracking-wider mb-2" style={{ color: c.textMuted }}>{t.settings.languageSection}</p>
+          <div className="rounded-2xl overflow-hidden" style={{ background: c.card, border: `1px solid ${c.cardBorder}` }}>
+            <div className="flex items-center gap-2 px-4 py-3">
+              {(["en", "fr", "ar"] as const).map((lang) => {
+                const info = { en: { flag: "🇬🇧", label: "EN" }, fr: { flag: "🇫🇷", label: "FR" }, ar: { flag: "🇸🇦", label: "AR" } }[lang];
+                const isActive = language === lang;
+                return (
+                  <button
+                    key={lang}
+                    onClick={() => setLanguage(lang)}
+                    className="flex-1 flex flex-col items-center gap-1 py-3 rounded-2xl transition-all"
+                    style={isActive
+                      ? { background: "#256DE9", boxShadow: "0 8px 20px rgba(37,109,233,0.35)" }
+                      : { background: c.secondaryCard, border: `1px solid ${c.cardBorder}` }
+                    }
+                  >
+                    <span style={{ fontSize: 22 }}>{info.flag}</span>
+                    <span className="text-xs font-bold" style={{ color: isActive ? "white" : c.textSub }}>{info.label}</span>
+                    {isActive && (
+                      <div className="w-1.5 h-1.5 rounded-full bg-white opacity-80" />
+                    )}
+                  </button>
+                );
+              })}
             </div>
           </div>
         </div>
@@ -479,7 +512,7 @@ export default function SettingsScreen() {
 
         {/* Account actions */}
         <div>
-          <p className="text-xs font-bold uppercase tracking-wider mb-2" style={{ color: c.textMuted }}>Account</p>
+          <p className="text-xs font-bold uppercase tracking-wider mb-2" style={{ color: c.textMuted }}>{t.settings.account}</p>
           <div className="rounded-2xl overflow-hidden" style={{ background: c.card, border: `1px solid ${c.cardBorder}` }}>
             <button
               onClick={() => setShowRatingModal(true)}
@@ -490,7 +523,7 @@ export default function SettingsScreen() {
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="#256DE9" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
                 </svg>
-                <span className="text-sm font-semibold" style={{ color: "#256DE9" }}>Rate REHAB X</span>
+                <span className="text-sm font-semibold" style={{ color: "#256DE9" }}>{t.settings.rateApp}</span>
               </div>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
                 <path d="M9 18L15 12L9 6" stroke="#256DE9" strokeWidth="2" strokeLinecap="round" />
@@ -503,7 +536,7 @@ export default function SettingsScreen() {
             >
               <div className="flex items-center gap-3">
                 <span style={{ fontSize: 16 }}>📤</span>
-                <span className="text-sm font-semibold" style={{ color: c.textSub }}>Export My Data</span>
+                <span className="text-sm font-semibold" style={{ color: c.textSub }}>{t.settings.exportData}</span>
               </div>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
                 <path d="M9 18L15 12L9 6" stroke={c.textMuted} strokeWidth="2" strokeLinecap="round" />

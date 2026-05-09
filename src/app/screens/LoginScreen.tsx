@@ -3,6 +3,7 @@ import { useNavigate } from "react-router";
 import { motion, AnimatePresence } from "motion/react";
 import { useApp, useColors } from "../context/AppContext";
 import logo from "../../imports/Carte_visite_Final.png";
+import { useT } from "../i18n";
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const phoneRegex = /^[\+]?[\d\s\-\(\)]{7,15}$/;
@@ -27,6 +28,7 @@ export default function LoginScreen() {
   const navigate = useNavigate();
   const { login, loginWithGoogle, isAuthenticated, user, updateUser } = useApp();
   const c = useColors();
+  const t = useT();
 
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
@@ -197,7 +199,7 @@ export default function LoginScreen() {
                 transition={{ delay: 0.45 }}
                 className="text-center"
               >
-                <p className="text-white/70 text-sm font-medium mb-1">Welcome back</p>
+                <p className="text-white/70 text-sm font-medium mb-1">{t.login.welcomeBack}</p>
                 <h2 className="text-white font-black" style={{ fontSize: 28, letterSpacing: "-0.5px" }}>
                   {welcomeName} 👋
                 </h2>
@@ -209,7 +211,7 @@ export default function LoginScreen() {
                 className="px-5 py-2 rounded-full"
                 style={{ background: "rgba(37,109,233,0.3)", border: "1px solid rgba(37,109,233,0.5)" }}
               >
-                <span className="text-white text-xs font-semibold tracking-wide">Ready to crush your goals 💪</span>
+                <span className="text-white text-xs font-semibold tracking-wide">{t.login.readyToCrush}</span>
               </motion.div>
             </motion.div>
           </motion.div>
@@ -254,8 +256,8 @@ export default function LoginScreen() {
                   </svg>
                 </div>
                 <div>
-                  <h3 className="font-black" style={{ fontSize: 17, color: c.text }}>Forgot Password?</h3>
-                  <p className="text-xs" style={{ color: c.textMuted }}>We'll send you a reset link</p>
+                  <h3 className="font-black" style={{ fontSize: 17, color: c.text }}>{t.login.forgotTitle}</h3>
+                  <p className="text-xs" style={{ color: c.textMuted }}>{t.login.forgotSubtitle}</p>
                 </div>
               </div>
 
@@ -293,9 +295,9 @@ export default function LoginScreen() {
                       {forgotLoading ? (
                         <span className="flex items-center justify-center gap-2">
                           <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                          Sending...
+                          {t.login.sending}
                         </span>
-                      ) : "Send Reset Link"}
+                      ) : t.login.sendResetLink}
                     </motion.button>
                   </motion.div>
                 ) : (
@@ -305,9 +307,9 @@ export default function LoginScreen() {
                         <path d="M20 6L9 17L4 12" stroke="#22C55E" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
                       </svg>
                     </div>
-                    <h4 className="font-black text-base mb-1" style={{ color: c.text }}>Check your inbox!</h4>
+                    <h4 className="font-black text-base mb-1" style={{ color: c.text }}>{t.login.checkInbox}</h4>
                     <p className="text-sm mb-1" style={{ color: c.textMuted }}>
-                      A reset link was sent to
+                      {t.login.resetSentTo}
                     </p>
                     <p className="text-sm font-bold mb-5" style={{ color: "#256DE9" }}>{forgotId}</p>
                     <button
@@ -315,7 +317,7 @@ export default function LoginScreen() {
                       className="px-6 py-3 rounded-2xl text-white font-bold text-sm"
                       style={{ background: "#256DE9" }}
                     >
-                      Back to Sign In
+                      {t.login.backToSignIn}
                     </button>
                   </motion.div>
                 )}
@@ -336,9 +338,9 @@ export default function LoginScreen() {
           </span>
         </div>
         <h1 className="font-black mb-1.5" style={{ fontSize: 28, letterSpacing: "-0.5px", color: c.text }}>
-          Welcome back 👋
+          {t.login.welcomeBack}
         </h1>
-        <p style={{ fontSize: 14, color: c.textMuted }}>Sign in to continue your recovery journey</p>
+        <p style={{ fontSize: 14, color: c.textMuted }}>{t.login.subtitle}</p>
       </div>
 
       {/* ── Form ── */}
@@ -361,7 +363,7 @@ export default function LoginScreen() {
           {/* Email or Phone */}
           <div>
             <label className="text-xs font-bold mb-2 block tracking-wider uppercase" style={{ color: c.textSub }}>
-              Email or Phone Number
+              {t.login.emailOrPhone}
             </label>
             <div className="relative">
               <div className="absolute left-4 top-1/2 -translate-y-1/2 z-10">
@@ -393,9 +395,9 @@ export default function LoginScreen() {
           {/* Password */}
           <div>
             <div className="flex items-center justify-between mb-2">
-              <label className="text-xs font-bold tracking-wider uppercase" style={{ color: c.textSub }}>Password</label>
+              <label className="text-xs font-bold tracking-wider uppercase" style={{ color: c.textSub }}>{t.login.password}</label>
               <button onClick={() => setShowForgot(true)} className="text-xs font-semibold" style={{ color: "#256DE9" }}>
-                Forgot Password?
+                {t.login.forgotPassword}
               </button>
             </div>
             <div className="relative">
@@ -433,10 +435,10 @@ export default function LoginScreen() {
                 <div className="absolute top-0.5 w-5 h-5 rounded-full bg-white shadow-sm transition-all duration-300"
                   style={{ left: rememberMe ? "calc(100% - 22px)" : "2px" }} />
               </div>
-              <span className="text-sm font-semibold" style={{ color: c.text }}>Remember me</span>
+              <span className="text-sm font-semibold" style={{ color: c.text }}>{t.login.rememberMe}</span>
             </div>
             <span className="text-xs" style={{ color: c.textMuted }}>
-              {rememberMe ? "Stay signed in" : "Sign out on close"}
+              {rememberMe ? t.login.staySignedIn : t.login.signOutOnClose}
             </span>
           </button>
 
@@ -458,14 +460,14 @@ export default function LoginScreen() {
             {loading ? (
               <span className="flex items-center justify-center gap-2 relative">
                 <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                Signing in...
+                {t.login.signingIn}
               </span>
             ) : (
               <span className="flex items-center justify-center gap-2 relative">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
                   <path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4M10 17l5-5-5-5M15 12H3" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
-                Sign In
+                {t.login.signIn}
               </span>
             )}
           </motion.button>
@@ -473,7 +475,7 @@ export default function LoginScreen() {
           {/* Divider */}
           <div className="flex items-center gap-3">
             <div className="flex-1 h-px" style={{ background: c.divider }} />
-            <span className="text-xs font-medium" style={{ color: c.textMuted }}>or sign in with</span>
+            <span className="text-xs font-medium" style={{ color: c.textMuted }}>{t.login.orSignInWith}</span>
             <div className="flex-1 h-px" style={{ background: c.divider }} />
           </div>
 
@@ -530,8 +532,8 @@ export default function LoginScreen() {
           </div>
 
           <div className="pt-1 text-center">
-            <span className="text-sm" style={{ color: c.textMuted }}>Don't have an account? </span>
-            <button onClick={() => navigate("/signup")} className="text-sm font-bold" style={{ color: "#256DE9" }}>Create Account</button>
+            <span className="text-sm" style={{ color: c.textMuted }}>{t.login.noAccount} </span>
+            <button onClick={() => navigate("/signup")} className="text-sm font-bold" style={{ color: "#256DE9" }}>{t.login.createAccount}</button>
           </div>
         </div>
       </div>

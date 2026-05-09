@@ -2,12 +2,14 @@ import { useNavigate, useParams } from "react-router";
 import { motion } from "motion/react";
 import { useEffect, useState, useMemo } from "react";
 import { useApp, useColors } from "../context/AppContext";
+import { useT } from "../i18n";
 
 export default function WorkoutCompleteScreen() {
   const navigate = useNavigate();
   const { id } = useParams();
   const { sessions, addSession } = useApp();
   const c = useColors();
+  const t = useT();
   const [confetti, setConfetti] = useState(false);
   const [showShare, setShowShare] = useState(false);
 
@@ -26,33 +28,33 @@ export default function WorkoutCompleteScreen() {
   // If no session was logged (navigated directly), use estimated stats
   const stats = [
     {
-      label: "Duration",
+      label: t.workoutComplete.duration,
       value: lastSession ? `${lastSession.duration}:00` : "28:45",
-      unit: "min:sec",
+      unit: t.workoutComplete.minSec,
       icon: "⏱",
       color: "#256DE9",
       bg: "rgba(37,109,233,0.08)",
     },
     {
-      label: "Calories",
+      label: t.workoutComplete.calories,
       value: lastSession ? String(lastSession.calories) : "312",
-      unit: "kcal burned",
+      unit: t.workoutComplete.kcalBurned,
       icon: "🔥",
       color: "#F97316",
       bg: "rgba(249,115,22,0.08)",
     },
     {
-      label: "Exercises",
+      label: t.workoutComplete.exercises,
       value: "5",
-      unit: "completed",
+      unit: t.workoutComplete.completed,
       icon: "✅",
       color: "#22C55E",
       bg: "rgba(34,197,94,0.08)",
     },
     {
-      label: "Form Score",
+      label: t.workoutComplete.formScore,
       value: "92%",
-      unit: "accuracy",
+      unit: t.workoutComplete.accuracy,
       icon: "🎯",
       color: "#A855F7",
       bg: "rgba(168,85,247,0.08)",
@@ -235,7 +237,7 @@ export default function WorkoutCompleteScreen() {
           className="w-full py-4 rounded-2xl text-white font-bold"
           style={{ background: "linear-gradient(135deg, #256DE9, #1a4bb5)", boxShadow: "0 16px 40px rgba(37,109,233,0.3)", fontSize: 16 }}
         >
-          Back to Home
+          {t.workoutComplete.backToHome}
         </motion.button>
         <motion.button
           initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.9 }}
@@ -244,7 +246,7 @@ export default function WorkoutCompleteScreen() {
           className="w-full py-4 rounded-2xl font-bold text-sm"
           style={{ background: c.card, border: `1px solid ${c.cardBorder}`, color: c.textSub }}
         >
-          View Progress
+          {t.workoutComplete.viewProgress}
         </motion.button>
       </div>
     </div>

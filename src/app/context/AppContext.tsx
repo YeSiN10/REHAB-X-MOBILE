@@ -201,6 +201,9 @@ interface AppContextType {
   dismissNotification: (id: string) => void;
   clearAllNotifications: () => void;
   addNotification: (n: Omit<AppNotification, "id" | "time" | "read">) => void;
+  // Language
+  language: "en" | "fr" | "ar";
+  setLanguage: (l: "en" | "fr" | "ar") => void;
 }
 
 const defaultUser: User = {
@@ -209,7 +212,7 @@ const defaultUser: User = {
   profileSetupDone: false,
 };
 
-const AppContext = createContext<AppContextType>({
+export const AppContext = createContext<AppContextType>({
   authUser: null,
   authToken: null,
   isAuthenticated: false,
@@ -243,6 +246,8 @@ const AppContext = createContext<AppContextType>({
   dismissNotification: () => {},
   clearAllNotifications: () => {},
   addNotification: () => {},
+  language: "en",
+  setLanguage: () => {},
 });
 
 // ── Safe localStorage helpers ─────────────────────────────────────────────
@@ -309,6 +314,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isPremium, setIsPremiumState] = useState(false);
+  const [language, setLanguageState] = useState<"en" | "fr" | "ar">(() =>
+    (localStorage.getItem("rehab_language") as "en" | "fr" | "ar") || "en"
+  );
+  const setLanguage = useCallback((l: "en" | "fr" | "ar") => {
+    setLanguageState(l);
+    localStorage.setItem("rehab_language", l);
+  }, []);
 
   // ── Favorites (per-user, keyed by userId) ─────────────────────────────
   const [favoriteIds, setFavoriteIds] = useState<string[]>(() => {
@@ -648,6 +660,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         notifications, unreadNotificationsCount,
         markNotificationRead, markAllNotificationsRead,
         dismissNotification, clearAllNotifications, addNotification,
+        language, setLanguage,
       }}
     >
       {children}

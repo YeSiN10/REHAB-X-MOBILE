@@ -3,6 +3,7 @@ import { useNavigate } from "react-router";
 import { motion } from "motion/react";
 import { BottomNav } from "../components/BottomNav";
 import { useApp, useColors, computeRecoveryScore } from "../context/AppContext";
+import { useT } from "../i18n";
 import {
   AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, BarChart, Bar,
 } from "recharts";
@@ -22,6 +23,7 @@ export default function ProgressScreen() {
   const navigate = useNavigate();
   const { sessions, todayMood } = useApp();
   const c = useColors();
+  const t = useT();
   const [activeMetric, setActiveMetric] = useState<"calories" | "duration">("calories");
   const [activeTab, setActiveTab] = useState<"week" | "month">("week");
 
@@ -113,13 +115,13 @@ export default function ProgressScreen() {
 
   const overallStats = [
     {
-      label: "Total Sessions",
+      label: t.progress.sessions,
       value: `${sessions.length}`,
       change: weekSessionDiff >= 0 ? `+${weekSessionDiff}` : `${weekSessionDiff}`,
       up: weekSessionDiff >= 0,
     },
     {
-      label: "Total Hours",
+      label: t.progress.totalHours,
       value: `${totalHours.toFixed(1)}h`,
       change: hoursDiff >= 0 ? `+${hoursDiff.toFixed(1)}h` : `${hoursDiff.toFixed(1)}h`,
       up: hoursDiff >= 0,
@@ -131,8 +133,8 @@ export default function ProgressScreen() {
       up: true,
     },
     {
-      label: "Streak",
-      value: `${streak} days`,
+      label: t.progress.currentStreak,
+      value: `${streak} ${t.common.days}`,
       change: streak > 0 ? `+${streak}d` : "Start today!",
       up: streak > 0,
     },
@@ -188,20 +190,20 @@ export default function ProgressScreen() {
                 <path d="M15 18L9 12L15 6" stroke="white" strokeWidth="2" strokeLinecap="round" />
               </svg>
             </button>
-            <h1 className="text-white font-black" style={{ fontSize: 24 }}>Progress</h1>
+            <h1 className="text-white font-black" style={{ fontSize: 24 }}>{t.progress.title}</h1>
           </div>
           <div
             className="flex rounded-xl overflow-hidden p-0.5"
             style={{ background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.15)" }}
           >
-            {(["week", "month"] as const).map((t) => (
+            {(["week", "month"] as const).map((tab) => (
               <button
-                key={t}
-                onClick={() => setActiveTab(t)}
+                key={tab}
+                onClick={() => setActiveTab(tab)}
                 className="px-4 py-2 rounded-lg text-xs font-semibold capitalize transition-all"
-                style={activeTab === t ? { background: "#256DE9", color: "white" } : { color: "rgba(255,255,255,0.6)" }}
+                style={activeTab === tab ? { background: "#256DE9", color: "white" } : { color: "rgba(255,255,255,0.6)" }}
               >
-                {t}
+                {tab === "week" ? t.progress.week : t.progress.month}
               </button>
             ))}
           </div>

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router";
 import { motion, AnimatePresence } from "motion/react";
 import logo from "../../imports/Carte_visite_Final.png";
+import { useT } from "../i18n";
 
 const slides = [
   {
@@ -58,6 +59,7 @@ const slides = [
 
 export default function OnboardingScreen() {
   const navigate = useNavigate();
+  const t = useT();
   const [current, setCurrent] = useState(0);
 
   const next = () => {
@@ -93,7 +95,7 @@ export default function OnboardingScreen() {
           className="text-sm font-semibold"
           style={{ color: "rgba(255,255,255,0.7)" }}
         >
-          Skip
+          {t.onboarding.skip}
         </button>
       </div>
 
@@ -130,10 +132,10 @@ export default function OnboardingScreen() {
 
             {/* Text */}
             <h1 className="text-white mb-4" style={{ fontSize: 30, fontWeight: 800 }}>
-              {slide.title}
+              {current === 0 ? t.onboarding.slide1Title : current === 1 ? t.onboarding.slide2Title : t.onboarding.slide3Title}
             </h1>
             <p style={{ fontSize: 15, lineHeight: "1.7", color: "rgba(255,255,255,0.75)" }}>
-              {slide.subtitle}
+              {current === 0 ? t.onboarding.slide1Sub : current === 1 ? t.onboarding.slide2Sub : t.onboarding.slide3Sub}
             </p>
           </motion.div>
         </AnimatePresence>
@@ -169,14 +171,14 @@ export default function OnboardingScreen() {
             boxShadow: "0 16px 40px rgba(0,0,0,0.15)",
           }}
         >
-          {current < slides.length - 1 ? "Continue" : "Get Started"}
+          {current < slides.length - 1 ? t.onboarding.continue : t.onboarding.getStarted}
         </motion.button>
 
         {/* Sign in */}
         <div className="text-center mt-5">
-          <span style={{ color: "rgba(255,255,255,0.7)", fontSize: 14 }}>Already have an account? </span>
+          <span style={{ color: "rgba(255,255,255,0.7)", fontSize: 14 }}>{t.onboarding.alreadyHaveAccount} </span>
           <button onClick={() => navigate("/login")} className="text-white text-sm font-bold">
-            Sign In
+            {t.onboarding.signIn}
           </button>
         </div>
       </div>

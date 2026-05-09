@@ -3,6 +3,7 @@ import { useNavigate } from "react-router";
 import { motion, AnimatePresence } from "motion/react";
 import { BottomNav } from "../components/BottomNav";
 import { useApp, useColors } from "../context/AppContext";
+import { useT } from "../i18n";
 
 // Body part filter icons
 const bodyPartFilters = [
@@ -125,6 +126,7 @@ export default function ExercisesScreen() {
   const navigate = useNavigate();
   const { isPremium, toggleFavorite, favoriteIds } = useApp();
   const c = useColors();
+  const t = useT();
   const [selectedBodyPart, setSelectedBodyPart] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
   const [showFilterSheet, setShowFilterSheet] = useState(false);
@@ -303,7 +305,7 @@ export default function ExercisesScreen() {
           <input
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search exercises..."
+            placeholder={t.exercises.search}
             className="w-full pl-11 pr-4 py-3 rounded-2xl text-sm focus:outline-none"
             style={{ background: "rgba(255,255,255,0.12)", border: "1px solid rgba(255,255,255,0.15)", caretColor: "white", color: "white" }}
           />
