@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { useColors, useApp } from "../context/AppContext";
+import vrBrainLogo from "../../imports/vr_brain_logo.png";
 
 const FAQ: { q: string; a: string }[] = [
   { q: "How does the recovery score work?", a: "Your recovery score (0–100) is calculated from your workout frequency, session variety, rest days, and daily mood. Aim for 75+ by mixing exercises with proper rest." },
@@ -20,8 +21,12 @@ interface Message {
 
 export function AiAssistant() {
   const c = useColors();
-  const { isPremium } = useApp();
+  const { isPremium, isAuthenticated } = useApp();
   const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    if (!isAuthenticated || !isPremium) setOpen(false);
+  }, [isAuthenticated, isPremium]);
   const [messages, setMessages] = useState<Message[]>([
     { from: "ai", text: "Hi! I'm your REHAB X AI Assistant 🤖 How can I help you today? You can ask me anything about the app or your rehabilitation journey." },
   ]);
@@ -34,7 +39,7 @@ export function AiAssistant() {
     if (open) messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, open]);
 
-  if (!isPremium) return null;
+  if (!isPremium || !isAuthenticated) return null;
 
   const findAnswer = (question: string): string => {
     const q = question.toLowerCase();
@@ -90,12 +95,11 @@ export function AiAssistant() {
           animate={{ y: [0, -3, 0] }}
           transition={{ repeat: Infinity, duration: 2.4, ease: "easeInOut" }}
         >
-          <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
-            <path d="M12 2C6.48 2 2 5.97 2 10.8C2 13.63 3.53 16.14 5.94 17.74L5 21L9.05 19.35C10 19.77 11 20 12 20C17.52 20 22 16.03 22 11.2C22 6.37 17.52 2 12 2Z" fill="white" opacity="0.9" />
-            <circle cx="8.5" cy="11" r="1.2" fill="#256DE9" />
-            <circle cx="12" cy="11" r="1.2" fill="#256DE9" />
-            <circle cx="15.5" cy="11" r="1.2" fill="#256DE9" />
-          </svg>
+          <img
+            src={vrBrainLogo}
+            alt="AI"
+            style={{ width: 30, height: 30, objectFit: "contain", filter: "brightness(0) invert(1)" }}
+          />
         </motion.div>
         {/* Premium badge */}
         <div className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full flex items-center justify-center"

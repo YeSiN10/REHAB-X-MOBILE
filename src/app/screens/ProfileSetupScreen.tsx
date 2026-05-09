@@ -7,8 +7,14 @@ import { compressImage } from "../utils/imageUtils";
 import logo from "../../imports/Carte_visite_Final.png";
 
 const genderOptions = [
-  { value: "male",   label: "Male",   emoji: "👨" },
-  { value: "female", label: "Female", emoji: "👩" },
+  {
+    value: "male", label: "Male",
+    icon: <svg width="32" height="32" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="4" stroke="currentColor" strokeWidth="1.8"/><path d="M4 20c0-4 3.58-7 8-7s8 3 8 7" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/></svg>,
+  },
+  {
+    value: "female", label: "Female",
+    icon: <svg width="32" height="32" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="4" stroke="currentColor" strokeWidth="1.8"/><path d="M4 20c0-4 3.58-7 8-7s8 3 8 7" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/><path d="M12 20v2M10 21h4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/></svg>,
+  },
 ];
 const rehabilitationLevels = [
   { value: "Beginner",     label: "Beginner",     desc: "Just starting rehabilitation" },
@@ -16,20 +22,32 @@ const rehabilitationLevels = [
   { value: "Advanced",     label: "Advanced",     desc: "Well into recovery" },
 ];
 const goals = [
-  { value: "Recovery & Performance", label: "Recovery",    emoji: "🏥" },
-  { value: "Build Muscle",           label: "Muscle",      emoji: "💪" },
-  { value: "Lose Weight",            label: "Weight Loss", emoji: "⚡" },
-  { value: "Flexibility",            label: "Flexibility", emoji: "🧘" },
+  {
+    value: "Recovery & Performance", label: "Recovery",
+    icon: <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M22 12h-4l-3 9L9 3l-3 9H2" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg>,
+  },
+  {
+    value: "Build Muscle", label: "Strength",
+    icon: <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M6.5 6.5h11M6.5 17.5h11M4 6.5a2.5 2.5 0 110-5 2.5 2.5 0 010 5zM4 22.5a2.5 2.5 0 110-5 2.5 2.5 0 010 5zM20 6.5a2.5 2.5 0 110-5 2.5 2.5 0 010 5zM20 22.5a2.5 2.5 0 110-5 2.5 2.5 0 010 5zM2 9v6M22 9v6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/></svg>,
+  },
+  {
+    value: "Lose Weight", label: "Fitness",
+    icon: <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg>,
+  },
+  {
+    value: "Flexibility", label: "Flexibility",
+    icon: <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="4" r="2" stroke="currentColor" strokeWidth="1.8"/><path d="M12 6v6l-4 4M12 12l4 4M8 22l4-4 4 4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg>,
+  },
 ];
 const PAIN_ZONES = [
-  { id: "lower-back", label: "Lower Back", emoji: "🔻" },
-  { id: "knee",       label: "Knee",       emoji: "🦵" },
-  { id: "shoulder",   label: "Shoulder",   emoji: "💪" },
-  { id: "hip",        label: "Hip",        emoji: "🦴" },
-  { id: "ankle",      label: "Ankle",      emoji: "🦶" },
-  { id: "neck",       label: "Neck",       emoji: "🩺" },
-  { id: "wrist",      label: "Wrist",      emoji: "✋" },
-  { id: "elbow",      label: "Elbow",      emoji: "🦾" },
+  { id: "lower-back", label: "Lower Back", icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 2v20M5 6h14M5 12h14M5 18h14" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/></svg> },
+  { id: "knee",       label: "Knee",       icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="5" stroke="currentColor" strokeWidth="1.8"/><path d="M12 2v5M12 17v5M7 12H2M22 12h-5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/></svg> },
+  { id: "shoulder",   label: "Shoulder",   icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M4 20c0-5 3.5-9 8-9s8 4 8 9" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/><circle cx="12" cy="7" r="4" stroke="currentColor" strokeWidth="1.8"/></svg> },
+  { id: "hip",        label: "Hip",        icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 3C8 3 5 6.13 5 10c0 2.5 1.3 4.7 3.3 6L7 21h10l-1.3-5C17.7 14.7 19 12.5 19 10c0-3.87-3-7-7-7z" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg> },
+  { id: "ankle",      label: "Ankle",      icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M7 4h10v8l2 8H5l2-8V4z" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg> },
+  { id: "neck",       label: "Neck",       icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="6" r="3" stroke="currentColor" strokeWidth="1.8"/><path d="M10 9v7a2 2 0 004 0V9" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/></svg> },
+  { id: "wrist",      label: "Wrist",      icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="7" y="2" width="10" height="14" rx="5" stroke="currentColor" strokeWidth="1.8"/><path d="M7 13h10M9 19h6M12 16v6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/></svg> },
+  { id: "elbow",      label: "Elbow",      icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M5 4l7 8-7 8M19 4l-7 8 7 8" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg> },
 ];
 
 export default function ProfileSetupScreen() {
@@ -418,23 +436,25 @@ export default function ProfileSetupScreen() {
               <div>
                 <label className="text-xs font-semibold mb-3 block tracking-wider uppercase" style={{ color: c.textSub }}>Gender</label>
                 <div className="grid grid-cols-2 gap-3">
-                  {genderOptions.map((opt) => (
-                    <button
-                      key={opt.value}
-                      onClick={() => setGender(opt.value)}
-                      className="flex flex-col items-center gap-2 py-4 rounded-2xl transition-all"
-                      style={
-                        gender === opt.value
-                          ? { background: "#256DE9", boxShadow: "0 8px 24px rgba(37,109,233,0.35)" }
-                          : { background: c.card, border: `1px solid ${c.cardBorder}` }
-                      }
-                    >
-                      <span style={{ fontSize: 24 }}>{opt.emoji}</span>
-                      <span className="text-xs font-bold" style={{ color: gender === opt.value ? "white" : c.text }}>
-                        {opt.label}
-                      </span>
-                    </button>
-                  ))}
+                  {genderOptions.map((opt) => {
+                    const sel = gender === opt.value;
+                    return (
+                      <button
+                        key={opt.value}
+                        onClick={() => setGender(opt.value)}
+                        className="flex flex-col items-center gap-3 py-5 rounded-3xl transition-all relative overflow-hidden"
+                        style={
+                          sel
+                            ? { background: "linear-gradient(135deg, #3b82f6 0%, #256DE9 50%, #1a3a8f 100%)", boxShadow: "0 10px 28px rgba(37,109,233,0.4), inset 0 1px 0 rgba(255,255,255,0.15)" }
+                            : { background: c.card, border: `1.5px solid ${c.cardBorder}` }
+                        }
+                      >
+                        {sel && <div className="absolute inset-0 pointer-events-none" style={{ background: "linear-gradient(180deg, rgba(255,255,255,0.1) 0%, transparent 60%)" }} />}
+                        <div style={{ color: sel ? "white" : "#256DE9" }} className="relative">{opt.icon}</div>
+                        <span className="text-sm font-black relative" style={{ color: sel ? "white" : c.text }}>{opt.label}</span>
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
             </motion.div>
@@ -488,7 +508,7 @@ export default function ProfileSetupScreen() {
                           : { background: c.card, border: `1px solid ${c.cardBorder}` }
                       }
                     >
-                      <span style={{ fontSize: 22 }}>{g.emoji}</span>
+                      <div style={{ color: goal === g.value ? "white" : "#256DE9" }}>{g.icon}</div>
                       <span className="text-xs font-bold" style={{ color: goal === g.value ? "white" : c.text }}>{g.label}</span>
                     </button>
                   ))}
@@ -606,7 +626,7 @@ export default function ProfileSetupScreen() {
                         {selected && <div className="absolute inset-0 pointer-events-none" style={{ background: "linear-gradient(180deg, rgba(255,255,255,0.08) 0%, transparent 60%)" }} />}
                         <div className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 relative"
                           style={{ background: selected ? "rgba(255,255,255,0.2)" : "rgba(37,109,233,0.1)" }}>
-                          <span style={{ color: selected ? "white" : "#256DE9", fontSize: 16 }}>{zone.emoji}</span>
+                          <div style={{ color: selected ? "white" : "#256DE9" }}>{zone.icon}</div>
                         </div>
                         <span className="text-sm font-bold relative" style={{ color: selected ? "white" : c.text }}>{zone.label}</span>
                         {selected && (

@@ -141,11 +141,14 @@ export function computeBestStreak(sessions: WorkoutSession[]): number {
 // ── Recovery score ────────────────────────────────────────────────────────
 export const computeRecoveryScore = (sessions: WorkoutSession[], todayMood: string): number => {
   const today = new Date();
+  const startOf7 = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 6);
   const last7 = sessions.filter((s) => {
-    const d = new Date(s.date);
-    return (today.getTime() - d.getTime()) / (1000 * 60 * 60 * 24) <= 7;
+    const [y, m, d] = s.date.split("-").map(Number);
+    return new Date(y, m - 1, d) >= startOf7;
   });
-  const freq = last7.length;
+  // Count distinct active days (not raw session count)
+  const activeDays = new Set(last7.map((s) => s.date)).size;
+  const freq = activeDays;
   let freqScore = freq === 0 ? 40 : freq <= 2 ? 60 : freq <= 5 ? 75 + (freq - 2) * 5 : Math.max(55, 90 - (freq - 5) * 10);
   const hasRecovery = last7.some((s) => s.type === "Recovery" || s.type === "Flexibility");
   const recoveryBonus = hasRecovery ? 8 : -4;
