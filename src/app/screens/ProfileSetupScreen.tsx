@@ -13,7 +13,23 @@ const genderOptions = [
   },
   {
     value: "female", label: "Female",
-    icon: <svg width="32" height="32" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="4" stroke="currentColor" strokeWidth="1.8"/><path d="M4 20c0-4 3.58-7 8-7s8 3 8 7" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/><path d="M12 20v2M10 21h4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/></svg>,
+    icon: <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+      {/* Head */}
+      <circle cx="12" cy="8" r="3.5" stroke="currentColor" strokeWidth="1.8"/>
+      {/* Long hair left */}
+      <path d="M8.5 7C8 5 8.5 3 10 2.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+      {/* Long hair right */}
+      <path d="M15.5 7C16 5 15.5 3 14 2.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+      {/* Hair top arc */}
+      <path d="M8.8 5.5C9.5 3.5 14.5 3.5 15.2 5.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+      {/* Flowing hair sides */}
+      <path d="M8.5 7.5C7.5 10 7.5 13 8 15" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+      <path d="M15.5 7.5C16.5 10 16.5 13 16 15" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+      {/* Body */}
+      <path d="M5 21c0-3.5 3.1-6.5 7-6.5s7 3 7 6.5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
+      {/* Female symbol cross */}
+      <path d="M12 21v2M10 22h4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
+    </svg>,
   },
 ];
 const rehabilitationLevels = [
@@ -31,7 +47,7 @@ const goals = [
     icon: <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M6.5 6.5h11M6.5 17.5h11M4 6.5a2.5 2.5 0 110-5 2.5 2.5 0 010 5zM4 22.5a2.5 2.5 0 110-5 2.5 2.5 0 010 5zM20 6.5a2.5 2.5 0 110-5 2.5 2.5 0 010 5zM20 22.5a2.5 2.5 0 110-5 2.5 2.5 0 010 5zM2 9v6M22 9v6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/></svg>,
   },
   {
-    value: "Lose Weight", label: "Fitness",
+    value: "Lose Weight", label: "Renforcement",
     icon: <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg>,
   },
   {
@@ -757,7 +773,7 @@ export default function ProfileSetupScreen() {
               opacity: (step === 0 && (!!usernameError || checkingUsername)) ? 0.6 : 1,
             }}
           >
-            {step < 3 ? "Continue" : "Get Started 🚀"}
+            {step < 3 ? "Continue" : "Get Started"}
           </motion.button>
         </div>
         {step === 3 && (
