@@ -101,6 +101,17 @@ export default function ProfileSetupScreen() {
   const daysInMonth = dobYear && dobMonth ? new Date(parseInt(dobYear), parseInt(dobMonth), 0).getDate() : 31;
   const [phone, setPhone] = useState(user.phone || "");
   const [gender, setGender] = useState(user.gender || "");
+  const accent = gender === "female" ? "#9333EA" : "#256DE9";
+  const accentRgb = gender === "female" ? "147,51,234" : "37,109,233";
+  const completingGradient = gender === "female"
+    ? "linear-gradient(160deg, #3b1a6e 0%, #2d1554 40%, #1a0d30 100%)"
+    : "linear-gradient(160deg, #1a3a80 0%, #1b2c60 40%, #0d1630 100%)";
+  const completingGlow = gender === "female"
+    ? "radial-gradient(ellipse at 50% 30%, rgba(147,51,234,0.45) 0%, transparent 65%)"
+    : "radial-gradient(ellipse at 50% 30%, rgba(37,109,233,0.45) 0%, transparent 65%)";
+  const progressBarGradient = gender === "female"
+    ? "linear-gradient(90deg, #c084fc, #9333ea)"
+    : "linear-gradient(90deg, #60a5fa, #3b82f6)";
   const [fitnessLevel, setFitnessLevel] = useState(user.fitnessLevel || "Intermediate");
   const [goal, setGoal] = useState(user.goal || "Recovery & Performance");
   const [medicalDocs, setMedicalDocs] = useState<string[]>(
@@ -190,9 +201,9 @@ export default function ProfileSetupScreen() {
   if (completing) {
     return (
       <div className="absolute inset-0 flex flex-col items-center justify-center"
-        style={{ background: "linear-gradient(160deg, #1a3a80 0%, #1b2c60 40%, #0d1630 100%)" }}>
+        style={{ background: completingGradient }}>
         <div className="absolute inset-0 pointer-events-none"
-          style={{ background: "radial-gradient(ellipse at 50% 30%, rgba(37,109,233,0.45) 0%, transparent 65%)" }} />
+          style={{ background: completingGlow }} />
         <motion.div
           initial={{ scale: 0.5, opacity: 0, y: 20 }}
           animate={{ scale: 1, opacity: 1, y: 0 }}
@@ -203,7 +214,7 @@ export default function ProfileSetupScreen() {
             animate={{ rotate: [0, -8, 8, -4, 0], scale: [1, 1.08, 1] }}
             transition={{ duration: 0.8, delay: 0.3 }}
             className="w-20 h-20 rounded-3xl flex items-center justify-center"
-            style={{ background: "rgba(255,255,255,0.15)", border: "2px solid rgba(255,255,255,0.25)", boxShadow: "0 0 48px rgba(37,109,233,0.6)" }}
+            style={{ background: "rgba(255,255,255,0.15)", border: "2px solid rgba(255,255,255,0.25)", boxShadow: `0 0 48px rgba(${accentRgb},0.6)` }}
           >
             <img src={logo} alt="REHAB X" className="w-14 h-14 object-contain" />
           </motion.div>
@@ -223,7 +234,7 @@ export default function ProfileSetupScreen() {
             animate={{ opacity: 1 }}
             transition={{ delay: 0.7 }}
             className="px-5 py-2 rounded-full"
-            style={{ background: "rgba(37,109,233,0.3)", border: "1px solid rgba(37,109,233,0.5)" }}
+            style={{ background: `rgba(${accentRgb},0.3)`, border: `1px solid rgba(${accentRgb},0.5)` }}
           >
             <span className="text-white text-xs font-semibold tracking-wide">Setting up your journey 💪</span>
           </motion.div>
@@ -238,7 +249,7 @@ export default function ProfileSetupScreen() {
               animate={{ width: "100%" }}
               transition={{ delay: 0.9, duration: 1.2, ease: "easeInOut" }}
               className="h-full rounded-full"
-              style={{ background: "linear-gradient(90deg, #60a5fa, #3b82f6)" }}
+              style={{ background: progressBarGradient }}
             />
           </motion.div>
         </motion.div>
@@ -258,11 +269,11 @@ export default function ProfileSetupScreen() {
       {/* Header */}
       <div className="px-6 pt-14 pb-5 shrink-0" style={{ borderBottom: `1px solid ${c.divider}` }}>
         <div className="flex items-center gap-3 mb-5">
-          <div className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0" style={{ background: "#256DE9" }}>
+          <div className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0" style={{ background: accent }}>
             <img src={logo} alt="REHAB X" className="w-6 h-6 object-contain" />
           </div>
           <span className="tracking-widest uppercase font-black" style={{ fontSize: 14, color: c.text }}>
-            REHAB<span style={{ color: "#256DE9" }}>X</span>
+            REHAB<span style={{ color: accent }}>X</span>
           </span>
         </div>
         <h1 style={{ fontSize: 24, fontWeight: 800, color: c.text }}>Set Up Your Profile</h1>
@@ -273,14 +284,14 @@ export default function ProfileSetupScreen() {
           {steps.map((s, i) => (
             <div key={s} className="flex items-center gap-2 flex-1">
               <div className="flex-1 h-1.5 rounded-full transition-all duration-300"
-                style={{ background: i <= step ? "#256DE9" : c.secondaryCard }} />
+                style={{ background: i <= step ? accent : c.secondaryCard }} />
             </div>
           ))}
         </div>
         <div className="flex justify-between mt-1">
           {steps.map((s, i) => (
             <span key={s} className="text-[10px] font-semibold"
-              style={{ color: i <= step ? "#256DE9" : c.textMuted }}>
+              style={{ color: i <= step ? accent : c.textMuted }}>
               {s}
             </span>
           ))}
@@ -302,9 +313,9 @@ export default function ProfileSetupScreen() {
                   <div
                     className="w-24 h-24 rounded-3xl overflow-hidden flex items-center justify-center"
                     style={{
-                      background: avatar ? "transparent" : "linear-gradient(135deg, #256DE9, #1a4bb5)",
-                      border: avatar ? `3px solid #256DE9` : "none",
-                      boxShadow: "0 8px 24px rgba(37,109,233,0.25)",
+                      background: avatar ? "transparent" : `linear-gradient(135deg, ${accent}, ${gender === "female" ? "#6b21a8" : "#1a4bb5"})`,
+                      border: avatar ? `3px solid ${accent}` : "none",
+                      boxShadow: `0 8px 24px rgba(${accentRgb},0.25)`,
                     }}
                   >
                     {avatar ? (
@@ -318,7 +329,7 @@ export default function ProfileSetupScreen() {
                   <button
                     onClick={() => avatarRef.current?.click()}
                     className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full flex items-center justify-center"
-                    style={{ background: "#256DE9", border: `2px solid ${c.bg}`, boxShadow: "0 4px 12px rgba(37,109,233,0.4)" }}
+                    style={{ background: accent, border: `2px solid ${c.bg}`, boxShadow: `0 4px 12px rgba(${accentRgb},0.4)` }}
                   >
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
                       <path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z" stroke="white" strokeWidth="1.8" strokeLinecap="round" />
@@ -327,7 +338,7 @@ export default function ProfileSetupScreen() {
                   </button>
                 </div>
                 <input ref={avatarRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarUpload} />
-                <button onClick={() => avatarRef.current?.click()} className="text-xs font-semibold" style={{ color: "#256DE9" }}>
+                <button onClick={() => avatarRef.current?.click()} className="text-xs font-semibold" style={{ color: accent }}>
                   {avatar ? "Change Photo" : "Upload Photo"}
                 </button>
               </div>
@@ -342,13 +353,13 @@ export default function ProfileSetupScreen() {
                     onChange={(e) => { setUsername(e.target.value); setUsernameError(null); }}
                     onBlur={(e) => { checkUsername(e.target.value); e.target.style.borderColor = usernameError ? "#EF4444" : c.inputBorder; }}
                     className="w-full px-4 py-4 rounded-2xl text-sm focus:outline-none transition-all"
-                    style={{ background: c.inputBg, border: `1px solid ${usernameError ? "#EF4444" : c.inputBorder}`, color: c.text, caretColor: "#256DE9" }}
+                    style={{ background: c.inputBg, border: `1px solid ${usernameError ? "#EF4444" : c.inputBorder}`, color: c.text, caretColor: accent }}
                     placeholder="Enter your username"
-                    onFocus={(e) => (e.target.style.borderColor = usernameError ? "#EF4444" : "#256DE9")}
+                    onFocus={(e) => (e.target.style.borderColor = usernameError ? "#EF4444" : accent)}
                   />
                   {checkingUsername && (
                     <div className="absolute right-4 top-1/2 -translate-y-1/2">
-                      <div className="w-4 h-4 border-2 border-[#256DE9]/30 border-t-[#256DE9] rounded-full animate-spin" />
+                      <div className="w-4 h-4 border-2 rounded-full animate-spin" style={{ borderColor: `rgba(${accentRgb},0.3)`, borderTopColor: accent }} />
                     </div>
                   )}
                 </div>
@@ -371,9 +382,9 @@ export default function ProfileSetupScreen() {
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
                     className="w-full pl-11 pr-4 py-4 rounded-2xl text-sm focus:outline-none transition-all"
-                    style={{ background: c.inputBg, border: `1px solid ${c.inputBorder}`, color: c.text, caretColor: "#256DE9" }}
+                    style={{ background: c.inputBg, border: `1px solid ${c.inputBorder}`, color: c.text, caretColor: accent }}
                     placeholder="+1 (555) 000-0000"
-                    onFocus={(e) => (e.target.style.borderColor = "#256DE9")}
+                    onFocus={(e) => (e.target.style.borderColor = accent)}
                     onBlur={(e) => (e.target.style.borderColor = c.inputBorder)}
                   />
                 </div>
@@ -389,7 +400,7 @@ export default function ProfileSetupScreen() {
                       value={dobDay}
                       onChange={(e) => setDobDay(e.target.value)}
                       className="w-full appearance-none py-4 px-4 rounded-2xl text-sm focus:outline-none transition-all pr-8"
-                      style={{ background: c.inputBg, border: `1.5px solid ${dobDay ? "#256DE9" : c.inputBorder}`, color: dobDay ? c.text : c.textMuted }}
+                      style={{ background: c.inputBg, border: `1.5px solid ${dobDay ? accent : c.inputBorder}`, color: dobDay ? c.text : c.textMuted }}
                     >
                       <option value="">Day</option>
                       {Array.from({ length: daysInMonth }, (_, i) => i + 1).map((d) => (
@@ -408,7 +419,7 @@ export default function ProfileSetupScreen() {
                       value={dobMonth}
                       onChange={(e) => setDobMonth(e.target.value)}
                       className="w-full appearance-none py-4 px-4 rounded-2xl text-sm focus:outline-none transition-all pr-8"
-                      style={{ background: c.inputBg, border: `1.5px solid ${dobMonth ? "#256DE9" : c.inputBorder}`, color: dobMonth ? c.text : c.textMuted }}
+                      style={{ background: c.inputBg, border: `1.5px solid ${dobMonth ? accent : c.inputBorder}`, color: dobMonth ? c.text : c.textMuted }}
                     >
                       <option value="">Month</option>
                       {MONTHS.map((m, i) => (
@@ -427,7 +438,7 @@ export default function ProfileSetupScreen() {
                       value={dobYear}
                       onChange={(e) => setDobYear(e.target.value)}
                       className="w-full appearance-none py-4 px-4 rounded-2xl text-sm focus:outline-none transition-all pr-8"
-                      style={{ background: c.inputBg, border: `1.5px solid ${dobYear ? "#256DE9" : c.inputBorder}`, color: dobYear ? c.text : c.textMuted }}
+                      style={{ background: c.inputBg, border: `1.5px solid ${dobYear ? accent : c.inputBorder}`, color: dobYear ? c.text : c.textMuted }}
                     >
                       <option value="">Year</option>
                       {Array.from({ length: maxYear - minYear + 1 }, (_, i) => maxYear - i).map((y) => (
@@ -442,7 +453,7 @@ export default function ProfileSetupScreen() {
                   </div>
                 </div>
                 {dob && (
-                  <p className="text-xs mt-1.5 ml-1 font-semibold" style={{ color: "#256DE9" }}>
+                  <p className="text-xs mt-1.5 ml-1 font-semibold" style={{ color: accent }}>
                     Age: {calcAge(dob)} years old
                   </p>
                 )}
@@ -461,12 +472,12 @@ export default function ProfileSetupScreen() {
                         className="flex flex-col items-center gap-3 py-5 rounded-3xl transition-all relative overflow-hidden"
                         style={
                           sel
-                            ? { background: "linear-gradient(135deg, #3b82f6 0%, #256DE9 50%, #1a3a8f 100%)", boxShadow: "0 10px 28px rgba(37,109,233,0.4), inset 0 1px 0 rgba(255,255,255,0.15)" }
+                            ? { background: `linear-gradient(135deg, ${gender === "female" ? "#c084fc" : "#3b82f6"} 0%, ${accent} 50%, ${gender === "female" ? "#6b21a8" : "#1a3a8f"} 100%)`, boxShadow: `0 10px 28px rgba(${accentRgb},0.4), inset 0 1px 0 rgba(255,255,255,0.15)` }
                             : { background: c.card, border: `1.5px solid ${c.cardBorder}` }
                         }
                       >
                         {sel && <div className="absolute inset-0 pointer-events-none" style={{ background: "linear-gradient(180deg, rgba(255,255,255,0.1) 0%, transparent 60%)" }} />}
-                        <div style={{ color: sel ? "white" : "#256DE9" }} className="relative">{opt.icon}</div>
+                        <div style={{ color: sel ? "white" : accent }} className="relative">{opt.icon}</div>
                         <span className="text-sm font-black relative" style={{ color: sel ? "white" : c.text }}>{opt.label}</span>
                       </button>
                     );
@@ -489,7 +500,7 @@ export default function ProfileSetupScreen() {
                       className="w-full flex items-center gap-4 px-4 py-4 rounded-2xl transition-all"
                       style={
                         fitnessLevel === lvl.value
-                          ? { background: "#256DE9", boxShadow: "0 8px 24px rgba(37,109,233,0.3)" }
+                          ? { background: accent, boxShadow: `0 8px 24px rgba(${accentRgb},0.3)` }
                           : { background: c.card, border: `1px solid ${c.cardBorder}` }
                       }
                     >
@@ -500,7 +511,7 @@ export default function ProfileSetupScreen() {
                           background: fitnessLevel === lvl.value ? "white" : "transparent",
                         }}
                       >
-                        {fitnessLevel === lvl.value && <div className="w-2.5 h-2.5 rounded-full bg-[#256DE9]" />}
+                        {fitnessLevel === lvl.value && <div className="w-2.5 h-2.5 rounded-full" style={{ background: accent }} />}
                       </div>
                       <div className="text-left flex-1">
                         <p className="font-bold text-sm" style={{ color: fitnessLevel === lvl.value ? "white" : c.text }}>{lvl.label}</p>
@@ -520,11 +531,11 @@ export default function ProfileSetupScreen() {
                       className="flex flex-col items-center gap-2 py-4 rounded-2xl transition-all"
                       style={
                         goal === g.value
-                          ? { background: "#256DE9", boxShadow: "0 8px 24px rgba(37,109,233,0.3)" }
+                          ? { background: accent, boxShadow: `0 8px 24px rgba(${accentRgb},0.3)` }
                           : { background: c.card, border: `1px solid ${c.cardBorder}` }
                       }
                     >
-                      <div style={{ color: goal === g.value ? "white" : "#256DE9" }}>{g.icon}</div>
+                      <div style={{ color: goal === g.value ? "white" : accent }}>{g.icon}</div>
                       <span className="text-xs font-bold" style={{ color: goal === g.value ? "white" : c.text }}>{g.label}</span>
                     </button>
                   ))}
@@ -561,12 +572,12 @@ export default function ProfileSetupScreen() {
                         className="flex flex-col items-center gap-3 py-6 rounded-3xl transition-all relative overflow-hidden"
                         style={
                           sel
-                            ? { background: "linear-gradient(135deg, #3b82f6 0%, #256DE9 50%, #1a3a8f 100%)", boxShadow: "0 10px 32px rgba(37,109,233,0.4), inset 0 1px 0 rgba(255,255,255,0.15)" }
+                            ? { background: `linear-gradient(135deg, ${gender === "female" ? "#c084fc" : "#3b82f6"} 0%, ${accent} 50%, ${gender === "female" ? "#6b21a8" : "#1a3a8f"} 100%)`, boxShadow: `0 10px 32px rgba(${accentRgb},0.4), inset 0 1px 0 rgba(255,255,255,0.15)` }
                             : { background: c.card, border: `1.5px solid ${c.cardBorder}` }
                         }
                       >
                         {sel && <div className="absolute inset-0 pointer-events-none" style={{ background: "linear-gradient(180deg, rgba(255,255,255,0.1) 0%, transparent 60%)" }} />}
-                        <div style={{ color: sel ? "white" : "#256DE9" }} className="relative">{opt.icon}</div>
+                        <div style={{ color: sel ? "white" : accent }} className="relative">{opt.icon}</div>
                         <span className="text-sm font-black relative" style={{ color: sel ? "white" : c.text }}>{opt.label}</span>
                       </button>
                     );
@@ -635,14 +646,14 @@ export default function ProfileSetupScreen() {
                         className="flex items-center gap-3 px-4 py-3.5 rounded-2xl transition-all text-left relative overflow-hidden"
                         style={
                           selected
-                            ? { background: "linear-gradient(135deg, #3b82f6 0%, #256DE9 55%, #1a3a8f 100%)", boxShadow: "0 6px 20px rgba(37,109,233,0.35), inset 0 1px 0 rgba(255,255,255,0.12)" }
+                            ? { background: `linear-gradient(135deg, ${gender === "female" ? "#c084fc" : "#3b82f6"} 0%, ${accent} 55%, ${gender === "female" ? "#6b21a8" : "#1a3a8f"} 100%)`, boxShadow: `0 6px 20px rgba(${accentRgb},0.35), inset 0 1px 0 rgba(255,255,255,0.12)` }
                             : { background: c.card, border: `1.5px solid ${c.cardBorder}` }
                         }
                       >
                         {selected && <div className="absolute inset-0 pointer-events-none" style={{ background: "linear-gradient(180deg, rgba(255,255,255,0.08) 0%, transparent 60%)" }} />}
                         <div className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 relative"
-                          style={{ background: selected ? "rgba(255,255,255,0.2)" : "rgba(37,109,233,0.1)" }}>
-                          <div style={{ color: selected ? "white" : "#256DE9" }}>{zone.icon}</div>
+                          style={{ background: selected ? "rgba(255,255,255,0.2)" : `rgba(${accentRgb},0.1)` }}>
+                          <div style={{ color: selected ? "white" : accent }}>{zone.icon}</div>
                         </div>
                         <span className="text-sm font-bold relative" style={{ color: selected ? "white" : c.text }}>{zone.label}</span>
                         {selected && (
@@ -663,12 +674,12 @@ export default function ProfileSetupScreen() {
           {/* ── STEP 3: Documents ── */}
           {step === 3 && (
             <motion.div key="step3" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-5">
-              <div className="p-4 rounded-2xl" style={{ background: c.accentBg, border: "1px solid rgba(37,109,233,0.2)" }}>
+              <div className="p-4 rounded-2xl" style={{ background: c.accentBg, border: `1px solid rgba(${accentRgb},0.2)` }}>
                 <div className="flex items-start gap-3">
-                  <div className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0" style={{ background: "rgba(37,109,233,0.2)" }}>
+                  <div className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0" style={{ background: `rgba(${accentRgb},0.2)` }}>
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                      <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="#256DE9" strokeWidth="1.8" />
-                      <path d="M12 8V12M12 16H12.01" stroke="#256DE9" strokeWidth="1.8" strokeLinecap="round" />
+                      <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke={accent} strokeWidth="1.8" />
+                      <path d="M12 8V12M12 16H12.01" stroke={accent} strokeWidth="1.8" strokeLinecap="round" />
                     </svg>
                   </div>
                   <div>
@@ -719,7 +730,7 @@ export default function ProfileSetupScreen() {
               >
                 <div className="w-12 h-12 rounded-full flex items-center justify-center" style={{ background: c.accentBg }}>
                   <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-                    <path d="M21 15V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V15M17 8L12 3L7 8M12 3V15" stroke="#256DE9" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                    <path d="M21 15V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V15M17 8L12 3L7 8M12 3V15" stroke={accent} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
                 </div>
                 <div className="text-center">
@@ -765,10 +776,10 @@ export default function ProfileSetupScreen() {
             style={{
               background: (step === 0 && (!!usernameError || checkingUsername))
                 ? "#64748B"
-                : "linear-gradient(135deg, #256DE9 0%, #1a4bb5 100%)",
+                : `linear-gradient(135deg, ${accent} 0%, ${gender === "female" ? "#6b21a8" : "#1a4bb5"} 100%)`,
               boxShadow: (step === 0 && (!!usernameError || checkingUsername))
                 ? "none"
-                : "0 12px 32px rgba(37,109,233,0.35)",
+                : `0 12px 32px rgba(${accentRgb},0.35)`,
               fontSize: 15,
               opacity: (step === 0 && (!!usernameError || checkingUsername)) ? 0.6 : 1,
             }}

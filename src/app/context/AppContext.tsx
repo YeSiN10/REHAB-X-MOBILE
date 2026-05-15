@@ -65,25 +65,37 @@ const generateSeedSessions = (): WorkoutSession[] => {
 };
 
 // ── Theme colors ──────────────────────────────────────────────────────────
-export const getThemeColors = (isDark: boolean) => ({
-  bg: isDark ? "#07090F" : "#F0F4FF",
-  card: isDark ? "#111929" : "#FFFFFF",
-  cardBorder: isDark ? "rgba(255,255,255,0.06)" : "rgba(37,109,233,0.1)",
-  text: isDark ? "#FFFFFF" : "#0A1628",
-  textSub: isDark ? "#94A3B8" : "#4B5A6E",
-  textMuted: isDark ? "#475569" : "#8896A6",
-  inputBg: isDark ? "#111929" : "#EEF2FC",
-  inputBorder: isDark ? "rgba(255,255,255,0.08)" : "rgba(37,109,233,0.15)",
-  navBg: isDark ? "#07090F" : "#FFFFFF",
-  navBorder: isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)",
-  accentBg: isDark ? "rgba(37,109,233,0.15)" : "rgba(37,109,233,0.1)",
-  divider: isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)",
-  secondaryCard: isDark ? "#0D1220" : "#E8EDFA",
-  headerGlow: isDark
-    ? "radial-gradient(circle, rgba(37,109,233,0.12) 0%, transparent 70%)"
-    : "radial-gradient(circle, rgba(37,109,233,0.08) 0%, transparent 70%)",
-  shadow: isDark ? "0 4px 24px rgba(0,0,0,0.4)" : "0 4px 24px rgba(37,109,233,0.1)",
-});
+export const getThemeColors = (isDark: boolean, gender: string = "") => {
+  const isFemale = gender === "female";
+  const accent = isFemale ? "#9333EA" : "#256DE9";
+  const accentRgb = isFemale ? "147,51,234" : "37,109,233";
+  const headerGradient = isFemale
+    ? "linear-gradient(160deg, #3b1a6e 0%, #2d1554 40%, #1a0d30 100%)"
+    : "linear-gradient(160deg, #1a3a80 0%, #1b2c60 40%, #0d1630 100%)";
+  return {
+    bg: isDark ? "#07090F" : "#F0F4FF",
+    card: isDark ? "#111929" : "#FFFFFF",
+    cardBorder: isDark ? "rgba(255,255,255,0.06)" : `rgba(${accentRgb},0.1)`,
+    text: isDark ? "#FFFFFF" : "#0A1628",
+    textSub: isDark ? "#94A3B8" : "#4B5A6E",
+    textMuted: isDark ? "#475569" : "#8896A6",
+    inputBg: isDark ? "#111929" : "#EEF2FC",
+    inputBorder: isDark ? "rgba(255,255,255,0.08)" : `rgba(${accentRgb},0.15)`,
+    navBg: isDark ? "#07090F" : "#FFFFFF",
+    navBorder: isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)",
+    accentBg: isDark ? `rgba(${accentRgb},0.15)` : `rgba(${accentRgb},0.1)`,
+    divider: isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)",
+    secondaryCard: isDark ? "#0D1220" : "#E8EDFA",
+    headerGlow: isDark
+      ? `radial-gradient(circle, rgba(${accentRgb},0.12) 0%, transparent 70%)`
+      : `radial-gradient(circle, rgba(${accentRgb},0.08) 0%, transparent 70%)`,
+    shadow: isDark ? "0 4px 24px rgba(0,0,0,0.4)" : `0 4px 24px rgba(${accentRgb},0.1)`,
+    accent,
+    accentRgb,
+    headerGradient,
+    headerGlowBg: `radial-gradient(ellipse at 50% -10%, rgba(${accentRgb},0.35) 0%, transparent 65%)`,
+  };
+};
 
 // ── Notifications ────────────────────────────────────────────────────────
 export interface AppNotification {
@@ -670,6 +682,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
 export const useApp = () => useContext(AppContext);
 export const useColors = () => {
-  const { isDark } = useApp();
-  return getThemeColors(isDark);
+  const { isDark, user } = useApp();
+  return getThemeColors(isDark, user.gender);
 };

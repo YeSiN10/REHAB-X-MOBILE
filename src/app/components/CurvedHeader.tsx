@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router";
 import { ReactNode } from "react";
+import { useColors } from "../context/AppContext";
 
 interface CurvedHeaderProps {
   title: string;
@@ -11,11 +12,12 @@ interface CurvedHeaderProps {
 
 export function CurvedHeader({ title, subtitle, showBack = true, rightSlot, children }: CurvedHeaderProps) {
   const navigate = useNavigate();
+  const c = useColors();
   return (
     <div
       className="shrink-0 relative overflow-hidden"
       style={{
-        background: "linear-gradient(160deg, #1a3a80 0%, #1b2c60 40%, #0d1630 100%)",
+        background: c.headerGradient,
         borderBottomLeftRadius: 36,
         borderBottomRightRadius: 36,
         paddingTop: 52,
@@ -24,10 +26,9 @@ export function CurvedHeader({ title, subtitle, showBack = true, rightSlot, chil
         zIndex: 2,
       }}
     >
-      {/* Background glow */}
       <div
         className="absolute inset-0 pointer-events-none"
-        style={{ background: "radial-gradient(ellipse at 50% -10%, rgba(37,109,233,0.35) 0%, transparent 65%)" }}
+        style={{ background: c.headerGlowBg }}
       />
 
       <div className="flex items-center gap-3 px-5">
