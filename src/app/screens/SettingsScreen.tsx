@@ -6,11 +6,12 @@ import { jsPDF } from "jspdf";
 import { useT, useLang } from "../i18n";
 
 function Toggle({ value, onChange }: { value: boolean; onChange: (v: boolean) => void }) {
+  const c = useColors();
   return (
     <button
       onClick={() => onChange(!value)}
       className="relative w-12 h-6 rounded-full transition-all duration-300 shrink-0"
-      style={{ background: value ? "#256DE9" : "rgba(150,150,150,0.2)" }}
+      style={{ background: value ? c.accent : "rgba(150,150,150,0.2)" }}
     >
       <motion.div
         animate={{ x: value ? 24 : 2 }}
@@ -85,15 +86,16 @@ export default function SettingsScreen() {
     const typeCount: Record<string, number> = {};
     sessions.forEach((s) => { typeCount[s.type] = (typeCount[s.type] || 0) + 1; });
 
+    const [aR, aG, aB] = c.accentRgb.split(",").map(Number);
     doc.setFontSize(22);
-    doc.setTextColor(37, 109, 233);
+    doc.setTextColor(aR, aG, aB);
     doc.text("REHAB X — My Data Export", 20, 25);
 
     doc.setFontSize(11);
     doc.setTextColor(100, 100, 100);
     doc.text(`Exported on: ${new Date().toLocaleDateString()}`, 20, 35);
 
-    doc.setDrawColor(37, 109, 233);
+    doc.setDrawColor(aR, aG, aB);
     doc.setLineWidth(0.5);
     doc.line(20, 40, 190, 40);
 
@@ -199,7 +201,7 @@ export default function SettingsScreen() {
           <motion.div
             initial={{ opacity: 0, y: -16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -16 }}
             className="absolute top-20 left-5 right-5 z-50 px-4 py-3 rounded-2xl flex items-center gap-3"
-            style={{ background: "#256DE9", boxShadow: "0 8px 24px rgba(37,109,233,0.4)" }}
+            style={{ background: c.accent, boxShadow: `0 8px 24px rgba(${c.accentRgb},0.4)` }}
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17L4 12" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" /></svg>
             <span className="text-sm font-semibold text-white flex-1">{toast}</span>
@@ -218,14 +220,14 @@ export default function SettingsScreen() {
               initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.8, opacity: 0 }}
               transition={{ type: "spring", stiffness: 400, damping: 30 }}
               className="absolute inset-x-5 z-50 rounded-3xl p-6 overflow-hidden"
-              style={{ top: "50%", transform: "translateY(-50%)", background: "linear-gradient(160deg, #1a3a80 0%, #1b2c60 45%, #0d1630 100%)", border: "1px solid rgba(37,109,233,0.35)", boxShadow: "0 24px 60px rgba(0,0,0,0.5)" }}
+              style={{ top: "50%", transform: "translateY(-50%)", background: c.headerGradient, border: `1px solid rgba(${c.accentRgb},0.35)`, boxShadow: "0 24px 60px rgba(0,0,0,0.5)" }}
             >
               <div className="absolute inset-0 pointer-events-none"
-                style={{ background: "radial-gradient(ellipse at 50% -15%, rgba(37,109,233,0.5) 0%, transparent 60%)" }} />
+                style={{ background: `radial-gradient(ellipse at 50% -15%, rgba(${c.accentRgb},0.5) 0%, transparent 60%)` }} />
               {ratingDone ? (
                 <div className="flex flex-col items-center py-4 text-center relative">
                   <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: "spring", stiffness: 500, damping: 25 }}>
-                    <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto" style={{ background: "rgba(37,109,233,0.25)", border: "2px solid rgba(37,109,233,0.5)" }}>
+                    <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto" style={{ background: `rgba(${c.accentRgb},0.25)`, border: `2px solid rgba(${c.accentRgb},0.5)` }}>
                       <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
                         <path d="M20 6L9 17L4 12" stroke="#60a5fa" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
                       </svg>
@@ -236,7 +238,7 @@ export default function SettingsScreen() {
                   <button
                     onClick={() => { setShowRatingModal(false); setRatingDone(false); setSelectedRating(0); }}
                     className="mt-6 px-8 py-3 rounded-2xl text-white font-bold"
-                    style={{ background: "rgba(37,109,233,0.4)", border: "1px solid rgba(37,109,233,0.6)" }}
+                    style={{ background: `rgba(${c.accentRgb},0.4)`, border: `1px solid rgba(${c.accentRgb},0.6)` }}
                   >
                     {t.common.close}
                   </button>
@@ -244,7 +246,7 @@ export default function SettingsScreen() {
               ) : (
                 <div className="relative">
                   <div className="flex items-center gap-3 mb-5">
-                    <div className="w-12 h-12 rounded-2xl flex items-center justify-center" style={{ background: "rgba(37,109,233,0.25)", border: "1px solid rgba(37,109,233,0.4)" }}>
+                    <div className="w-12 h-12 rounded-2xl flex items-center justify-center" style={{ background: `rgba(${c.accentRgb},0.25)`, border: `1px solid rgba(${c.accentRgb},0.4)` }}>
                       <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
                         <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" fill="#60a5fa" stroke="#60a5fa" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" />
                       </svg>
@@ -267,9 +269,9 @@ export default function SettingsScreen() {
                           onClick={() => setSelectedRating(star)}
                           className="w-12 h-12 rounded-2xl flex items-center justify-center transition-all"
                           style={{
-                            background: active ? "rgba(37,109,233,0.4)" : "rgba(255,255,255,0.07)",
+                            background: active ? `rgba(${c.accentRgb},0.4)` : "rgba(255,255,255,0.07)",
                             border: `1.5px solid ${active ? "rgba(96,165,250,0.7)" : "rgba(255,255,255,0.12)"}`,
-                            boxShadow: active ? "0 4px 16px rgba(37,109,233,0.4)" : "none",
+                            boxShadow: active ? `0 4px 16px rgba(${c.accentRgb},0.4)` : "none",
                           }}
                         >
                           <svg width="22" height="22" viewBox="0 0 24 24" fill={active ? "#60a5fa" : "none"} stroke={active ? "#60a5fa" : "rgba(255,255,255,0.35)"} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
@@ -295,7 +297,7 @@ export default function SettingsScreen() {
                       disabled={selectedRating === 0}
                       onClick={() => setRatingDone(true)}
                       className="flex-1 py-3 rounded-2xl text-white font-bold text-sm disabled:opacity-40"
-                      style={{ background: "linear-gradient(135deg, #256DE9, #1a4bb5)", boxShadow: "0 8px 24px rgba(37,109,233,0.4)" }}
+                      style={{ background: `linear-gradient(135deg, ${c.accent}, ${c.accentDark})`, boxShadow: `0 8px 24px rgba(${c.accentRgb},0.4)` }}
                     >
                       {t.settings.submitRating}
                     </motion.button>
@@ -331,7 +333,7 @@ export default function SettingsScreen() {
                       onClick={() => setEditValue(opt)}
                       className="w-full flex items-center justify-between px-4 py-3.5 rounded-2xl transition-all"
                       style={editValue === opt
-                        ? { background: "#256DE9", boxShadow: "0 8px 20px rgba(37,109,233,0.3)" }
+                        ? { background: c.accent, boxShadow: `0 8px 20px rgba(${c.accentRgb},0.3)` }
                         : { background: c.secondaryCard, border: `1px solid ${c.cardBorder}` }}
                     >
                       <span className="font-semibold text-sm" style={{ color: editValue === opt ? "white" : c.text }}>{opt}</span>
@@ -350,7 +352,7 @@ export default function SettingsScreen() {
                   onChange={(e) => setEditValue(e.target.value)}
                   autoFocus
                   className="w-full px-4 py-4 rounded-2xl text-sm focus:outline-none mb-6"
-                  style={{ background: c.inputBg, border: "1.5px solid #256DE9", color: c.text, caretColor: "#256DE9" }}
+                  style={{ background: c.inputBg, border: `1.5px solid ${c.accent}`, color: c.text, caretColor: c.accent }}
                   placeholder={`Enter your ${editSheet.label.toLowerCase()}`}
                 />
               )}
@@ -360,7 +362,7 @@ export default function SettingsScreen() {
                   {t.common.cancel}
                 </button>
                 <motion.button whileTap={{ scale: 0.97 }} onClick={saveEdit} className="flex-1 py-4 rounded-2xl text-white font-bold text-sm"
-                  style={{ background: "linear-gradient(135deg, #256DE9, #1a4bb5)", boxShadow: "0 12px 28px rgba(37,109,233,0.3)" }}>
+                  style={{ background: `linear-gradient(135deg, ${c.accent}, ${c.accentDark})`, boxShadow: `0 12px 28px rgba(${c.accentRgb},0.3)` }}>
                   {t.settings.saveChanges}
                 </motion.button>
               </div>
@@ -373,7 +375,7 @@ export default function SettingsScreen() {
       <div
         className="shrink-0 relative overflow-hidden"
         style={{
-          background: "linear-gradient(160deg, #1a3a80 0%, #1b2c60 40%, #0d1630 100%)",
+          background: c.headerGradient,
           borderBottomLeftRadius: 36,
           borderBottomRightRadius: 36,
           paddingTop: 52,
@@ -383,7 +385,7 @@ export default function SettingsScreen() {
         }}
       >
         <div className="absolute inset-0 pointer-events-none"
-          style={{ background: "radial-gradient(ellipse at 50% -10%, rgba(37,109,233,0.35) 0%, transparent 65%)" }} />
+          style={{ background: c.headerGlowBg }} />
         <div className="flex items-center gap-4 px-5">
           <button
             onClick={() => navigate(-1)}
@@ -469,7 +471,7 @@ export default function SettingsScreen() {
                     onClick={() => setLanguage(lang)}
                     className="flex-1 flex flex-col items-center gap-1 py-3 rounded-2xl transition-all"
                     style={isActive
-                      ? { background: "#256DE9", boxShadow: "0 8px 20px rgba(37,109,233,0.35)" }
+                      ? { background: c.accent, boxShadow: `0 8px 20px rgba(${c.accentRgb},0.35)` }
                       : { background: c.secondaryCard, border: `1px solid ${c.cardBorder}` }
                     }
                   >
@@ -520,13 +522,13 @@ export default function SettingsScreen() {
               style={{ borderColor: c.divider }}
             >
               <div className="flex items-center gap-3">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="#256DE9" strokeLinecap="round" strokeLinejoin="round">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill={c.accent} strokeLinecap="round" strokeLinejoin="round">
                   <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
                 </svg>
-                <span className="text-sm font-semibold" style={{ color: "#256DE9" }}>{t.settings.rateApp}</span>
+                <span className="text-sm font-semibold" style={{ color: c.accent }}>{t.settings.rateApp}</span>
               </div>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-                <path d="M9 18L15 12L9 6" stroke="#256DE9" strokeWidth="2" strokeLinecap="round" />
+                <path d="M9 18L15 12L9 6" stroke={c.accent} strokeWidth="2" strokeLinecap="round" />
               </svg>
             </button>
             <button

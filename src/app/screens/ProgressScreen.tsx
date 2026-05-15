@@ -151,7 +151,7 @@ export default function ProgressScreen() {
   const CustomTooltip = ({ active, payload, label }: TooltipProps) => {
     if (!active || !payload?.length) return null;
     return (
-      <div className="px-3 py-2 rounded-xl" style={{ background: c.card, border: "1px solid rgba(37,109,233,0.3)" }}>
+      <div className="px-3 py-2 rounded-xl" style={{ background: c.card, border: `1px solid rgba(${c.accentRgb},0.3)` }}>
         <p className="text-xs mb-1" style={{ color: c.textMuted }}>{label}</p>
         <p className="font-bold text-sm" style={{ color: c.text }}>
           {payload[0]?.value} {payload[0]?.name === "calories" ? "kcal" : "min"}
@@ -160,7 +160,7 @@ export default function ProgressScreen() {
     );
   };
 
-  const recoveryColor = sessions.length === 0 ? c.textMuted : recoveryScore >= 80 ? "#22C55E" : recoveryScore >= 60 ? "#256DE9" : recoveryScore >= 40 ? "#EAB308" : "#EF4444";
+  const recoveryColor = sessions.length === 0 ? c.textMuted : recoveryScore >= 80 ? "#22C55E" : recoveryScore >= 60 ? c.accent : recoveryScore >= 40 ? "#EAB308" : "#EF4444";
 
   return (
     <div className="absolute inset-0 flex flex-col overflow-hidden" style={{ background: c.bg }}>
@@ -168,7 +168,7 @@ export default function ProgressScreen() {
       <div
         className="shrink-0 relative overflow-hidden"
         style={{
-          background: "linear-gradient(160deg, #1a3a80 0%, #1b2c60 40%, #0d1630 100%)",
+          background: c.headerGradient,
           borderBottomLeftRadius: 36,
           borderBottomRightRadius: 36,
           paddingTop: 52,
@@ -178,7 +178,7 @@ export default function ProgressScreen() {
         }}
       >
         <div className="absolute inset-0 pointer-events-none"
-          style={{ background: "radial-gradient(ellipse at 50% -10%, rgba(37,109,233,0.35) 0%, transparent 65%)" }} />
+          style={{ background: c.headerGlowBg }} />
         <div className="flex items-center justify-between px-5">
           <div className="flex items-center gap-3">
             <button
@@ -201,7 +201,7 @@ export default function ProgressScreen() {
                 key={tab}
                 onClick={() => setActiveTab(tab)}
                 className="px-4 py-2 rounded-lg text-xs font-semibold capitalize transition-all"
-                style={activeTab === tab ? { background: "#256DE9", color: "white" } : { color: "rgba(255,255,255,0.6)" }}
+                style={activeTab === tab ? { background: c.accent, color: "white" } : { color: "rgba(255,255,255,0.6)" }}
               >
                 {tab === "week" ? t.progress.week : t.progress.month}
               </button>
@@ -262,7 +262,7 @@ export default function ProgressScreen() {
                   key={m}
                   onClick={() => setActiveMetric(m)}
                   className="px-3 py-1.5 rounded-lg text-[10px] font-semibold capitalize transition-all"
-                  style={activeMetric === m ? { background: "#256DE9", color: "white" } : { color: c.textMuted }}
+                  style={activeMetric === m ? { background: c.accent, color: "white" } : { color: c.textMuted }}
                 >
                   {m === "calories" ? "Kcal" : "Time"}
                 </button>
@@ -274,16 +274,16 @@ export default function ProgressScreen() {
               <AreaChart data={weeklyData} margin={{ top: 5, right: 0, left: -30, bottom: 0 }}>
                 <defs>
                   <linearGradient id="grad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#256DE9" stopOpacity={0.3} />
-                    <stop offset="95%" stopColor="#256DE9" stopOpacity={0} />
+                    <stop offset="5%" stopColor={c.accent} stopOpacity={0.3} />
+                    <stop offset="95%" stopColor={c.accent} stopOpacity={0} />
                   </linearGradient>
                 </defs>
                 <XAxis dataKey="day" tick={{ fill: c.textMuted, fontSize: 11 }} axisLine={false} tickLine={false} />
                 <YAxis tick={{ fill: c.textMuted, fontSize: 10 }} axisLine={false} tickLine={false} />
                 <Tooltip content={<CustomTooltip />} />
-                <Area type="monotone" dataKey={activeMetric} stroke="#256DE9" strokeWidth={2.5}
-                  fill="url(#grad)" dot={{ fill: "#256DE9", r: 3, strokeWidth: 0 }}
-                  activeDot={{ fill: "#256DE9", r: 5, strokeWidth: 0 }} />
+                <Area type="monotone" dataKey={activeMetric} stroke={c.accent} strokeWidth={2.5}
+                  fill="url(#grad)" dot={{ fill: c.accent, r: 3, strokeWidth: 0 }}
+                  activeDot={{ fill: c.accent, r: 5, strokeWidth: 0 }} />
               </AreaChart>
             </ResponsiveContainer>
           ) : (
@@ -292,7 +292,7 @@ export default function ProgressScreen() {
                 <XAxis dataKey="week" tick={{ fill: c.textMuted, fontSize: 11 }} axisLine={false} tickLine={false} />
                 <YAxis tick={{ fill: c.textMuted, fontSize: 10 }} axisLine={false} tickLine={false} />
                 <Tooltip content={<CustomTooltip />} />
-                <Bar dataKey="sessions" fill="#256DE9" radius={[6, 6, 0, 0]} />
+                <Bar dataKey="sessions" fill={c.accent} radius={[6, 6, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           )}
@@ -339,7 +339,7 @@ export default function ProgressScreen() {
                 { label: "Muscle Soreness", val: muscleSoreness },
                 { label: "Energy Level", val: energyLevel },
               ].map((item) => {
-                const barColor = item.val >= 70 ? "#22C55E" : item.val >= 50 ? "#256DE9" : "#EAB308";
+                const barColor = item.val >= 70 ? "#22C55E" : item.val >= 50 ? c.accent : "#EAB308";
                 return (
                   <div key={item.label}>
                     <div className="flex justify-between text-xs mb-1">
@@ -383,7 +383,7 @@ export default function ProgressScreen() {
         <div>
           <div className="flex items-center justify-between mb-3">
             <h3 className="font-bold" style={{ fontSize: 15, color: c.text }}>Achievements</h3>
-            <button className="text-[#256DE9] text-sm font-semibold">See All</button>
+            <button className="text-sm font-semibold" style={{ color: c.accent }}>See All</button>
           </div>
           <div className="flex gap-3 overflow-x-auto pb-2">
             {achievements.map((a, i) => (
@@ -392,7 +392,7 @@ export default function ProgressScreen() {
                 className="shrink-0 w-[100px] rounded-2xl p-4 flex flex-col items-center gap-2"
                 style={
                   a.earned
-                    ? { background: c.accentBg, border: "1px solid rgba(37,109,233,0.25)" }
+                    ? { background: c.accentBg, border: `1px solid rgba(${c.accentRgb},0.25)` }
                     : { background: c.card, border: `1px solid ${c.cardBorder}`, opacity: 0.5 }
                 }
               >
@@ -402,7 +402,7 @@ export default function ProgressScreen() {
                   {a.label}
                 </p>
                 {a.earned && (
-                  <span className="text-[9px] text-center" style={{ color: "#256DE9" }}>{a.desc}</span>
+                  <span className="text-[9px] text-center" style={{ color: c.accent }}>{a.desc}</span>
                 )}
               </div>
             ))}
@@ -413,7 +413,7 @@ export default function ProgressScreen() {
         <div>
           <div className="flex items-center justify-between mb-3">
             <h3 className="font-bold" style={{ fontSize: 15, color: c.text }}>Session History</h3>
-            <span className="text-xs font-semibold px-2.5 py-1 rounded-full" style={{ background: c.accentBg, color: "#256DE9" }}>
+            <span className="text-xs font-semibold px-2.5 py-1 rounded-full" style={{ background: c.accentBg, color: c.accent }}>
               {sessions.length} total
             </span>
           </div>
@@ -430,10 +430,10 @@ export default function ProgressScreen() {
                 .slice(0, 10)
                 .map((s, i) => {
                   const typeColor: Record<string, string> = {
-                    Cardio: "#256DE9", Strength: "#A855F7", HIIT: "#F97316",
+                    Cardio: c.accent, Strength: "#A855F7", HIIT: "#F97316",
                     Recovery: "#22C55E", Flexibility: "#EAB308", Core: "#06B6D4",
                   };
-                  const color = typeColor[s.type] || "#256DE9";
+                  const color = typeColor[s.type] || c.accent;
                   const exerciseImgById: Record<string, string> = {
                     "1": "photo-1729281008855-71e2506761c0",
                     "2": "photo-1597376833295-40a54d5e69fc",

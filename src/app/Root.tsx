@@ -1,7 +1,7 @@
 import { Outlet, useLocation, useNavigate } from "react-router";
 import { motion, AnimatePresence } from "motion/react";
 import { useEffect } from "react";
-import { AppProvider, useApp } from "./context/AppContext";
+import { AppProvider, useApp, useColors } from "./context/AppContext";
 import { AiAssistant } from "./components/AiAssistant";
 
 function RtlManager() {
@@ -31,6 +31,23 @@ function RouteGuard() {
   return null;
 }
 
+function AmbientGlow() {
+  const c = useColors();
+  return (
+    <div
+      className="absolute pointer-events-none"
+      style={{
+        width: 500,
+        height: 500,
+        background: `radial-gradient(circle, rgba(${c.accentRgb},0.18) 0%, transparent 70%)`,
+        top: "50%",
+        left: "50%",
+        transform: "translate(-50%, -60%)",
+      }}
+    />
+  );
+}
+
 export default function Root() {
   const location = useLocation();
 
@@ -45,17 +62,7 @@ export default function Root() {
         }}
       >
         {/* Ambient glow */}
-        <div
-          className="absolute pointer-events-none"
-          style={{
-            width: 500,
-            height: 500,
-            background: "radial-gradient(circle, rgba(37,109,233,0.18) 0%, transparent 70%)",
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%, -60%)",
-          }}
-        />
+        <AmbientGlow />
 
         {/* Phone frame */}
         <div

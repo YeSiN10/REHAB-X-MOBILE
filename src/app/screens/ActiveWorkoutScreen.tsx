@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useNavigate, useParams } from "react-router";
 import { motion, AnimatePresence } from "motion/react";
-import { useApp } from "../context/AppContext";
+import { useApp, useColors } from "../context/AppContext";
 
 const workoutData: Record<string, {
   title: string; totalSets: number; category: string;
@@ -41,6 +41,7 @@ const workoutData: Record<string, {
 
 // Skeleton stick figure poses (SVG paths for body parts)
 const SkeletonFigure = ({ exerciseName, phase }: { exerciseName: string; phase: number }) => {
+  const c = useColors();
   const animate = phase % 2 === 0;
 
   // Different poses based on exercise type
@@ -75,15 +76,15 @@ const SkeletonFigure = ({ exerciseName, phase }: { exerciseName: string; phase: 
   const pose = getBodyPose();
 
   return (
-    <svg width="130" height="160" viewBox="0 0 130 160" style={{ filter: "drop-shadow(0 0 20px rgba(37,109,233,0.6))" }}>
+    <svg width="130" height="160" viewBox="0 0 130 160" style={{ filter: `drop-shadow(0 0 20px rgba(${c.accentRgb},0.6))` }}>
       {/* Glow effect behind skeleton */}
-      <ellipse cx="65" cy="130" rx="30" ry="8" fill="rgba(37,109,233,0.3)" />
+      <ellipse cx="65" cy="130" rx="30" ry="8" fill={`rgba(${c.accentRgb},0.3)`} />
 
       {/* Head */}
       <motion.circle
         cx="65" cy="28"
         r="14"
-        fill="none" stroke="#256DE9" strokeWidth="3"
+        fill="none" stroke={c.accent} strokeWidth="3"
         animate={{ cy: animate ? 30 : 26 }}
         transition={{ duration: 0.6, repeat: Infinity, repeatType: "reverse", ease: "easeInOut" }}
       />
@@ -93,13 +94,13 @@ const SkeletonFigure = ({ exerciseName, phase }: { exerciseName: string; phase: 
         x1="65" y1="42" x2="65"
         animate={{ y2: animate ? pose.torsoY + 8 : pose.torsoY }}
         transition={{ duration: 0.6, repeat: Infinity, repeatType: "reverse", ease: "easeInOut" }}
-        stroke="#256DE9" strokeWidth="3" strokeLinecap="round"
+        stroke={c.accent} strokeWidth="3" strokeLinecap="round"
       />
 
       {/* Shoulders */}
       <motion.line
         x1="45" y1="52" x2="85" y2="52"
-        stroke="#256DE9" strokeWidth="3" strokeLinecap="round"
+        stroke={c.accent} strokeWidth="3" strokeLinecap="round"
         animate={{ y1: animate ? 54 : 50, y2: animate ? 54 : 50 }}
         transition={{ duration: 0.6, repeat: Infinity, repeatType: "reverse", ease: "easeInOut" }}
       />
@@ -133,7 +134,7 @@ const SkeletonFigure = ({ exerciseName, phase }: { exerciseName: string; phase: 
         x1="52" y1="90" x2="78" y2="90"
         animate={{ y1: animate ? pose.torsoY + 8 : pose.torsoY + 2, y2: animate ? pose.torsoY + 8 : pose.torsoY + 2 }}
         transition={{ duration: 0.6, repeat: Infinity, repeatType: "reverse", ease: "easeInOut" }}
-        stroke="#256DE9" strokeWidth="3" strokeLinecap="round"
+        stroke={c.accent} strokeWidth="3" strokeLinecap="round"
       />
 
       {/* Left leg */}
@@ -166,7 +167,7 @@ const SkeletonFigure = ({ exerciseName, phase }: { exerciseName: string; phase: 
         <motion.circle
           key={i}
           cx={dot.cx} cy={dot.cy} r="4"
-          fill="#256DE9"
+          fill={c.accent}
           animate={{ r: [4, 5, 4] }}
           transition={{ duration: 1.5, repeat: Infinity, delay: i * 0.1 }}
         />
@@ -324,7 +325,7 @@ export default function ActiveWorkoutScreen() {
       <div className="absolute inset-0 flex flex-col items-center justify-center overflow-hidden"
         style={{ background: "#F0F4FF" }}>
         {/* Glow */}
-        <div className="absolute inset-0" style={{ background: "radial-gradient(circle at 50% 40%, rgba(37,109,233,0.08) 0%, transparent 65%)" }} />
+        <div className="absolute inset-0" style={{ background: c.headerGlowBg }} />
 
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -334,7 +335,7 @@ export default function ActiveWorkoutScreen() {
           {/* Camera icon */}
           <div
             className="w-28 h-28 rounded-[40px] flex items-center justify-center mb-8"
-            style={{ background: "linear-gradient(135deg, #256DE9, #1a4bb5)", boxShadow: "0 24px 48px rgba(37,109,233,0.3)" }}
+            style={{ background: `linear-gradient(135deg, ${c.accent}, ${c.accentDark})`, boxShadow: `0 24px 48px rgba(${c.accentRgb},0.3)` }}
           >
             <svg width="52" height="52" viewBox="0 0 24 24" fill="none">
               <path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z" stroke="white" strokeWidth="1.8" strokeLinecap="round" />
@@ -359,7 +360,7 @@ export default function ActiveWorkoutScreen() {
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.3 + i * 0.1 }}
                 className="flex items-center gap-3 p-3 rounded-2xl text-left"
-                style={{ background: "white", border: "1px solid rgba(37,109,233,0.12)", boxShadow: "0 2px 12px rgba(37,109,233,0.06)" }}
+                style={{ background: "white", border: `1px solid rgba(${c.accentRgb},0.12)`, boxShadow: `0 2px 12px rgba(${c.accentRgb},0.06)` }}
               >
                 <span style={{ fontSize: 20 }}>{item.icon}</span>
                 <span className="text-sm font-medium" style={{ color: "#4B5A6E" }}>{item.text}</span>
@@ -371,7 +372,7 @@ export default function ActiveWorkoutScreen() {
             whileTap={{ scale: 0.97 }}
             onClick={requestCamera}
             className="w-full mt-8 py-4 rounded-2xl text-white font-bold flex items-center justify-center gap-3"
-            style={{ background: "linear-gradient(135deg, #256DE9, #1a4bb5)", boxShadow: "0 16px 40px rgba(37,109,233,0.35)", fontSize: 16 }}
+            style={{ background: `linear-gradient(135deg, ${c.accent}, ${c.accentDark})`, boxShadow: `0 16px 40px rgba(${c.accentRgb},0.35)`, fontSize: 16 }}
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
               <path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z" stroke="white" strokeWidth="1.8" strokeLinecap="round" />
@@ -412,7 +413,7 @@ export default function ActiveWorkoutScreen() {
             }} />
             {/* Grid overlay */}
             <div className="absolute inset-0" style={{
-              backgroundImage: "linear-gradient(rgba(37,109,233,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(37,109,233,0.05) 1px, transparent 1px)",
+              backgroundImage: `linear-gradient(rgba(${c.accentRgb},0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(${c.accentRgb},0.05) 1px, transparent 1px)`,
               backgroundSize: "40px 40px"
             }} />
           </>
@@ -421,11 +422,11 @@ export default function ActiveWorkoutScreen() {
             background: "linear-gradient(160deg, #07090F 0%, #0F1A2E 100%)"
           }}>
             <div className="absolute inset-0" style={{
-              background: "radial-gradient(circle at 50% 40%, rgba(37,109,233,0.12) 0%, transparent 65%)"
+              background: `radial-gradient(circle at 50% 40%, rgba(${c.accentRgb},0.12) 0%, transparent 65%)`
             }} />
             {/* Simulated grid */}
             <div className="absolute inset-0" style={{
-              backgroundImage: "linear-gradient(rgba(37,109,233,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(37,109,233,0.06) 1px, transparent 1px)",
+              backgroundImage: `linear-gradient(rgba(${c.accentRgb},0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(${c.accentRgb},0.06) 1px, transparent 1px)`,
               backgroundSize: "40px 40px"
             }} />
           </div>
@@ -459,7 +460,7 @@ export default function ActiveWorkoutScreen() {
           {isRunning && repCount > 0 && (
             <div
               className="absolute bottom-0 left-1/2 -translate-x-1/2 px-4 py-2 rounded-full"
-              style={{ background: "rgba(37,109,233,0.25)", border: "1px solid rgba(37,109,233,0.5)", backdropFilter: "blur(8px)" }}
+              style={{ background: `rgba(${c.accentRgb},0.25)`, border: `1px solid rgba(${c.accentRgb},0.5)`, backdropFilter: "blur(8px)" }}
             >
               <span className="text-white font-black text-sm">{repCount} reps</span>
             </div>
@@ -491,7 +492,7 @@ export default function ActiveWorkoutScreen() {
           {cameraPermission === "granted" && (
             <div className="w-2 h-2 rounded-full bg-[#EF4444]" style={{ animation: "pulse 1.5s infinite" }} />
           )}
-          <span className="text-[#256DE9] font-bold text-sm">{formatTime(elapsed)}</span>
+          <span className="font-bold text-sm" style={{ color: c.accent }}>{formatTime(elapsed)}</span>
         </div>
       </div>
 
@@ -502,7 +503,7 @@ export default function ActiveWorkoutScreen() {
           <span>{Math.round(progress * 100)}%</span>
         </div>
         <div className="w-full h-1 rounded-full" style={{ background: "rgba(255,255,255,0.08)" }}>
-          <motion.div className="h-full rounded-full" style={{ background: "#256DE9" }}
+          <motion.div className="h-full rounded-full" style={{ background: c.accent }}
             animate={{ width: `${progress * 100}%` }} transition={{ duration: 0.4 }} />
         </div>
       </div>
@@ -515,14 +516,14 @@ export default function ActiveWorkoutScreen() {
             <motion.circle
               cx="75" cy="75" r="60"
               fill="none"
-              stroke={isRest ? "#22C55E" : "#256DE9"}
+              stroke={isRest ? "#22C55E" : c.accent}
               strokeWidth="8"
               strokeLinecap="round"
               strokeDasharray={circumference}
               animate={{ strokeDashoffset: circumference - strokeDash }}
               transition={{ duration: 0.5 }}
               transform="rotate(-90 75 75)"
-              style={{ filter: `drop-shadow(0 0 8px ${isRest ? "#22C55E" : "#256DE9"})` }}
+              style={{ filter: `drop-shadow(0 0 8px ${isRest ? "#22C55E" : c.accent})` }}
             />
           </svg>
           <div className="absolute inset-0 flex flex-col items-center justify-center">
@@ -533,7 +534,7 @@ export default function ActiveWorkoutScreen() {
               </>
             ) : (
               <>
-                <span className="text-[#256DE9] text-[10px] font-bold tracking-wider">TIME</span>
+                <span className="text-[10px] font-bold tracking-wider" style={{ color: c.accent }}>TIME</span>
                 <span className="text-white font-black" style={{ fontSize: 30 }}>{formatTime(timer)}</span>
               </>
             )}
@@ -567,7 +568,7 @@ export default function ActiveWorkoutScreen() {
             <button
               onClick={() => setShowInstruction(!showInstruction)}
               className="px-3 py-1 rounded-full text-[10px] font-bold transition-all"
-              style={{ background: showInstruction ? "rgba(37,109,233,0.2)" : "rgba(255,255,255,0.08)", color: showInstruction ? "#256DE9" : "#475569", border: `1px solid ${showInstruction ? "rgba(37,109,233,0.3)" : "rgba(255,255,255,0.1)"}` }}
+              style={{ background: showInstruction ? `rgba(${c.accentRgb},0.2)` : "rgba(255,255,255,0.08)", color: showInstruction ? c.accent : "#475569", border: `1px solid ${showInstruction ? `rgba(${c.accentRgb},0.3)` : "rgba(255,255,255,0.1)"}` }}
             >
               {showInstruction ? "Hide" : "Show"}
             </button>
@@ -578,10 +579,10 @@ export default function ActiveWorkoutScreen() {
               initial={{ opacity: 0, y: 6 }}
               animate={{ opacity: 1, y: 0 }}
               className="p-3 rounded-2xl"
-              style={{ background: "rgba(37,109,233,0.12)", border: "1px solid rgba(37,109,233,0.25)", backdropFilter: "blur(8px)" }}
+              style={{ background: `rgba(${c.accentRgb},0.12)`, border: `1px solid rgba(${c.accentRgb},0.25)`, backdropFilter: "blur(8px)" }}
             >
               <p className="text-xs leading-relaxed" style={{ color: "#94A3B8" }}>
-                <span className="text-[#256DE9] font-bold">📋 </span>
+                <span className="font-bold" style={{ color: c.accent }}>📋 </span>
                 {currentEx.instruction}
               </p>
             </motion.div>
@@ -598,12 +599,12 @@ export default function ActiveWorkoutScreen() {
               className="flex items-center gap-2 px-3 py-2 rounded-2xl shrink-0 transition-all"
               style={{
                 background: i === currentExIdx
-                  ? "rgba(37,109,233,0.2)"
+                  ? `rgba(${c.accentRgb},0.2)`
                   : i < currentExIdx
                     ? "rgba(34,197,94,0.1)"
                     : "rgba(255,255,255,0.05)",
                 border: i === currentExIdx
-                  ? "1.5px solid rgba(37,109,233,0.6)"
+                  ? `1.5px solid rgba(${c.accentRgb},0.6)`
                   : i < currentExIdx
                     ? "1px solid rgba(34,197,94,0.3)"
                     : "1px solid rgba(255,255,255,0.07)",
@@ -613,7 +614,7 @@ export default function ActiveWorkoutScreen() {
             >
               <div
                 className="w-6 h-6 rounded-full flex items-center justify-center shrink-0"
-                style={{ background: i < currentExIdx ? "#22C55E" : i === currentExIdx ? "#256DE9" : "rgba(255,255,255,0.08)" }}
+                style={{ background: i < currentExIdx ? "#22C55E" : i === currentExIdx ? c.accent : "rgba(255,255,255,0.08)" }}
               >
                 {i < currentExIdx ? (
                   <svg width="10" height="10" viewBox="0 0 24 24" fill="none">
@@ -630,7 +631,7 @@ export default function ActiveWorkoutScreen() {
                 <p style={{ fontSize: 9, color: i === currentExIdx ? "rgba(255,255,255,0.6)" : "#334155" }}>{ex.reps}</p>
               </div>
               {i === currentExIdx && (
-                <div className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: "#256DE9", boxShadow: "0 0 6px #256DE9" }} />
+                <div className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: c.accent, boxShadow: `0 0 6px ${c.accent}` }} />
               )}
             </div>
           ))}
@@ -657,8 +658,8 @@ export default function ActiveWorkoutScreen() {
             onClick={() => setIsRunning(!isRunning)}
             className="flex-1 h-14 rounded-2xl flex items-center justify-center gap-2 font-bold text-white"
             style={{
-              background: isRunning ? "linear-gradient(135deg, #EF4444, #b91c1c)" : "linear-gradient(135deg, #256DE9, #1a4bb5)",
-              boxShadow: isRunning ? "0 12px 30px rgba(239,68,68,0.3)" : "0 12px 30px rgba(37,109,233,0.4)",
+              background: isRunning ? "linear-gradient(135deg, #EF4444, #b91c1c)" : `linear-gradient(135deg, ${c.accent}, ${c.accentDark})`,
+              boxShadow: isRunning ? "0 12px 30px rgba(239,68,68,0.3)" : `0 12px 30px rgba(${c.accentRgb},0.4)`,
               fontSize: 16, backdropFilter: "blur(8px)",
             }}
           >

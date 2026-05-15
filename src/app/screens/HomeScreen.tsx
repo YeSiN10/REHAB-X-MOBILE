@@ -13,7 +13,7 @@ const moodDefs = [
   { emoji: "😔", value: "low",       color: "#F97316" },
   { emoji: "😐", value: "ok",        color: "#EAB308" },
   { emoji: "😊", value: "good",      color: "#22C55E" },
-  { emoji: "🤩", value: "great",     color: "#256DE9" },
+  { emoji: "🤩", value: "great",     color: "ACCENT" },
 ];
 
 const intensityColors: Record<string, { bg: string; text: string }> = {
@@ -102,6 +102,7 @@ export default function HomeScreen() {
   const { user, setSidebarOpen, todayMood, setTodayMood, sessions, streak, bestStreak, favoriteIds, unreadNotificationsCount } = useApp();
   const c = useColors();
   const t = useT();
+  const moodDefsResolved = moodDefs.map(d => ({ ...d, color: d.color === "ACCENT" ? c.accent : d.color }));
   const [goalView, setGoalView] = useState<"weekly" | "monthly">("weekly");
   const [instructionsExId, setInstructionsExId] = useState<string | null>(null);
   const [showDailyBanner, setShowDailyBanner] = useState(true);
@@ -228,7 +229,7 @@ export default function HomeScreen() {
             >
               <div className="w-10 h-1 rounded-full mx-auto mb-5" style={{ background: c.divider }} />
               <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 rounded-2xl flex items-center justify-center" style={{ background: "linear-gradient(135deg, #256DE9, #1a4bb5)" }}>
+                <div className="w-10 h-10 rounded-2xl flex items-center justify-center" style={{ background: `linear-gradient(135deg, ${c.accent}, ${c.accentDark})` }}>
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
                     <path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z" stroke="white" strokeWidth="1.8" strokeLinecap="round" />
                     <circle cx="12" cy="13" r="4" stroke="white" strokeWidth="1.8" />
@@ -239,16 +240,16 @@ export default function HomeScreen() {
                   <p className="text-xs" style={{ color: c.textMuted }}>{t.home.beforeVr}</p>
                 </div>
               </div>
-              <div className="p-3 rounded-2xl mb-4 flex items-start gap-3" style={{ background: "rgba(37,109,233,0.1)", border: "1px solid rgba(37,109,233,0.2)" }}>
+              <div className="p-3 rounded-2xl mb-4 flex items-start gap-3" style={{ background: `rgba(${c.accentRgb},0.1)`, border: `1px solid rgba(${c.accentRgb},0.2)` }}>
                 <span style={{ fontSize: 16 }}>📷</span>
-                <p className="text-xs leading-relaxed" style={{ color: "#256DE9" }}>
+                <p className="text-xs leading-relaxed" style={{ color: c.accent }}>
                   <span className="font-bold">{t.home.cameraRequired}</span> {t.home.cameraRequiredDesc}
                 </p>
               </div>
               <div className="space-y-2.5 mb-5">
                 {instructionData.steps.map((step, i) => (
                   <motion.div key={i} initial={{ opacity: 0, x: -12 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.07 }} className="flex items-start gap-3">
-                    <div className="w-6 h-6 rounded-full flex items-center justify-center shrink-0 mt-0.5" style={{ background: "#256DE9" }}>
+                    <div className="w-6 h-6 rounded-full flex items-center justify-center shrink-0 mt-0.5" style={{ background: c.accent }}>
                       <span className="text-white font-black" style={{ fontSize: 10 }}>{i + 1}</span>
                     </div>
                     <p className="text-sm leading-relaxed flex-1" style={{ color: c.textSub }}>{step}</p>
@@ -265,7 +266,7 @@ export default function HomeScreen() {
                 whileTap={{ scale: 0.97 }}
                 onClick={() => { setInstructionsExId(null); navigate(`/workout/${instructionsExId}`); }}
                 className="w-full py-4 rounded-2xl text-white font-bold flex items-center justify-center gap-3"
-                style={{ background: "linear-gradient(135deg, #256DE9, #1a4bb5)", boxShadow: "0 16px 40px rgba(37,109,233,0.35)", fontSize: 16 }}
+                style={{ background: `linear-gradient(135deg, ${c.accent}, ${c.accentDark})`, boxShadow: `0 16px 40px rgba(${c.accentRgb},0.35)`, fontSize: 16 }}
               >
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M8 5L19 12L8 19V5Z" /></svg>
                 {t.home.startVrSession}
@@ -300,7 +301,7 @@ export default function HomeScreen() {
                   <span style={{ fontSize: 20 }}>❤️</span>
                   <h3 className="font-black" style={{ fontSize: 18, color: c.text }}>{t.home.favoriteExercises}</h3>
                 </div>
-                <span className="text-xs font-bold px-2.5 py-1 rounded-full" style={{ background: "rgba(37,109,233,0.12)", color: "#256DE9" }}>
+                <span className="text-xs font-bold px-2.5 py-1 rounded-full" style={{ background: `rgba(${c.accentRgb},0.12)`, color: c.accent }}>
                   {favoriteExercises.length} saved
                 </span>
               </div>
@@ -314,7 +315,7 @@ export default function HomeScreen() {
                     whileTap={{ scale: 0.97 }}
                     onClick={() => { setShowFavorites(false); navigate("/exercises"); }}
                     className="mt-5 px-6 py-3 rounded-2xl font-bold text-white text-sm"
-                    style={{ background: "linear-gradient(135deg, #256DE9, #1a4bb5)" }}
+                    style={{ background: `linear-gradient(135deg, ${c.accent}, ${c.accentDark})` }}
                   >
                     Browse Exercises
                   </motion.button>
@@ -335,7 +336,7 @@ export default function HomeScreen() {
                           <img src={ex.img} alt={ex.title} className="w-full h-full object-cover" />
                         </div>
                         <div className="flex-1 min-w-0">
-                          <span className="text-[10px] font-bold uppercase tracking-wider block mb-0.5" style={{ color: "#256DE9" }}>{ex.category}</span>
+                          <span className="text-[10px] font-bold uppercase tracking-wider block mb-0.5" style={{ color: c.accent }}>{ex.category}</span>
                           <h3 className="font-bold text-sm truncate" style={{ color: c.text }}>{ex.title}</h3>
                           <div className="flex items-center gap-2 mt-1">
                             <span className="text-xs" style={{ color: c.textMuted }}>⏱ {ex.duration}</span>
@@ -346,7 +347,7 @@ export default function HomeScreen() {
                         <button
                           onClick={(e) => { e.stopPropagation(); navigate(`/workout/${ex.id}`); }}
                           className="w-9 h-9 rounded-full flex items-center justify-center shrink-0"
-                          style={{ background: "#256DE9" }}
+                          style={{ background: c.accent }}
                         >
                           <svg width="13" height="13" viewBox="0 0 24 24" fill="white"><path d="M8 5L19 12L8 19V5Z" /></svg>
                         </button>
@@ -364,7 +365,7 @@ export default function HomeScreen() {
       <div
         className="shrink-0 relative overflow-hidden"
         style={{
-          background: "linear-gradient(160deg, #1a3a80 0%, #1b2c60 40%, #0d1630 100%)",
+          background: c.headerGradient,
           borderBottomLeftRadius: 36,
           borderBottomRightRadius: 36,
           paddingTop: 52,
@@ -374,7 +375,7 @@ export default function HomeScreen() {
         }}
       >
         <div className="absolute top-0 left-0 right-0 h-full pointer-events-none"
-          style={{ background: "radial-gradient(ellipse at 50% -10%, rgba(37,109,233,0.35) 0%, transparent 65%)" }} />
+          style={{ background: c.headerGlowBg }} />
 
         <div className="flex items-center justify-between px-5">
           <div>
@@ -411,7 +412,7 @@ export default function HomeScreen() {
                 {user.avatar ? (
                   <img src={user.avatar} alt="Avatar" className="w-full h-full object-cover" />
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center" style={{ background: "linear-gradient(135deg, #256DE9, #1a4bb5)" }}>
+                  <div className="w-full h-full flex items-center justify-center" style={{ background: `linear-gradient(135deg, ${c.accent}, ${c.accentDark})` }}>
                     <span className="text-white font-black text-sm">{initials}</span>
                   </div>
                 )}
@@ -437,18 +438,18 @@ export default function HomeScreen() {
               className="mx-5 mb-4 flex items-center gap-3 px-4 py-3 rounded-2xl"
               style={{
                 background: c.card,
-                border: "1.5px solid rgba(37,109,233,0.35)",
-                boxShadow: `0 4px 20px rgba(37,109,233,0.15)`,
+                border: `1.5px solid rgba(${c.accentRgb},0.35)`,
+                boxShadow: `0 4px 20px rgba(${c.accentRgb},0.15)`,
               }}
             >
-              <div className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0" style={{ background: "rgba(37,109,233,0.12)" }}>
+              <div className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0" style={{ background: `rgba(${c.accentRgb},0.12)` }}>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                  <path d="M18 8C18 6.4087 17.37 4.88 16.24 3.76C15.12 2.63 13.59 2 12 2C10.41 2 8.88 2.63 7.76 3.76C6.63 4.88 6 6.41 6 8C6 15 3 17 3 17H21C21 17 18 15 18 8Z" stroke="#256DE9" strokeWidth="1.8" />
-                  <path d="M13.73 21C13.55 21.3 13.3 21.55 13 21.73C12.69 21.9 12.35 22 12 22" stroke="#256DE9" strokeWidth="1.8" strokeLinecap="round" />
+                  <path d="M18 8C18 6.4087 17.37 4.88 16.24 3.76C15.12 2.63 13.59 2 12 2C10.41 2 8.88 2.63 7.76 3.76C6.63 4.88 6 6.41 6 8C6 15 3 17 3 17H21C21 17 18 15 18 8Z" stroke={c.accent} strokeWidth="1.8" />
+                  <path d="M13.73 21C13.55 21.3 13.3 21.55 13 21.73C12.69 21.9 12.35 22 12 22" stroke={c.accent} strokeWidth="1.8" strokeLinecap="round" />
                 </svg>
               </div>
               <div className="flex-1">
-                <p className="text-sm font-bold" style={{ color: "#256DE9" }}>
+                <p className="text-sm font-bold" style={{ color: c.accent }}>
                   It's your turn{" "}
                   <span style={{ color: c.text }}>{todaySessions}/{todayGoal}</span>
                   {" "}Exercise!
@@ -483,7 +484,7 @@ export default function HomeScreen() {
                   onClick={() => setGoalView(view)}
                   className="flex-1 py-1.5 rounded-lg text-xs font-bold capitalize transition-all"
                   style={goalView === view
-                    ? { background: "#256DE9", color: "white", boxShadow: "0 4px 12px rgba(37,109,233,0.3)" }
+                    ? { background: c.accent, color: "white", boxShadow: `0 4px 12px rgba(${c.accentRgb},0.3)` }
                     : { color: c.textMuted }}
                 >
                   {view === "weekly" ? t.home.weeklyGoal : t.home.monthlyProgress}
@@ -496,15 +497,15 @@ export default function HomeScreen() {
                 <motion.div key="weekly" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.2 }} className="p-4">
                   <div className="flex justify-between items-center mb-3">
                     <span className="text-sm font-bold" style={{ color: c.text }}>{completedWeekDays} of {weeklyGoalDays} days completed</span>
-                    <span className="text-xs font-semibold px-2.5 py-1 rounded-full" style={{ background: c.accentBg, color: "#256DE9" }}>
+                    <span className="text-xs font-semibold px-2.5 py-1 rounded-full" style={{ background: c.accentBg, color: c.accent }}>
                       {Math.round((completedWeekDays / weeklyGoalDays) * 100)}%
                     </span>
                   </div>
                   <div className="flex gap-1.5">
                     {weekDays.map((day, i) => (
                       <div key={i} className="flex-1 flex flex-col items-center gap-1.5">
-                        <div className="w-full h-1.5 rounded-full transition-all" style={{ background: weekDaysStatus[i] ? "#256DE9" : c.secondaryCard }} />
-                        <span className="text-[9px] font-semibold" style={{ color: weekDaysStatus[i] ? "#256DE9" : c.textMuted }}>{day}</span>
+                        <div className="w-full h-1.5 rounded-full transition-all" style={{ background: weekDaysStatus[i] ? c.accent : c.secondaryCard }} />
+                        <span className="text-[9px] font-semibold" style={{ color: weekDaysStatus[i] ? c.accent : c.textMuted }}>{day}</span>
                       </div>
                     ))}
                   </div>
@@ -514,7 +515,7 @@ export default function HomeScreen() {
                   <div className="relative w-16 h-16 shrink-0">
                     <svg width="64" height="64" viewBox="0 0 64 64">
                       <circle cx="32" cy="32" r="24" fill="none" stroke={c.secondaryCard} strokeWidth="6" />
-                      <circle cx="32" cy="32" r="24" fill="none" stroke="#256DE9" strokeWidth="6" strokeLinecap="round"
+                      <circle cx="32" cy="32" r="24" fill="none" stroke={c.accent} strokeWidth="6" strokeLinecap="round"
                         strokeDasharray={`${2 * Math.PI * 24}`}
                         strokeDashoffset={`${2 * Math.PI * 24 * (1 - monthlyPercent / 100)}`}
                         transform="rotate(-90 32 32)" />
@@ -530,7 +531,7 @@ export default function HomeScreen() {
                     </p>
                     <div className="flex gap-3 mt-2">
                       <div>
-                        <p className="font-black" style={{ fontSize: 14, color: "#256DE9" }}>{thisMonthSessions.reduce((s, x) => s + x.calories, 0).toLocaleString()}</p>
+                        <p className="font-black" style={{ fontSize: 14, color: c.accent }}>{thisMonthSessions.reduce((s, x) => s + x.calories, 0).toLocaleString()}</p>
                         <p className="text-[9px] font-semibold" style={{ color: c.textMuted }}>KCAL</p>
                       </div>
                       <div>
@@ -553,13 +554,13 @@ export default function HomeScreen() {
         <div className="px-5 mb-4">
           <div
             className="grid grid-cols-4 gap-2 p-3 rounded-2xl"
-            style={{ border: "1.5px solid rgba(37,109,233,0.35)", background: "rgba(37,109,233,0.05)", boxShadow: "0 4px 20px rgba(37,109,233,0.08)" }}
+            style={{ border: `1.5px solid rgba(${c.accentRgb},0.35)`, background: `rgba(${c.accentRgb},0.05)`, boxShadow: `0 4px 20px rgba(${c.accentRgb},0.08)` }}
           >
             {quickStats.map((stat) => (
               <div key={stat.label} className="flex flex-col items-center gap-0.5 py-1">
                 <span style={{ fontSize: 16 }}>{stat.icon}</span>
                 <span className="font-black" style={{ fontSize: 14, color: stat.color }}>{stat.value}</span>
-                <span style={{ color: "#256DE9", fontSize: 8, fontWeight: 700, opacity: 0.7 }}>{stat.unit}</span>
+                <span style={{ color: c.accent, fontSize: 8, fontWeight: 700, opacity: 0.7 }}>{stat.unit}</span>
               </div>
             ))}
           </div>
@@ -666,8 +667,8 @@ export default function HomeScreen() {
         <div className="px-5 mb-4">
           <div className="flex justify-between items-center mb-3">
             <h2 className="font-bold" style={{ fontSize: 17, color: c.text }}>Featured Session</h2>
-            <button onClick={() => navigate("/exercises")} className="flex items-center gap-1 text-sm font-semibold" style={{ color: "#256DE9" }}>
-              View All <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M9 18L15 12L9 6" stroke="#256DE9" strokeWidth="2" strokeLinecap="round" /></svg>
+            <button onClick={() => navigate("/exercises")} className="flex items-center gap-1 text-sm font-semibold" style={{ color: c.accent }}>
+              View All <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M9 18L15 12L9 6" stroke={c.accent} strokeWidth="2" strokeLinecap="round" /></svg>
             </button>
           </div>
 
@@ -680,7 +681,7 @@ export default function HomeScreen() {
             <img src="https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=800&q=80" alt="Featured" className="absolute inset-0 w-full h-full object-cover" />
             <div className="absolute inset-0" style={{ background: "linear-gradient(to top, rgba(7,9,15,0.95) 0%, rgba(7,9,15,0.3) 60%, transparent 100%)" }} />
             <div className="absolute top-4 left-4">
-              <span className="text-white text-[10px] font-bold px-3 py-1.5 rounded-full tracking-wider" style={{ background: "#256DE9" }}>
+              <span className="text-white text-[10px] font-bold px-3 py-1.5 rounded-full tracking-wider" style={{ background: c.accent }}>
                 📷 VR SESSION
               </span>
             </div>
@@ -695,7 +696,7 @@ export default function HomeScreen() {
             <button
               onClick={(e) => { e.stopPropagation(); setInstructionsExId("featured"); }}
               className="absolute right-4 bottom-4 w-12 h-12 rounded-full flex items-center justify-center"
-              style={{ background: "#256DE9", boxShadow: "0 8px 24px rgba(37,109,233,0.5)" }}
+              style={{ background: c.accent, boxShadow: `0 8px 24px rgba(${c.accentRgb},0.5)` }}
             >
               <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M8 5L19 12L8 19V5Z" /></svg>
             </button>
@@ -707,12 +708,12 @@ export default function HomeScreen() {
           <div className="flex justify-between items-center mb-3">
             <div>
               <h2 className="font-bold" style={{ fontSize: 17, color: c.text }}>{t.home.recommended}</h2>
-              <p className="text-[10px] font-semibold" style={{ color: "#256DE9" }}>
+              <p className="text-[10px] font-semibold" style={{ color: c.accent }}>
                 Based on: {user.goal || "Recovery & Performance"}
               </p>
             </div>
-            <button onClick={() => navigate("/exercises")} className="flex items-center gap-1 text-sm font-semibold" style={{ color: "#256DE9" }}>
-              See All <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M9 18L15 12L9 6" stroke="#256DE9" strokeWidth="2" strokeLinecap="round" /></svg>
+            <button onClick={() => navigate("/exercises")} className="flex items-center gap-1 text-sm font-semibold" style={{ color: c.accent }}>
+              See All <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M9 18L15 12L9 6" stroke={c.accent} strokeWidth="2" strokeLinecap="round" /></svg>
             </button>
           </div>
 
@@ -734,7 +735,7 @@ export default function HomeScreen() {
                     <img src={ex.img} alt={ex.title} className="w-full h-full object-cover" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <span className="text-[10px] font-bold uppercase tracking-wider block mb-0.5" style={{ color: "#256DE9" }}>{ex.category}</span>
+                    <span className="text-[10px] font-bold uppercase tracking-wider block mb-0.5" style={{ color: c.accent }}>{ex.category}</span>
                     <h3 className="font-bold text-sm truncate" style={{ color: c.text }}>{ex.title}</h3>
                     <div className="flex items-center gap-2 mt-1">
                       <span className="text-xs" style={{ color: c.textMuted }}>⏱ {ex.duration}</span>
@@ -747,7 +748,7 @@ export default function HomeScreen() {
                     <button
                       onClick={(e) => { e.stopPropagation(); setInstructionsExId(ex.id); }}
                       className="w-8 h-8 rounded-full flex items-center justify-center"
-                      style={{ background: "#256DE9" }}
+                      style={{ background: c.accent }}
                     >
                       <svg width="12" height="12" viewBox="0 0 24 24" fill="white"><path d="M8 5L19 12L8 19V5Z" /></svg>
                     </button>
@@ -763,8 +764,8 @@ export default function HomeScreen() {
             onClick={() => setShowFavorites(true)}
             className="w-full mt-4 py-4 rounded-2xl text-white font-bold flex items-center justify-center gap-2.5"
             style={{
-              background: "linear-gradient(135deg, #256DE9 0%, #1a4bb5 60%, #3B82F6 100%)",
-              boxShadow: "0 12px 32px rgba(37,109,233,0.35)",
+              background: `linear-gradient(135deg, ${c.accent} 0%, ${c.accentDark} 60%, #3B82F6 100%)`,
+              boxShadow: `0 12px 32px rgba(${c.accentRgb},0.35)`,
               fontSize: 15,
             }}
           >
@@ -786,11 +787,11 @@ export default function HomeScreen() {
             <div className="flex items-center justify-between mb-3">
               <h2 className="font-bold" style={{ fontSize: 15, color: c.text }}>{t.home.mood.label}</h2>
               {todayMood && (
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: c.accentBg, color: "#256DE9" }}>LOGGED</span>
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: c.accentBg, color: c.accent }}>LOGGED</span>
               )}
             </div>
             <div className="flex justify-between">
-              {moodDefs.map((mood) => (
+              {moodDefsResolved.map((mood) => (
                 <motion.button key={mood.value} whileTap={{ scale: 0.9 }} onClick={() => setTodayMood(mood.value)} className="flex flex-col items-center gap-1.5 flex-1">
                   <div
                     className="w-10 h-10 rounded-2xl flex items-center justify-center transition-all"

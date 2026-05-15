@@ -32,8 +32,8 @@ export default function WorkoutCompleteScreen() {
       value: lastSession ? `${lastSession.duration}:00` : "28:45",
       unit: t.workoutComplete.minSec,
       icon: "⏱",
-      color: "#256DE9",
-      bg: "rgba(37,109,233,0.08)",
+      color: c.accent,
+      bg: `rgba(${c.accentRgb},0.08)`,
     },
     {
       label: t.workoutComplete.calories,
@@ -89,7 +89,7 @@ export default function WorkoutCompleteScreen() {
               className="absolute w-2 h-2 rounded-sm"
               style={{
                 left: `${Math.random() * 100}%`,
-                background: ["#256DE9", "#22C55E", "#F97316", "#A855F7", "#EAB308"][i % 5],
+                background: [c.accent, "#22C55E", "#F97316", "#A855F7", "#EAB308"][i % 5],
               }}
               initial={{ y: -20, opacity: 1, rotate: 0 }}
               animate={{ y: 900, opacity: [1, 1, 0], rotate: Math.random() * 720 - 360, x: Math.random() * 100 - 50 }}
@@ -103,7 +103,7 @@ export default function WorkoutCompleteScreen() {
       <div
         className="shrink-0 relative overflow-hidden"
         style={{
-          background: "linear-gradient(160deg, #1a3a80 0%, #0d1630 100%)",
+          background: c.headerGradient,
           borderBottomLeftRadius: 40,
           borderBottomRightRadius: 40,
           paddingTop: 56,
@@ -194,9 +194,9 @@ export default function WorkoutCompleteScreen() {
         <motion.div
           initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }}
           className="p-4 rounded-2xl mb-5 flex items-center gap-4"
-          style={{ background: c.accentBg, border: "1px solid rgba(37,109,233,0.2)", boxShadow: c.shadow }}
+          style={{ background: c.accentBg, border: `1px solid rgba(${c.accentRgb},0.2)`, boxShadow: c.shadow }}
         >
-          <div className="w-14 h-14 rounded-2xl flex items-center justify-center shrink-0" style={{ background: "#256DE9" }}>
+          <div className="w-14 h-14 rounded-2xl flex items-center justify-center shrink-0" style={{ background: c.accent }}>
             <span style={{ fontSize: 24 }}>⚡</span>
           </div>
           <div className="flex-1">
@@ -206,7 +206,7 @@ export default function WorkoutCompleteScreen() {
             </p>
             <div className="flex gap-1.5 mt-2">
               {[1, 2, 3, 4, 5].map((d) => (
-                <div key={d} className="flex-1 h-1.5 rounded-full" style={{ background: d <= thisWeekCount ? "#256DE9" : c.secondaryCard }} />
+                <div key={d} className="flex-1 h-1.5 rounded-full" style={{ background: d <= thisWeekCount ? c.accent : c.secondaryCard }} />
               ))}
             </div>
           </div>
@@ -235,7 +235,7 @@ export default function WorkoutCompleteScreen() {
           whileTap={{ scale: 0.97 }}
           onClick={() => navigate("/home")}
           className="w-full py-4 rounded-2xl text-white font-bold"
-          style={{ background: "linear-gradient(135deg, #256DE9, #1a4bb5)", boxShadow: "0 16px 40px rgba(37,109,233,0.3)", fontSize: 16 }}
+          style={{ background: `linear-gradient(135deg, ${c.accent}, ${c.accentDark})`, boxShadow: `0 16px 40px rgba(${c.accentRgb},0.3)`, fontSize: 16 }}
         >
           {t.workoutComplete.backToHome}
         </motion.button>

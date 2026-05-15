@@ -10,23 +10,23 @@ const DAYS_EN = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 const MONTHS_EN = ["January", "February", "March", "April", "May", "June", "July",
   "August", "September", "October", "November", "December"];
 
-const workoutDayData: Record<number, { type: string; color: string; title: string; exId: string }> = {
-  1:  { type: "Strength",    color: "#A855F7", title: "Lower Body Blast",  exId: "2" },
-  3:  { type: "Cardio",      color: "#256DE9", title: "Morning HIIT",      exId: "1" },
-  5:  { type: "Recovery",    color: "#22C55E", title: "Sprint Recovery",   exId: "featured" },
-  8:  { type: "Strength",    color: "#A855F7", title: "Upper Body Push",   exId: "2" },
-  10: { type: "HIIT",        color: "#F97316", title: "Sprint Intervals",  exId: "1" },
-  12: { type: "Flexibility", color: "#EAB308", title: "Flexibility Flow",  exId: "featured" },
-  14: { type: "Recovery",    color: "#22C55E", title: "Active Recovery",   exId: "featured" },
-  15: { type: "Cardio",      color: "#256DE9", title: "Aqua Training",     exId: "1" },
-  17: { type: "Strength",    color: "#A855F7", title: "Core Power",        exId: "2" },
-  19: { type: "HIIT",        color: "#F97316", title: "Morning HIIT",      exId: "1" },
-  21: { type: "Recovery",    color: "#22C55E", title: "Yoga Flow",         exId: "featured" },
-  22: { type: "Strength",    color: "#A855F7", title: "Lower Body",        exId: "2" },
-  24: { type: "Cardio",      color: "#256DE9", title: "Bike Sprint",       exId: "1" },
-  26: { type: "HIIT",        color: "#F97316", title: "Tabata",            exId: "1" },
-  28: { type: "Flexibility", color: "#EAB308", title: "Stretch Flow",      exId: "featured" },
-  30: { type: "Strength",    color: "#A855F7", title: "Full Body",         exId: "2" },
+const WORKOUT_DAY_TYPES: Record<number, { type: string; colorKey: string; title: string; exId: string }> = {
+  1:  { type: "Strength",    colorKey: "#A855F7", title: "Lower Body Blast",  exId: "2" },
+  3:  { type: "Cardio",      colorKey: "accent",  title: "Morning HIIT",      exId: "1" },
+  5:  { type: "Recovery",    colorKey: "#22C55E", title: "Sprint Recovery",   exId: "featured" },
+  8:  { type: "Strength",    colorKey: "#A855F7", title: "Upper Body Push",   exId: "2" },
+  10: { type: "HIIT",        colorKey: "#F97316", title: "Sprint Intervals",  exId: "1" },
+  12: { type: "Flexibility", colorKey: "#EAB308", title: "Flexibility Flow",  exId: "featured" },
+  14: { type: "Recovery",    colorKey: "#22C55E", title: "Active Recovery",   exId: "featured" },
+  15: { type: "Cardio",      colorKey: "accent",  title: "Aqua Training",     exId: "1" },
+  17: { type: "Strength",    colorKey: "#A855F7", title: "Core Power",        exId: "2" },
+  19: { type: "HIIT",        colorKey: "#F97316", title: "Morning HIIT",      exId: "1" },
+  21: { type: "Recovery",    colorKey: "#22C55E", title: "Yoga Flow",         exId: "featured" },
+  22: { type: "Strength",    colorKey: "#A855F7", title: "Lower Body",        exId: "2" },
+  24: { type: "Cardio",      colorKey: "accent",  title: "Bike Sprint",       exId: "1" },
+  26: { type: "HIIT",        colorKey: "#F97316", title: "Tabata",            exId: "1" },
+  28: { type: "Flexibility", colorKey: "#EAB308", title: "Stretch Flow",      exId: "featured" },
+  30: { type: "Strength",    colorKey: "#A855F7", title: "Full Body",         exId: "2" },
 };
 
 const categoryIcons: Record<string, ReactElement> = {
@@ -67,16 +67,21 @@ const categoryIcons: Record<string, ReactElement> = {
 };
 
 const categories = ["All", "Cardio", "Strength", "Recovery", "HIIT", "Flexibility"];
-const catColors: Record<string, string> = {
-  All: "#256DE9", Cardio: "#256DE9", Strength: "#A855F7",
-  Recovery: "#22C55E", HIIT: "#F97316", Flexibility: "#EAB308",
-};
 
 export default function CalendarScreen() {
   const navigate = useNavigate();
   const { sessions, addNotification } = useApp();
   const c = useColors();
   const t = useT();
+  const catColors: Record<string, string> = {
+    All: c.accent, Cardio: c.accent, Strength: "#A855F7",
+    Recovery: "#22C55E", HIIT: "#F97316", Flexibility: "#EAB308",
+  };
+  const workoutDayData = Object.fromEntries(
+    Object.entries(WORKOUT_DAY_TYPES).map(([k, v]) => [
+      k, { ...v, color: v.colorKey === "accent" ? c.accent : v.colorKey }
+    ])
+  ) as Record<number, { type: string; color: string; title: string; exId: string }>;
   const realNow = new Date();
   const realTodayDay = realNow.getDate();
   const realTodayMonth = realNow.getMonth();
@@ -273,7 +278,7 @@ export default function CalendarScreen() {
       <div
         className="shrink-0 relative overflow-hidden"
         style={{
-          background: "linear-gradient(160deg, #1a3a80 0%, #1b2c60 40%, #0d1630 100%)",
+          background: c.headerGradient,
           borderBottomLeftRadius: 36,
           borderBottomRightRadius: 36,
           paddingTop: 52,
@@ -283,7 +288,7 @@ export default function CalendarScreen() {
         }}
       >
         <div className="absolute inset-0 pointer-events-none"
-          style={{ background: "radial-gradient(ellipse at 50% -10%, rgba(37,109,233,0.35) 0%, transparent 65%)" }} />
+          style={{ background: c.headerGlowBg }} />
         <div className="flex items-center justify-between px-5 mb-4">
           <div className="flex items-center gap-3">
             <button
@@ -352,14 +357,14 @@ export default function CalendarScreen() {
                   onClick={() => setSelectedDay(day)}
                   className="flex flex-col items-center py-1.5 rounded-xl transition-all"
                   style={{
-                    background: isSelected ? "#256DE9" : isToday && !isSelected ? c.accentBg : "transparent",
+                    background: isSelected ? c.accent : isToday && !isSelected ? c.accentBg : "transparent",
                     opacity: isPast && !isSelected ? 0.45 : 1,
                   }}
                 >
                   <span
                     className="text-sm font-bold"
                     style={{
-                      color: isSelected ? "white" : done ? "#256DE9" : isToday ? "#256DE9" : isPast ? c.textMuted : c.textSub,
+                      color: isSelected ? "white" : done ? c.accent : isToday ? c.accent : isPast ? c.textMuted : c.textSub,
                     }}
                   >
                     {day}
@@ -367,7 +372,7 @@ export default function CalendarScreen() {
                   {wData && (
                     <div
                       className="w-1.5 h-1.5 rounded-full mt-0.5"
-                      style={{ background: isSelected ? "white" : done ? "#256DE9" : isPast ? c.textMuted : wData.color }}
+                      style={{ background: isSelected ? "white" : done ? c.accent : isPast ? c.textMuted : wData.color }}
                     />
                   )}
                 </button>
@@ -410,7 +415,7 @@ export default function CalendarScreen() {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               className="rounded-2xl p-4"
-              style={{ background: c.card, border: `1px solid ${done ? "#256DE940" : wd.color + "30"}`, boxShadow: c.shadow }}
+              style={{ background: c.card, border: `1px solid ${done ? c.accent + "40" : wd.color + "30"}`, boxShadow: c.shadow }}
             >
               {(() => {
                 const sessionTimeKey = Object.entries(workoutDayData).findIndex(([d]) => parseInt(d) === selectedDay);
@@ -422,23 +427,23 @@ export default function CalendarScreen() {
                     <div className="flex items-center gap-3">
                       <div
                         className="w-11 h-11 rounded-xl flex items-center justify-center"
-                        style={{ background: done ? "#256DE920" : `${wd.color}20` }}
+                        style={{ background: done ? c.accent + "20" : `${wd.color}20` }}
                       >
                         {done ? (
                           <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                            <path d="M5 13L9 17L19 7" stroke="#256DE9" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+                            <path d="M5 13L9 17L19 7" stroke={c.accent} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
                           </svg>
                         ) : (
                           <span style={{ color: wd.color }}>{categoryIcons[wd.type]}</span>
                         )}
                       </div>
                       <div>
-                        <span className="text-[10px] font-bold uppercase tracking-wider block" style={{ color: done ? "#256DE9" : wd.color }}>
+                        <span className="text-[10px] font-bold uppercase tracking-wider block" style={{ color: done ? c.accent : wd.color }}>
                           {wd.type} • {sessionTime}
                         </span>
                         <p className="font-bold text-sm" style={{ color: c.text }}>{wd.title}</p>
                         {done ? (
-                          <p className="text-[10px] font-medium mt-0.5" style={{ color: "#256DE9" }}>✓ Completed</p>
+                          <p className="text-[10px] font-medium mt-0.5" style={{ color: c.accent }}>✓ Completed</p>
                         ) : future ? (
                           <p className="text-[10px] font-medium mt-0.5" style={{ color: c.textMuted }}>🔒 Not yet available</p>
                         ) : null}
@@ -449,7 +454,7 @@ export default function CalendarScreen() {
                       disabled={future || done}
                       className="w-9 h-9 rounded-xl flex items-center justify-center transition-all"
                       style={{
-                        background: done ? "#256DE9" : future ? c.secondaryCard : "#256DE9",
+                        background: done ? c.accent : future ? c.secondaryCard : c.accent,
                         border: future && !done ? `1px solid ${c.cardBorder}` : "none",
                         opacity: future ? 0.6 : 1,
                         cursor: future ? "not-allowed" : "pointer",
@@ -497,29 +502,29 @@ export default function CalendarScreen() {
                   className="flex items-center gap-3 p-3 rounded-2xl"
                   style={{
                     background: c.card,
-                    border: `1px solid ${sessionDone ? "#256DE940" : future ? c.cardBorder : session.color + "30"}`,
+                    border: `1px solid ${sessionDone ? c.accent + "40" : future ? c.cardBorder : session.color + "30"}`,
                     boxShadow: c.shadow,
                     cursor: future ? "default" : "pointer",
                   }}
                 >
-                  <div className="w-1 h-12 rounded-full shrink-0" style={{ background: sessionDone ? "#256DE9" : future ? c.divider : session.color }} />
+                  <div className="w-1 h-12 rounded-full shrink-0" style={{ background: sessionDone ? c.accent : future ? c.divider : session.color }} />
                   <div className="flex-1">
                     <p className="text-xs mb-0.5" style={{ color: c.textMuted }}>{session.date}</p>
                     <p className="font-bold text-sm" style={{ color: future ? c.textSub : c.text }}>{session.title}</p>
-                    <p className="text-xs font-semibold mt-0.5" style={{ color: sessionDone ? "#256DE9" : future ? c.textMuted : session.color }}>
+                    <p className="text-xs font-semibold mt-0.5" style={{ color: sessionDone ? c.accent : future ? c.textMuted : session.color }}>
                       {sessionDone ? "✓ Completed" : `${session.type} • ${session.duration}`}
                     </p>
                   </div>
                   <div
                     className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0"
                     style={{
-                      background: sessionDone ? "#256DE920" : future ? c.secondaryCard : `${session.color}15`,
-                      border: `1px solid ${sessionDone ? "#256DE940" : future ? c.cardBorder : session.color + "30"}`,
+                      background: sessionDone ? c.accent + "20" : future ? c.secondaryCard : `${session.color}15`,
+                      border: `1px solid ${sessionDone ? c.accent + "40" : future ? c.cardBorder : session.color + "30"}`,
                     }}
                   >
                     {sessionDone ? (
                       <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
-                        <path d="M5 13L9 17L19 7" stroke="#256DE9" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+                        <path d="M5 13L9 17L19 7" stroke={c.accent} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
                       </svg>
                     ) : future ? (
                       <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
@@ -548,7 +553,7 @@ export default function CalendarScreen() {
           </h3>
           <div className="grid grid-cols-3 gap-3">
             {[
-              { label: "Planned",   value: "20", color: "#256DE9" },
+              { label: "Planned",   value: "20", color: c.accent },
               { label: "Completed", value: String(isPastMonth ? Object.keys(workoutDayData).length : ([...doneDays].filter(k => k.startsWith(`${year}-${month}-`)).length || completedDays || 0)), color: "#22C55E" },
               { label: "Skipped",   value: "3",  color: "#EF4444" },
             ].map((s) => (
@@ -563,7 +568,7 @@ export default function CalendarScreen() {
         {/* Legend */}
         <div className="flex gap-3 flex-wrap">
           {[
-            { label: "Cardio", color: "#256DE9" },
+            { label: "Cardio", color: c.accent },
             { label: "Strength", color: "#A855F7" },
             { label: "Recovery", color: "#22C55E" },
             { label: "HIIT", color: "#F97316" },

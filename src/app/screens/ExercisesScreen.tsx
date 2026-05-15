@@ -202,7 +202,7 @@ export default function ExercisesScreen() {
                   <button key={opt} onClick={() => toggleFilter(filterType, opt, setFilterType)}
                     className="px-3.5 py-1.5 rounded-full text-xs font-bold transition-all"
                     style={filterType.includes(opt)
-                      ? { background: "#256DE9", color: "white", boxShadow: "0 4px 12px rgba(37,109,233,0.3)" }
+                      ? { background: c.accent, color: "white", boxShadow: `0 4px 12px rgba(${c.accentRgb},0.3)` }
                       : { background: c.secondaryCard, color: c.textSub, border: `1px solid ${c.cardBorder}` }}>
                     {opt}
                   </button>
@@ -216,7 +216,7 @@ export default function ExercisesScreen() {
                   <button key={opt} onClick={() => toggleFilter(filterLevel, opt, setFilterLevel)}
                     className="px-3.5 py-1.5 rounded-full text-xs font-bold transition-all"
                     style={filterLevel.includes(opt)
-                      ? { background: "#256DE9", color: "white", boxShadow: "0 4px 12px rgba(37,109,233,0.3)" }
+                      ? { background: c.accent, color: "white", boxShadow: `0 4px 12px rgba(${c.accentRgb},0.3)` }
                       : { background: c.secondaryCard, color: c.textSub, border: `1px solid ${c.cardBorder}` }}>
                     {opt}
                   </button>
@@ -242,7 +242,7 @@ export default function ExercisesScreen() {
 
               <button onClick={() => setShowFilterSheet(false)}
                 className="w-full py-4 rounded-2xl text-white font-bold text-sm"
-                style={{ background: "linear-gradient(135deg, #256DE9, #1a4bb5)", boxShadow: "0 12px 32px rgba(37,109,233,0.3)" }}>
+                style={{ background: `linear-gradient(135deg, ${c.accent}, ${c.accentDark})`, boxShadow: `0 12px 32px rgba(${c.accentRgb},0.3)` }}>
                 Apply Filters {hasActiveFilters ? `(${filterType.length + filterLevel.length + filterIntensity.length})` : ""}
               </button>
             </motion.div>
@@ -254,7 +254,7 @@ export default function ExercisesScreen() {
       <div
         className="shrink-0 relative overflow-hidden"
         style={{
-          background: "linear-gradient(160deg, #1a3a80 0%, #1b2c60 40%, #0d1630 100%)",
+          background: c.headerGradient,
           borderBottomLeftRadius: 36,
           borderBottomRightRadius: 36,
           paddingTop: 52,
@@ -264,7 +264,7 @@ export default function ExercisesScreen() {
         }}
       >
         <div className="absolute inset-0 pointer-events-none"
-          style={{ background: "radial-gradient(ellipse at 50% -10%, rgba(37,109,233,0.35) 0%, transparent 65%)" }} />
+          style={{ background: c.headerGlowBg }} />
 
         <div className="flex items-center justify-between px-5 mb-4">
           <div className="flex items-center gap-3">
@@ -283,7 +283,7 @@ export default function ExercisesScreen() {
             onClick={() => setShowFilterSheet(true)}
             className="flex items-center gap-2 px-3.5 py-2 rounded-2xl"
             style={hasActiveFilters
-              ? { background: "#256DE9", border: "1px solid rgba(255,255,255,0.2)" }
+              ? { background: c.accent, border: "1px solid rgba(255,255,255,0.2)" }
               : { background: "rgba(255,255,255,0.12)", border: "1px solid rgba(255,255,255,0.15)" }
             }
           >
@@ -325,7 +325,7 @@ export default function ExercisesScreen() {
                 <div
                   className="w-12 h-12 rounded-2xl flex items-center justify-center transition-all"
                   style={isActive
-                    ? { background: "#256DE9", boxShadow: "0 6px 20px rgba(37,109,233,0.5)", color: "white" }
+                    ? { background: c.accent, boxShadow: `0 6px 20px rgba(${c.accentRgb},0.5)`, color: "white" }
                     : { background: "rgba(255,255,255,0.1)", border: "1.5px solid rgba(255,255,255,0.15)", color: "rgba(255,255,255,0.6)" }
                   }
                 >
@@ -391,7 +391,7 @@ export default function ExercisesScreen() {
             <button
               onClick={(e) => { e.stopPropagation(); navigate(`/workout/${filtered[0].id}`); }}
               className="absolute right-3 bottom-3 w-11 h-11 rounded-full flex items-center justify-center"
-              style={{ background: "#256DE9", boxShadow: "0 8px 20px rgba(37,109,233,0.5)" }}
+              style={{ background: c.accent, boxShadow: `0 8px 20px rgba(${c.accentRgb},0.5)` }}
             >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="white">
                 <path d="M8 5L19 12L8 19V5Z" />
@@ -436,7 +436,7 @@ export default function ExercisesScreen() {
                     <button
                       onClick={(e) => { e.stopPropagation(); navigate(`/workout/${ex.id}`); }}
                       className="absolute bottom-2 right-2 w-8 h-8 rounded-full flex items-center justify-center"
-                      style={{ background: "#256DE9", boxShadow: "0 4px 12px rgba(37,109,233,0.4)" }}
+                      style={{ background: c.accent, boxShadow: `0 4px 12px rgba(${c.accentRgb},0.4)` }}
                     >
                       <svg width="11" height="11" viewBox="0 0 24 24" fill="white">
                         <path d="M8 5L19 12L8 19V5Z" />
@@ -444,7 +444,7 @@ export default function ExercisesScreen() {
                     </button>
                   </div>
                   <div className="p-3">
-                    <span className="text-[9px] font-bold uppercase tracking-wider block mb-0.5" style={{ color: "#256DE9" }}>
+                    <span className="text-[9px] font-bold uppercase tracking-wider block mb-0.5" style={{ color: c.accent }}>
                       {ex.category}
                     </span>
                     <h3 className="font-bold text-sm leading-tight" style={{ color: c.text }}>{ex.title}</h3>
@@ -473,7 +473,7 @@ export default function ExercisesScreen() {
             <div
               className="flex items-center gap-3 p-4 rounded-2xl mb-3"
               style={{
-                background: "linear-gradient(135deg, rgba(168,85,247,0.12) 0%, rgba(37,109,233,0.12) 100%)",
+                background: `linear-gradient(135deg, rgba(168,85,247,0.12) 0%, rgba(${c.accentRgb},0.12) 100%)`,
                 border: "1px solid rgba(168,85,247,0.25)",
               }}
             >

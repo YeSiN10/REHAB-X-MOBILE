@@ -294,7 +294,7 @@ export default function ExerciseDetailScreen() {
               {/* Header */}
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-10 h-10 rounded-2xl flex items-center justify-center shrink-0"
-                  style={{ background: "linear-gradient(135deg, #256DE9, #1a4bb5)" }}>
+                  style={{ background: `linear-gradient(135deg, ${c.accent}, ${c.accentDark})` }}>
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
                     <path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z" stroke="white" strokeWidth="1.8" strokeLinecap="round" />
                     <circle cx="12" cy="13" r="4" stroke="white" strokeWidth="1.8" />
@@ -313,9 +313,9 @@ export default function ExerciseDetailScreen() {
 
               {/* Camera permission notice */}
               <div className="p-3 rounded-2xl mb-4 flex items-start gap-3"
-                style={{ background: "rgba(37,109,233,0.1)", border: "1px solid rgba(37,109,233,0.2)" }}>
+                style={{ background: `rgba(${c.accentRgb},0.1)`, border: `1px solid rgba(${c.accentRgb},0.2)` }}>
                 <span style={{ fontSize: 16 }}>📷</span>
-                <p className="text-xs leading-relaxed" style={{ color: "#256DE9" }}>
+                <p className="text-xs leading-relaxed" style={{ color: c.accent }}>
                   <span className="font-bold">Camera required.</span> Grant camera access when prompted for motion tracking and real-time form analysis.
                 </p>
               </div>
@@ -327,7 +327,7 @@ export default function ExerciseDetailScreen() {
                   {ex.steps.map((_, i) => (
                     <motion.div
                       key={i}
-                      animate={{ width: i === currentStepIdx ? 20 : 6, background: i === currentStepIdx ? "#256DE9" : c.secondaryCard }}
+                      animate={{ width: i === currentStepIdx ? 20 : 6, background: i === currentStepIdx ? c.accent : c.secondaryCard }}
                       className="h-1.5 rounded-full"
                     />
                   ))}
@@ -352,7 +352,7 @@ export default function ExerciseDetailScreen() {
                       <div className="flex items-center gap-3 mb-3">
                         <div
                           className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
-                          style={{ background: "#256DE9" }}
+                          style={{ background: c.accent }}
                         >
                           <span className="text-white font-black text-sm">{currentStepIdx + 1}</span>
                         </div>
@@ -395,7 +395,7 @@ export default function ExerciseDetailScreen() {
                     <button
                       onClick={() => setCurrentStepIdx((i) => i + 1)}
                       className="flex-1 py-2.5 rounded-2xl text-sm font-semibold"
-                      style={{ background: "#256DE9", color: "white" }}
+                      style={{ background: c.accent, color: "white" }}
                     >
                       Next →
                     </button>
@@ -403,7 +403,7 @@ export default function ExerciseDetailScreen() {
                     <button
                       onClick={() => { setShowInstructions(false); navigate(`/workout/${id || "featured"}`); }}
                       className="flex-1 py-2.5 rounded-2xl text-sm font-bold text-white"
-                      style={{ background: "linear-gradient(135deg, #256DE9 0%, #0d1630 100%)", boxShadow: "0 8px 24px rgba(37,109,233,0.4)" }}
+                      style={{ background: `linear-gradient(135deg, ${c.accent}, ${c.accentDark})`, boxShadow: `0 8px 24px rgba(${c.accentRgb},0.4)` }}
                     >
                       Let's Go! 🚀
                     </button>
@@ -455,7 +455,7 @@ export default function ExerciseDetailScreen() {
         {/* Badges */}
         <div className="absolute bottom-5 left-5 flex items-center gap-2">
           <span className="text-[10px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-full"
-            style={{ background: "rgba(37,109,233,0.2)", color: "#256DE9", border: "1px solid rgba(37,109,233,0.3)" }}>
+            style={{ background: `rgba(${c.accentRgb},0.2)`, color: c.accent, border: `1px solid rgba(${c.accentRgb},0.3)` }}>
             {ex.category}
           </span>
           <span className="text-[10px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-full"
@@ -495,7 +495,7 @@ export default function ExerciseDetailScreen() {
                 onClick={() => setActiveTab(tab)}
                 className="flex-1 py-2 rounded-xl text-sm font-semibold capitalize transition-all"
                 style={activeTab === tab
-                  ? { background: "#256DE9", color: "white", boxShadow: "0 4px 12px rgba(37,109,233,0.3)" }
+                  ? { background: c.accent, color: "white", boxShadow: `0 4px 12px rgba(${c.accentRgb},0.3)` }
                   : { color: c.textMuted }}
               >
                 {tab}
@@ -510,16 +510,16 @@ export default function ExerciseDetailScreen() {
                 <p className="leading-relaxed mb-5" style={{ fontSize: 14, color: c.textSub }}>{ex.description}</p>
 
                 <div className="grid grid-cols-3 gap-3 mb-5 p-4 rounded-2xl"
-                  style={{ background: c.accentBg, border: "1px solid rgba(37,109,233,0.15)" }}>
+                  style={{ background: c.accentBg, border: `1px solid rgba(${c.accentRgb},0.15)` }}>
                   {[
                     { label: "Sets", value: ex.sets, icon: "🔁" },
                     { label: "Reps", value: ex.reps, icon: "💪" },
                     { label: "Rest", value: ex.rest, icon: "⏸️" },
                   ].map((item, i, arr) => (
                     <div key={item.label} className={`text-center ${i < arr.length - 1 ? "border-r" : ""}`}
-                      style={{ borderColor: "rgba(37,109,233,0.2)" }}>
+                      style={{ borderColor: `rgba(${c.accentRgb},0.2)` }}>
                       <div style={{ fontSize: 18 }}>{item.icon}</div>
-                      <div className="font-black mt-1" style={{ fontSize: 18, color: "#256DE9" }}>{item.value}</div>
+                      <div className="font-black mt-1" style={{ fontSize: 18, color: c.accent }}>{item.value}</div>
                       <div className="text-xs" style={{ color: c.textMuted }}>{item.label}</div>
                     </div>
                   ))}
@@ -547,7 +547,7 @@ export default function ExerciseDetailScreen() {
                 <div className="flex items-center gap-1.5 mb-5">
                   {ex.steps.map((_, i) => (
                     <div key={i} className="flex-1 h-1 rounded-full transition-all"
-                      style={{ background: expandedStep !== null && i <= expandedStep ? "#256DE9" : c.secondaryCard }} />
+                      style={{ background: expandedStep !== null && i <= expandedStep ? c.accent : c.secondaryCard }} />
                   ))}
                 </div>
 
@@ -557,19 +557,19 @@ export default function ExerciseDetailScreen() {
                       <button onClick={() => setExpandedStep(expandedStep === i ? null : i)} className="w-full text-left">
                         <div className="rounded-2xl p-4 transition-all"
                           style={expandedStep === i
-                            ? { background: c.accentBg, border: "1.5px solid rgba(37,109,233,0.3)", boxShadow: "0 8px 24px rgba(37,109,233,0.12)" }
+                            ? { background: c.accentBg, border: `1.5px solid rgba(${c.accentRgb},0.3)`, boxShadow: `0 8px 24px rgba(${c.accentRgb},0.12)` }
                             : { background: c.card, border: `1px solid ${c.cardBorder}` }}>
                           <div className="flex items-center gap-3">
                             <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 transition-all"
                               style={expandedStep === i
-                                ? { background: "#256DE9", boxShadow: "0 4px 12px rgba(37,109,233,0.4)" }
+                                ? { background: c.accent, boxShadow: `0 4px 12px rgba(${c.accentRgb},0.4)` }
                                 : { background: c.secondaryCard }}>
                               <span className="font-black text-sm"
                                 style={{ color: expandedStep === i ? "white" : c.textMuted }}>{i + 1}</span>
                             </div>
                             <div className="flex-1 min-w-0">
                               <p className="font-bold text-sm"
-                                style={{ color: expandedStep === i ? "#256DE9" : c.text }}>{step.title}</p>
+                                style={{ color: expandedStep === i ? c.accent : c.text }}>{step.title}</p>
                               {expandedStep !== i && (
                                 <p className="text-xs mt-0.5 truncate" style={{ color: c.textMuted }}>
                                   {step.desc.substring(0, 45)}...
@@ -587,7 +587,7 @@ export default function ExerciseDetailScreen() {
                             {expandedStep === i && (
                               <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }}
                                 exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.2 }} className="overflow-hidden">
-                                <div className="mt-3 pt-3" style={{ borderTop: "1px solid rgba(37,109,233,0.15)" }}>
+                                <div className="mt-3 pt-3" style={{ borderTop: `1px solid rgba(${c.accentRgb},0.15)` }}>
                                   <p className="text-sm leading-relaxed" style={{ color: c.textSub }}>{step.desc}</p>
                                   {step.tip && (
                                     <div className="mt-3 flex items-start gap-2.5 p-3 rounded-xl"
@@ -627,10 +627,10 @@ export default function ExerciseDetailScreen() {
                     <motion.span key={muscle} initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: i * 0.08 }}
                       className="px-4 py-2.5 rounded-2xl text-sm font-bold flex items-center gap-2"
                       style={{
-                        background: i === 0 ? "#256DE9" : c.accentBg,
-                        color: i === 0 ? "white" : "#256DE9",
-                        border: `1px solid rgba(37,109,233,${i === 0 ? "0" : "0.25"})`,
-                        boxShadow: i === 0 ? "0 6px 20px rgba(37,109,233,0.3)" : "none",
+                        background: i === 0 ? c.accent : c.accentBg,
+                        color: i === 0 ? "white" : c.accent,
+                        border: `1px solid rgba(${c.accentRgb},${i === 0 ? "0" : "0.25"})`,
+                        boxShadow: i === 0 ? `0 6px 20px rgba(${c.accentRgb},0.3)` : "none",
                       }}>
                       {i === 0 && <span>🎯</span>}
                       {muscle}
@@ -642,14 +642,14 @@ export default function ExerciseDetailScreen() {
                   <div className="flex items-center gap-2 mb-3">
                     <div className="w-8 h-8 rounded-xl flex items-center justify-center" style={{ background: c.accentBg }}>
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                        <path d="M9 12H15M9 16H15M9 8H15M5 21H19C20.1046 21 21 20.1046 21 19V5C21 3.89543 20.1046 3 19 3H5C3.89543 3 3 3.89543 3 5V19C3 20.1046 3.89543 21 5 21Z" stroke="#256DE9" strokeWidth="1.8" strokeLinecap="round" />
+                        <path d="M9 12H15M9 16H15M9 8H15M5 21H19C20.1046 21 21 20.1046 21 19V5C21 3.89543 20.1046 3 19 3H5C3.89543 3 3 3.89543 3 5V19C3 20.1046 3.89543 21 5 21Z" stroke={c.accent} strokeWidth="1.8" strokeLinecap="round" />
                       </svg>
                     </div>
                     <p className="font-bold text-sm" style={{ color: c.text }}>Activation Summary</p>
                   </div>
                   <p className="text-sm leading-relaxed" style={{ color: c.textSub }}>
                     This exercise primarily targets{" "}
-                    <span className="font-bold" style={{ color: "#256DE9" }}>{ex.muscles.slice(0, 2).join(" and ")}</span>
+                    <span className="font-bold" style={{ color: c.accent }}>{ex.muscles.slice(0, 2).join(" and ")}</span>
                     , with secondary activation of{" "}
                     <span className="font-semibold" style={{ color: c.text }}>
                       {ex.muscles.slice(2).join(" and ") || "supporting muscle groups"}
@@ -692,8 +692,8 @@ export default function ExerciseDetailScreen() {
           onClick={() => { setCurrentStepIdx(0); setShowInstructions(true); }}
           className="w-full py-4 rounded-2xl text-white font-bold flex items-center justify-center gap-3"
           style={{
-            background: "linear-gradient(135deg, #256DE9 0%, #1a4bb5 100%)",
-            boxShadow: "0 16px 40px rgba(37,109,233,0.35)",
+            background: `linear-gradient(135deg, ${c.accent} 0%, ${c.accentDark} 100%)`,
+            boxShadow: `0 16px 40px rgba(${c.accentRgb},0.35)`,
             fontSize: 16,
           }}
         >

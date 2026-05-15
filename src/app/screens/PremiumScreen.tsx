@@ -47,13 +47,13 @@ export default function PremiumScreen() {
         </button>
         <div className="text-center">
           <div className="w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-5"
-            style={{ background: "linear-gradient(135deg, rgba(37,109,233,0.15), rgba(168,85,247,0.15))", border: "2px solid rgba(168,85,247,0.3)" }}>
+            style={{ background: `linear-gradient(135deg, rgba(${c.accentRgb},0.15), rgba(168,85,247,0.15))`, border: "2px solid rgba(168,85,247,0.3)" }}>
             <span style={{ fontSize: 40 }}>⭐</span>
           </div>
           <h1 className="font-black mb-2" style={{ fontSize: 26, color: c.text }}>{t.premium.alreadyPremium}</h1>
           <p className="text-sm" style={{ color: c.textMuted }}>{t.premium.alreadyPremiumDesc}</p>
           <button onClick={() => navigate("/exercises")} className="mt-6 px-8 py-3 rounded-2xl text-white font-bold"
-            style={{ background: "linear-gradient(135deg, #256DE9, #1a4bb5)", boxShadow: "0 12px 32px rgba(37,109,233,0.3)" }}>
+            style={{ background: `linear-gradient(135deg, ${c.accent}, ${c.accentDark})`, boxShadow: `0 12px 32px rgba(${c.accentRgb},0.3)` }}>
             {t.premium.browseExercises}
           </button>
         </div>
@@ -66,7 +66,7 @@ export default function PremiumScreen() {
       {/* Header */}
       <div className="relative px-5 pt-14 pb-6 overflow-hidden shrink-0"
         style={{
-          background: "linear-gradient(160deg, #1a3a80 0%, #0d1630 100%)",
+          background: c.headerGradient,
           borderBottomLeftRadius: 36,
           borderBottomRightRadius: 36,
         }}>
@@ -88,7 +88,7 @@ export default function PremiumScreen() {
           <div className="relative mb-4">
             <div
               className="w-20 h-20 rounded-full flex items-center justify-center"
-              style={{ background: "#256DE9", boxShadow: "0 0 40px rgba(168,85,247,0.5)" }}
+              style={{ background: c.accent, boxShadow: "0 0 40px rgba(168,85,247,0.5)" }}
             >
               <img src={logo} alt="REHAB X" className="w-14 h-14 object-contain" />
             </div>
@@ -104,7 +104,7 @@ export default function PremiumScreen() {
 
           <div
             className="inline-flex px-4 py-1.5 rounded-full mb-4"
-            style={{ background: "linear-gradient(135deg, rgba(168,85,247,0.25), rgba(37,109,233,0.25))", border: "1px solid rgba(168,85,247,0.4)" }}
+            style={{ background: `linear-gradient(135deg, rgba(168,85,247,0.25), rgba(${c.accentRgb},0.25))`, border: "1px solid rgba(168,85,247,0.4)" }}
           >
             <span className="text-[11px] font-bold tracking-[2px]" style={{ color: "#C084FC" }}>⭐ REHAB X PREMIUM</span>
           </div>
@@ -146,21 +146,21 @@ export default function PremiumScreen() {
               className="flex-1 py-4 px-3 rounded-2xl relative"
               style={
                 selectedPlan === plan.id
-                  ? { background: c.accentBg, border: "2px solid #256DE9", boxShadow: "0 8px 24px rgba(37,109,233,0.15)" }
+                  ? { background: c.accentBg, border: `2px solid ${c.accent}`, boxShadow: `0 8px 24px rgba(${c.accentRgb},0.15)` }
                   : { background: c.secondaryCard, border: `1.5px solid ${c.cardBorder}` }
               }
             >
               {plan.popular && (
                 <div
                   className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full text-white text-[10px] font-bold whitespace-nowrap"
-                  style={{ background: "linear-gradient(135deg, #256DE9, #1a4bb5)" }}
+                  style={{ background: `linear-gradient(135deg, ${c.accent}, ${c.accentDark})` }}
                 >
                   BEST VALUE
                 </div>
               )}
-              <p className="font-black text-lg" style={{ color: selectedPlan === plan.id ? "#256DE9" : c.text }}>{plan.price}</p>
+              <p className="font-black text-lg" style={{ color: selectedPlan === plan.id ? c.accent : c.text }}>{plan.price}</p>
               <p className="text-xs" style={{ color: c.textMuted }}>{plan.period}</p>
-              <p className="text-xs font-bold mt-1" style={{ color: selectedPlan === plan.id ? "#256DE9" : c.textMuted }}>{plan.label}</p>
+              <p className="text-xs font-bold mt-1" style={{ color: selectedPlan === plan.id ? c.accent : c.textMuted }}>{plan.label}</p>
               {plan.savings && (
                 <div className="mt-2 px-2 py-0.5 rounded-full inline-block" style={{ background: "rgba(34,197,94,0.12)", color: "#22C55E" }}>
                   <span className="text-[9px] font-bold">{plan.savings}</span>
@@ -176,7 +176,7 @@ export default function PremiumScreen() {
           onClick={handleUpgrade}
           disabled={loading}
           className="w-full py-4 rounded-2xl text-white font-bold mb-3"
-          style={{ background: "linear-gradient(135deg, #256DE9 0%, #1a4bb5 100%)", boxShadow: "0 16px 40px rgba(37,109,233,0.4)", fontSize: 16 }}
+          style={{ background: `linear-gradient(135deg, ${c.accent} 0%, ${c.accentDark} 100%)`, boxShadow: `0 16px 40px rgba(${c.accentRgb},0.4)`, fontSize: 16 }}
         >
           {loading ? (
             <span className="flex items-center justify-center gap-2">
@@ -190,7 +190,7 @@ export default function PremiumScreen() {
 
         <p className="text-center text-xs mb-4" style={{ color: c.textMuted }}>Cancel anytime. No commitments.</p>
 
-        <div className="p-4 rounded-2xl flex items-center gap-3" style={{ background: c.accentBg, border: "1px solid rgba(37,109,233,0.15)" }}>
+        <div className="p-4 rounded-2xl flex items-center gap-3" style={{ background: c.accentBg, border: `1px solid rgba(${c.accentRgb},0.15)` }}>
           <span style={{ fontSize: 20 }}>🎁</span>
           <p className="text-sm" style={{ color: c.textSub }}>
             <span className="font-bold" style={{ color: c.text }}>7-day free trial</span> included. Full access, no charge until trial ends.

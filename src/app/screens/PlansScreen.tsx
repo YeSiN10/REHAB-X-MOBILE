@@ -23,7 +23,7 @@ const programs = [
     subtitle: "12-Week Program",
     desc: "Elite training system to maximize speed, strength and endurance",
     sessions: 36, duration: "12 weeks", level: "Advanced",
-    category: "Performance", color: "#256DE9", progress: 0,
+    category: "Performance", color: "ACCENT", progress: 0,
     img: "https://images.unsplash.com/photo-1766287453739-c3ffc3f37d05?w=400&q=80",
     active: false,
   },
@@ -60,74 +60,24 @@ const programs = [
 ];
 
 // Icon-style filter buttons like exercise page
-const categoryFilters: { id: string; label: string; icon: ReactElement; color: string }[] = [
-  {
-    id: "All",
-    label: "All",
-    color: "#256DE9",
-    icon: (
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
-        <rect x="3" y="3" width="7" height="7" rx="2" stroke="currentColor" strokeWidth="2" />
-        <rect x="14" y="3" width="7" height="7" rx="2" stroke="currentColor" strokeWidth="2" />
-        <rect x="3" y="14" width="7" height="7" rx="2" stroke="currentColor" strokeWidth="2" />
-        <rect x="14" y="14" width="7" height="7" rx="2" stroke="currentColor" strokeWidth="2" />
-      </svg>
-    ),
-  },
-  {
-    id: "Recovery",
-    label: "Recovery",
-    color: "#22C55E",
-    icon: (
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
-        <path d="M12 21C12 21 3 14 3 8.5C3 5.42 5.42 3 8.5 3C10.24 3 11.91 3.81 13 5.09C14.09 3.81 15.76 3 17.5 3C20.58 3 23 5.42 23 8.5C23 14 14 21 14 21" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
-      </svg>
-    ),
-  },
-  {
-    id: "Performance",
-    label: "Performance",
-    color: "#256DE9",
-    icon: (
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
-        <path d="M13 2L3 14H12L11 22L21 10H12L13 2Z" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" fill="currentColor" fillOpacity="0.15" />
-      </svg>
-    ),
-  },
-  {
-    id: "Strength",
-    label: "Strength",
-    color: "#A855F7",
-    icon: (
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
-        <path d="M6.5 6.5H4C3.45 6.5 3 6.95 3 7.5v9c0 .55.45 1 1 1h2.5M17.5 6.5H20c.55 0 1 .45 1 1v9c0 .55-.45 1-1 1h-2.5M6.5 12h11" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
-        <circle cx="6.5" cy="12" r="2.5" fill="currentColor" />
-        <circle cx="17.5" cy="12" r="2.5" fill="currentColor" />
-      </svg>
-    ),
-  },
-  {
-    id: "Cardio",
-    label: "Cardio",
-    color: "#F97316",
-    icon: (
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
-        <path d="M3 12h4l3-8 4 16 3-8h4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-      </svg>
-    ),
-  },
-];
-
 export default function PlansScreen() {
   const t = useT();
   const navigate = useNavigate();
   const c = useColors();
   const [selectedCat, setSelectedCat] = useState("All");
+  const programsResolved = programs.map(p => ({ ...p, color: p.color === "ACCENT" ? c.accent : p.color }));
+  const categoryFilters: { id: string; label: string; icon: ReactElement; color: string }[] = [
+    { id: "All", label: "All", color: c.accent, icon: (<svg width="15" height="15" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="7" height="7" rx="2" stroke="currentColor" strokeWidth="2" /><rect x="14" y="3" width="7" height="7" rx="2" stroke="currentColor" strokeWidth="2" /><rect x="3" y="14" width="7" height="7" rx="2" stroke="currentColor" strokeWidth="2" /><rect x="14" y="14" width="7" height="7" rx="2" stroke="currentColor" strokeWidth="2" /></svg>) },
+    { id: "Recovery", label: "Recovery", color: "#22C55E", icon: (<svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M12 21C12 21 3 14 3 8.5C3 5.42 5.42 3 8.5 3C10.24 3 11.91 3.81 13 5.09C14.09 3.81 15.76 3 17.5 3C20.58 3 23 5.42 23 8.5C23 14 14 21 14 21" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" /></svg>) },
+    { id: "Performance", label: "Performance", color: c.accent, icon: (<svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M13 2L3 14H12L11 22L21 10H12L13 2Z" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" fill="currentColor" fillOpacity="0.15" /></svg>) },
+    { id: "Strength", label: "Strength", color: "#A855F7", icon: (<svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M6.5 6.5H4C3.45 6.5 3 6.95 3 7.5v9c0 .55.45 1 1 1h2.5M17.5 6.5H20c.55 0 1 .45 1 1v9c0 .55-.45 1-1 1h-2.5M6.5 12h11" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" /><circle cx="6.5" cy="12" r="2.5" fill="currentColor" /><circle cx="17.5" cy="12" r="2.5" fill="currentColor" /></svg>) },
+    { id: "Cardio", label: "Cardio", color: "#F97316", icon: (<svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M3 12h4l3-8 4 16 3-8h4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>) },
+  ];
 
-  const filtered = programs.filter(
+  const filtered = programsResolved.filter(
     (p) => selectedCat === "All" || p.category === selectedCat
   );
-  const activeProgram = programs.find((p) => p.active);
+  const activeProgram = programsResolved.find((p) => p.active);
 
   return (
     <div className="absolute inset-0 flex flex-col overflow-hidden" style={{ background: c.bg }}>
@@ -135,7 +85,7 @@ export default function PlansScreen() {
       <div
         className="shrink-0 relative overflow-hidden"
         style={{
-          background: "linear-gradient(160deg, #1a3a80 0%, #1b2c60 40%, #0d1630 100%)",
+          background: c.headerGradient,
           borderBottomLeftRadius: 36,
           borderBottomRightRadius: 36,
           paddingTop: 52,
@@ -145,7 +95,7 @@ export default function PlansScreen() {
         }}
       >
         <div className="absolute inset-0 pointer-events-none"
-          style={{ background: "radial-gradient(ellipse at 50% -10%, rgba(37,109,233,0.35) 0%, transparent 65%)" }} />
+          style={{ background: c.headerGlowBg }} />
         <div className="flex items-center justify-between px-5 mb-1">
           <div className="flex items-center gap-3">
             <button
@@ -161,9 +111,9 @@ export default function PlansScreen() {
           </div>
           <div
             className="px-3 py-1.5 rounded-full"
-            style={{ background: "rgba(37,109,233,0.12)", border: "1px solid rgba(37,109,233,0.25)" }}
+            style={{ background: `rgba(${c.accentRgb},0.12)`, border: `1px solid rgba(${c.accentRgb},0.25)` }}
           >
-            <span className="text-[#256DE9] text-[11px] font-bold">12 AVAILABLE</span>
+            <span className="text-[11px] font-bold" style={{ color: c.accent }}>12 AVAILABLE</span>
           </div>
         </div>
         <p className="text-sm ml-[52px] -mt-1" style={{ color: c.textMuted }}>Science-backed VR rehab programs</p>
@@ -307,9 +257,9 @@ export default function PlansScreen() {
                   ) : (
                     <div
                       className="px-3 py-2 rounded-xl"
-                      style={{ background: "rgba(37,109,233,0.12)", border: "1px solid rgba(37,109,233,0.2)" }}
+                      style={{ background: `rgba(${c.accentRgb},0.12)`, border: `1px solid rgba(${c.accentRgb},0.2)` }}
                     >
-                      <span className="text-[#256DE9] text-[10px] font-bold">START</span>
+                      <span className="text-[10px] font-bold" style={{ color: c.accent }}>START</span>
                     </div>
                   )}
                 </div>

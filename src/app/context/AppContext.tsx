@@ -68,6 +68,7 @@ const generateSeedSessions = (): WorkoutSession[] => {
 export const getThemeColors = (isDark: boolean, gender: string = "") => {
   const isFemale = gender === "female";
   const accent = isFemale ? "#9333EA" : "#256DE9";
+  const accentDark = isFemale ? "#6b21a8" : "#1a4bb5";
   const accentRgb = isFemale ? "147,51,234" : "37,109,233";
   const headerGradient = isFemale
     ? "linear-gradient(160deg, #3b1a6e 0%, #2d1554 40%, #1a0d30 100%)"
@@ -91,6 +92,7 @@ export const getThemeColors = (isDark: boolean, gender: string = "") => {
       : `radial-gradient(circle, rgba(${accentRgb},0.08) 0%, transparent 70%)`,
     shadow: isDark ? "0 4px 24px rgba(0,0,0,0.4)" : `0 4px 24px rgba(${accentRgb},0.1)`,
     accent,
+    accentDark,
     accentRgb,
     headerGradient,
     headerGlowBg: `radial-gradient(ellipse at 50% -10%, rgba(${accentRgb},0.35) 0%, transparent 65%)`,

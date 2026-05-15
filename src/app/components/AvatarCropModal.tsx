@@ -136,7 +136,7 @@ export function AvatarCropModal({ src, onConfirm, onCancel }: Props) {
           />
           <div
             className="absolute inset-0 rounded-full pointer-events-none"
-            style={{ boxShadow: "0 0 0 3px #256DE9, 0 0 0 6px rgba(37,109,233,0.25)" }}
+            style={{ boxShadow: `0 0 0 3px ${c.accent}, 0 0 0 6px rgba(${c.accentRgb},0.25)` }}
           />
         </div>
 
@@ -154,7 +154,7 @@ export function AvatarCropModal({ src, onConfirm, onCancel }: Props) {
             value={zoom}
             onChange={(e) => setZoom(Number(e.target.value))}
             className="flex-1"
-            style={{ accentColor: "#256DE9" }}
+            style={{ accentColor: c.accent }}
           />
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="shrink-0">
             <circle cx="11" cy="11" r="7" stroke="white" strokeWidth="2" />
@@ -174,7 +174,7 @@ export function AvatarCropModal({ src, onConfirm, onCancel }: Props) {
           <button
             onClick={handleConfirm}
             className="flex-1 py-3 rounded-2xl text-white text-sm font-semibold"
-            style={{ background: "#256DE9" }}
+            style={{ background: c.accent }}
           >
             Save Photo
           </button>

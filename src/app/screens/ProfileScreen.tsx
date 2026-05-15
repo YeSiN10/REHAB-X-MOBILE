@@ -133,7 +133,7 @@ export default function ProfileScreen() {
       <div
         className="relative shrink-0 overflow-hidden"
         style={{
-          background: "linear-gradient(160deg, #1a3a80 0%, #1b2c60 40%, #0d1630 100%)",
+          background: c.headerGradient,
           borderBottomLeftRadius: 36,
           borderBottomRightRadius: 36,
           paddingTop: 52,
@@ -143,7 +143,7 @@ export default function ProfileScreen() {
         }}
       >
         <div className="absolute inset-0 pointer-events-none"
-          style={{ background: "radial-gradient(ellipse at 50% -10%, rgba(37,109,233,0.35) 0%, transparent 65%)" }} />
+          style={{ background: c.headerGlowBg }} />
 
         <div className="flex items-start justify-between px-5 mb-5">
           <div className="flex items-center gap-3">
@@ -188,9 +188,9 @@ export default function ProfileScreen() {
             <div
               className="w-[80px] h-[80px] rounded-[24px] flex items-center justify-center overflow-hidden"
               style={{
-                background: "linear-gradient(135deg, #256DE9, #1a4bb5)",
-                border: "2px solid #256DE9",
-                boxShadow: "0 8px 24px rgba(37,109,233,0.3)",
+                background: `linear-gradient(135deg, ${c.accent}, ${c.accentDark})`,
+                border: `2px solid ${c.accent}`,
+                boxShadow: `0 8px 24px rgba(${c.accentRgb},0.3)`,
               }}
             >
               {user.avatar ? (
@@ -202,7 +202,7 @@ export default function ProfileScreen() {
             <button
               onClick={() => avatarRef.current?.click()}
               className="absolute -bottom-1 -right-1 w-8 h-8 rounded-xl flex items-center justify-center"
-              style={{ background: "#256DE9", border: "2px solid #0d1630", boxShadow: "0 4px 12px rgba(37,109,233,0.4)" }}
+              style={{ background: c.accent, border: "2px solid #0d1630", boxShadow: `0 4px 12px rgba(${c.accentRgb},0.4)` }}
             >
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
                 <path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z" stroke="white" strokeWidth="1.8" strokeLinecap="round" />
@@ -216,7 +216,7 @@ export default function ProfileScreen() {
               {user.fitnessLevel || "Intermediate"} Athlete
             </p>
             <div className="flex items-center gap-1.5 mt-1.5">
-              <div className="px-2.5 py-1 rounded-full" style={{ background: "rgba(37,109,233,0.3)" }}>
+              <div className="px-2.5 py-1 rounded-full" style={{ background: `rgba(${c.accentRgb},0.3)` }}>
                 <span className="text-[10px] font-bold" style={{ color: "#7AABFF" }}>
                   {user.goal ? user.goal.split(" ")[0] : "Recovery"}
                 </span>
@@ -250,7 +250,7 @@ export default function ProfileScreen() {
         <div>
           <div className="flex items-center justify-between mb-3">
             <h3 className="font-bold" style={{ fontSize: 15, color: c.text }}>Achievements</h3>
-            <button className="text-[#256DE9] text-sm font-semibold">See All</button>
+            <button className="text-sm font-semibold" style={{ color: c.accent }}>See All</button>
           </div>
           <div className="flex gap-3 overflow-x-auto pb-1">
             {achievements.map((a, i) => (
@@ -260,7 +260,7 @@ export default function ProfileScreen() {
                 className="shrink-0 w-[86px] rounded-2xl p-3 flex flex-col items-center gap-1.5"
                 style={
                   a.earned
-                    ? { background: c.accentBg, border: "1px solid rgba(37,109,233,0.25)" }
+                    ? { background: c.accentBg, border: `1px solid rgba(${c.accentRgb},0.25)` }
                     : { background: c.card, border: `1px solid ${c.cardBorder}`, opacity: 0.5 }
                 }
               >
@@ -300,7 +300,7 @@ export default function ProfileScreen() {
                   {item.badge && (
                     <span
                       className="w-5 h-5 rounded-full flex items-center justify-center text-white font-bold"
-                      style={{ background: item.action === "medical-docs" ? "#22C55E" : "#256DE9", fontSize: 10 }}
+                      style={{ background: item.action === "medical-docs" ? "#22C55E" : c.accent, fontSize: 10 }}
                     >
                       {item.badge}
                     </span>
@@ -417,8 +417,8 @@ export default function ProfileScreen() {
                       >
                         <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style={{ background: c.accentBg }}>
                           <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                            <path d="M14 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V8L14 2Z" stroke="#256DE9" strokeWidth="1.8" strokeLinecap="round" />
-                            <path d="M14 2V8H20M16 13H8M16 17H8M10 9H8" stroke="#256DE9" strokeWidth="1.8" strokeLinecap="round" />
+                            <path d="M14 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V8L14 2Z" stroke={c.accent} strokeWidth="1.8" strokeLinecap="round" />
+                            <path d="M14 2V8H20M16 13H8M16 17H8M10 9H8" stroke={c.accent} strokeWidth="1.8" strokeLinecap="round" />
                           </svg>
                         </div>
                         <div className="flex-1 min-w-0">
@@ -430,7 +430,7 @@ export default function ProfileScreen() {
                           <button
                             onClick={() => { setReplaceIdx(idx); replaceDocRef.current?.click(); }}
                             className="px-3 py-1.5 rounded-xl text-[11px] font-bold"
-                            style={{ background: "rgba(37,109,233,0.1)", color: "#256DE9" }}
+                            style={{ background: `rgba(${c.accentRgb},0.1)`, color: c.accent }}
                           >
                             Replace
                           </button>
@@ -458,7 +458,7 @@ export default function ProfileScreen() {
                 >
                   <div className="w-11 h-11 rounded-full flex items-center justify-center" style={{ background: c.accentBg }}>
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                      <path d="M21 15V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V15M17 8L12 3L7 8M12 3V15" stroke="#256DE9" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                      <path d="M21 15V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V15M17 8L12 3L7 8M12 3V15" stroke={c.accent} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
                     </svg>
                   </div>
                   <div className="text-center">

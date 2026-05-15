@@ -4,47 +4,46 @@ import { motion, AnimatePresence } from "motion/react";
 import { useApp, useColors } from "../context/AppContext";
 import { useT } from "../i18n";
 
-const notifTypes: Record<string, { color: string; icon: ReactNode }> = {
-  workout: {
-    color: "#256DE9",
-    icon: (
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-        <path d="M6.5 6.5H4C3.45 6.5 3 6.95 3 7.5v9c0 .55.45 1 1 1h2.5M17.5 6.5H20c.55 0 1 .45 1 1v9c0 .55-.45 1-1 1h-2.5M6.5 12h11" stroke="#256DE9" strokeWidth="1.8" strokeLinecap="round" />
-        <circle cx="6.5" cy="12" r="2.5" fill="#256DE9" />
-        <circle cx="17.5" cy="12" r="2.5" fill="#256DE9" />
-      </svg>
-    ),
-  },
-  achievement: {
-    color: "#EAB308",
-    icon: (
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="#EAB308">
-        <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
-      </svg>
-    ),
-  },
-  recovery: {
-    color: "#22C55E",
-    icon: (
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-        <path d="M12 21C12 21 3 14 3 8.5C3 5.42 5.42 3 8.5 3C10.24 3 11.91 3.81 13 5.09C14.09 3.81 15.76 3 17.5 3C20.58 3 23 5.42 23 8.5C23 14 14 21 14 21" stroke="#22C55E" strokeWidth="1.8" strokeLinecap="round" fill="rgba(34,197,94,0.1)" />
-      </svg>
-    ),
-  },
-  reminder: {
-    color: "#F97316",
-    icon: (
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-        <path d="M18 8C18 6.41 17.37 4.88 16.24 3.76C15.12 2.63 13.59 2 12 2C10.41 2 8.88 2.63 7.76 3.76C6.63 4.88 6 6.41 6 8C6 15 3 17 3 17H21C21 17 18 15 18 8Z" stroke="#F97316" strokeWidth="1.8" />
-        <path d="M13.73 21C13.55 21.3 13.3 21.55 13 21.73C12.69 21.9 12.35 22 12 22C11.65 22 11.31 21.9 11 21.73C10.7 21.55 10.45 21.3 10.27 21" stroke="#F97316" strokeWidth="1.8" strokeLinecap="round" />
-      </svg>
-    ),
-  },
-};
-
 export default function NotificationsScreen() {
   const navigate = useNavigate();
   const c = useColors();
+  const notifTypes: Record<string, { color: string; icon: ReactNode }> = {
+    workout: {
+      color: c.accent,
+      icon: (
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+          <path d="M6.5 6.5H4C3.45 6.5 3 6.95 3 7.5v9c0 .55.45 1 1 1h2.5M17.5 6.5H20c.55 0 1 .45 1 1v9c0 .55-.45 1-1 1h-2.5M6.5 12h11" stroke={c.accent} strokeWidth="1.8" strokeLinecap="round" />
+          <circle cx="6.5" cy="12" r="2.5" fill={c.accent} />
+          <circle cx="17.5" cy="12" r="2.5" fill={c.accent} />
+        </svg>
+      ),
+    },
+    achievement: {
+      color: "#EAB308",
+      icon: (
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="#EAB308">
+          <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
+        </svg>
+      ),
+    },
+    recovery: {
+      color: "#22C55E",
+      icon: (
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+          <path d="M12 21C12 21 3 14 3 8.5C3 5.42 5.42 3 8.5 3C10.24 3 11.91 3.81 13 5.09C14.09 3.81 15.76 3 17.5 3C20.58 3 23 5.42 23 8.5C23 14 14 21 14 21" stroke="#22C55E" strokeWidth="1.8" strokeLinecap="round" fill="rgba(34,197,94,0.1)" />
+        </svg>
+      ),
+    },
+    reminder: {
+      color: "#F97316",
+      icon: (
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+          <path d="M18 8C18 6.41 17.37 4.88 16.24 3.76C15.12 2.63 13.59 2 12 2C10.41 2 8.88 2.63 7.76 3.76C6.63 4.88 6 6.41 6 8C6 15 3 17 3 17H21C21 17 18 15 18 8Z" stroke="#F97316" strokeWidth="1.8" />
+          <path d="M13.73 21C13.55 21.3 13.3 21.55 13 21.73C12.69 21.9 12.35 22 12 22C11.65 22 11.31 21.9 11 21.73C10.7 21.55 10.45 21.3 10.27 21" stroke="#F97316" strokeWidth="1.8" strokeLinecap="round" />
+        </svg>
+      ),
+    },
+  };
   const t = useT();
   const {
     notifications,
@@ -64,7 +63,7 @@ export default function NotificationsScreen() {
       <div
         className="shrink-0 relative overflow-hidden"
         style={{
-          background: "linear-gradient(160deg, #1a3a80 0%, #1b2c60 40%, #0d1630 100%)",
+          background: c.headerGradient,
           borderBottomLeftRadius: 36,
           borderBottomRightRadius: 36,
           paddingTop: 52,
@@ -74,7 +73,7 @@ export default function NotificationsScreen() {
         }}
       >
         <div className="absolute inset-0 pointer-events-none"
-          style={{ background: "radial-gradient(ellipse at 50% -10%, rgba(37,109,233,0.35) 0%, transparent 65%)" }} />
+          style={{ background: c.headerGlowBg }} />
         <div className="flex items-center justify-between px-5">
           <div className="flex items-center gap-3">
             <button
@@ -96,7 +95,7 @@ export default function NotificationsScreen() {
           <div className="flex flex-col items-end gap-1.5">
             {unreadNotificationsCount > 0 && (
               <button onClick={markAllNotificationsRead} className="text-xs font-semibold px-3 py-1.5 rounded-xl"
-                style={{ background: "rgba(37,109,233,0.25)", color: "#60a5fa", border: "1px solid rgba(37,109,233,0.3)" }}>
+                style={{ background: `rgba(${c.accentRgb},0.25)`, color: "#60a5fa", border: `1px solid rgba(${c.accentRgb},0.3)` }}>
                 {t.notifications.markAllRead}
               </button>
             )}

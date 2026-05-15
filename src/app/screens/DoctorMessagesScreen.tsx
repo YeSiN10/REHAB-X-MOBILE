@@ -9,7 +9,7 @@ const mockDoctors = [
     name: "Dr. Amina Benali",
     specialty: "Kinésithérapeute",
     avatar: "AB",
-    color: "#256DE9",
+    color: "ACCENT",
     online: true,
     lastMessage: "Your last session went great! Keep up the exercises.",
     time: "10:32",
@@ -58,6 +58,7 @@ export default function DoctorMessagesScreen() {
   const navigate = useNavigate();
   const c = useColors();
   const { isPremium } = useApp();
+  const doctors = mockDoctors.map(d => ({ ...d, color: d.color === "ACCENT" ? c.accent : d.color }));
   const [selectedDoctor, setSelectedDoctor] = useState<string | null>(null);
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState(mockMessages);
@@ -73,13 +74,13 @@ export default function DoctorMessagesScreen() {
         </button>
         <div className="text-center">
           <div className="w-20 h-20 rounded-3xl flex items-center justify-center mx-auto mb-5"
-            style={{ background: "linear-gradient(135deg, rgba(37,109,233,0.15), rgba(168,85,247,0.15))", border: "2px solid rgba(168,85,247,0.3)" }}>
+            style={{ background: `linear-gradient(135deg, rgba(${c.accentRgb},0.15), rgba(168,85,247,0.15))`, border: "2px solid rgba(168,85,247,0.3)" }}>
             <span style={{ fontSize: 36 }}>👨‍⚕️</span>
           </div>
           <h1 className="font-black text-2xl mb-2" style={{ color: c.text }}>Premium Feature</h1>
           <p className="text-sm mb-6" style={{ color: c.textMuted }}>Doctor messaging is available for Premium members only.</p>
           <button onClick={() => navigate("/premium")} className="px-8 py-3 rounded-2xl text-white font-bold"
-            style={{ background: "linear-gradient(135deg, #256DE9, #1a4bb5)", boxShadow: "0 12px 32px rgba(37,109,233,0.3)" }}>
+            style={{ background: `linear-gradient(135deg, ${c.accent}, ${c.accentDark})`, boxShadow: `0 12px 32px rgba(${c.accentRgb},0.3)` }}>
             Upgrade to Premium
           </button>
         </div>
@@ -87,7 +88,7 @@ export default function DoctorMessagesScreen() {
     );
   }
 
-  const doctor = mockDoctors.find((d) => d.id === selectedDoctor);
+  const doctor = doctors.find((d) => d.id === selectedDoctor);
 
   const sendMessage = () => {
     if (!input.trim() || !selectedDoctor) return;
@@ -114,12 +115,12 @@ export default function DoctorMessagesScreen() {
       {/* Header */}
       <div className="relative px-5 pt-14 pb-5 shrink-0 overflow-hidden"
         style={{
-          background: "linear-gradient(160deg, #1a3a80 0%, #1b2c60 40%, #0d1630 100%)",
+          background: c.headerGradient,
           borderBottomLeftRadius: 28,
           borderBottomRightRadius: 28,
         }}>
         <div className="absolute inset-0 pointer-events-none"
-          style={{ background: "radial-gradient(ellipse at 50% -10%, rgba(37,109,233,0.4) 0%, transparent 65%)" }} />
+          style={{ background: c.headerGlowBg }} />
 
         <div className="flex items-center gap-3 relative z-10">
           <button onClick={() => { if (selectedDoctor) setSelectedDoctor(null); else navigate(-1); }}
@@ -152,7 +153,7 @@ export default function DoctorMessagesScreen() {
           <motion.div key="list" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex-1 overflow-y-auto px-5 pt-4">
             <p className="text-[10px] font-bold uppercase tracking-wider mb-3" style={{ color: c.textMuted }}>Your Care Team</p>
             <div className="space-y-3">
-              {mockDoctors.map((doc, i) => (
+              {doctors.map((doc, i) => (
                 <motion.button
                   key={doc.id}
                   initial={{ opacity: 0, y: 10 }}
@@ -182,7 +183,7 @@ export default function DoctorMessagesScreen() {
                   </div>
                   {doc.unread > 0 && (
                     <div className="w-5 h-5 rounded-full flex items-center justify-center shrink-0"
-                      style={{ background: "#256DE9" }}>
+                      style={{ background: c.accent }}>
                       <span className="text-[10px] font-black text-white">{doc.unread}</span>
                     </div>
                   )}
@@ -205,7 +206,7 @@ export default function DoctorMessagesScreen() {
                   <div className="max-w-[75%]">
                     <div className="px-4 py-3 rounded-2xl"
                       style={msg.from === "me"
-                        ? { background: "#256DE9", borderBottomRightRadius: 6 }
+                        ? { background: c.accent, borderBottomRightRadius: 6 }
                         : { background: c.card, border: `1px solid ${c.cardBorder}`, borderBottomLeftRadius: 6 }
                       }>
                       <p className="text-sm" style={{ color: msg.from === "me" ? "white" : c.text }}>{msg.text}</p>
@@ -228,14 +229,14 @@ export default function DoctorMessagesScreen() {
                   onKeyDown={(e) => e.key === "Enter" && sendMessage()}
                   placeholder="Type a message..."
                   className="flex-1 px-4 py-3 rounded-2xl text-sm focus:outline-none"
-                  style={{ background: c.inputBg, border: `1px solid ${c.inputBorder}`, color: c.text, caretColor: "#256DE9" }}
+                  style={{ background: c.inputBg, border: `1px solid ${c.inputBorder}`, color: c.text, caretColor: c.accent }}
                 />
                 <motion.button
                   whileTap={{ scale: 0.92 }}
                   onClick={sendMessage}
                   disabled={!input.trim()}
                   className="w-11 h-11 rounded-2xl flex items-center justify-center shrink-0"
-                  style={{ background: input.trim() ? "#256DE9" : c.secondaryCard, boxShadow: input.trim() ? "0 8px 20px rgba(37,109,233,0.3)" : "none" }}
+                  style={{ background: input.trim() ? c.accent : c.secondaryCard, boxShadow: input.trim() ? `0 8px 20px rgba(${c.accentRgb},0.3)` : "none" }}
                 >
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
                     <path d="M22 2L11 13M22 2L15 22L11 13M22 2L2 9L11 13" stroke={input.trim() ? "white" : c.textMuted} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router";
 import { motion } from "motion/react";
 import { BottomNav } from "../components/BottomNav";
+import { useColors } from "../context/AppContext";
 
 const sessions = [
   {
@@ -11,7 +12,7 @@ const sessions = [
     duration: "45 min",
     calories: 420,
     type: "Cardio",
-    color: "#256DE9",
+    color: "ACCENT",
     rating: 5,
     sets: 4,
     img: "https://images.unsplash.com/photo-1729281008855-71e2506761c0?w=200&q=80",
@@ -47,7 +48,7 @@ const sessions = [
     duration: "60 min",
     calories: 480,
     type: "Cardio",
-    color: "#256DE9",
+    color: "ACCENT",
     rating: 5,
     sets: 5,
     img: "https://images.unsplash.com/photo-1774009304081-ca87dd2f5d99?w=200&q=80",
@@ -82,9 +83,11 @@ const filters = ["All", "Cardio", "Strength", "Recovery", "Core", "Flexibility"]
 
 export default function SessionHistoryScreen() {
   const navigate = useNavigate();
+  const c = useColors();
+  const sessionsResolved = sessions.map(s => ({ ...s, color: s.color === "ACCENT" ? c.accent : s.color }));
   const [filter, setFilter] = useState("All");
 
-  const filtered = sessions.filter((s) => filter === "All" || s.type === filter);
+  const filtered = sessionsResolved.filter((s) => filter === "All" || s.type === filter);
 
   const totalStats = {
     sessions: filtered.length,
@@ -98,7 +101,7 @@ export default function SessionHistoryScreen() {
       <div
         className="shrink-0 relative overflow-hidden"
         style={{
-          background: "linear-gradient(160deg, #1a3a80 0%, #1b2c60 40%, #0d1630 100%)",
+          background: c.headerGradient,
           borderBottomLeftRadius: 36,
           borderBottomRightRadius: 36,
           paddingTop: 52,
@@ -108,7 +111,7 @@ export default function SessionHistoryScreen() {
         }}
       >
         <div className="absolute inset-0 pointer-events-none"
-          style={{ background: "radial-gradient(ellipse at 50% -10%, rgba(37,109,233,0.35) 0%, transparent 65%)" }} />
+          style={{ background: c.headerGlowBg }} />
         <div className="flex items-center justify-between px-5 mb-4">
           <div className="flex items-center gap-3">
             <button
@@ -156,7 +159,7 @@ export default function SessionHistoryScreen() {
               className="px-4 py-2 rounded-full text-xs font-semibold whitespace-nowrap transition-all"
               style={
                 filter === f
-                  ? { background: "#256DE9", color: "white", boxShadow: "0 6px 16px rgba(37,109,233,0.35)" }
+                  ? { background: c.accent, color: "white", boxShadow: `0 6px 16px rgba(${c.accentRgb},0.35)` }
                   : { background: "#111929", color: "#475569", border: "1px solid rgba(255,255,255,0.07)" }
               }
             >

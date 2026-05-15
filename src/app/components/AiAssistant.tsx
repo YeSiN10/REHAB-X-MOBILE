@@ -87,8 +87,8 @@ export function AiAssistant() {
         onClick={() => setOpen(true)}
         className="absolute bottom-24 right-4 z-30 w-14 h-14 rounded-2xl flex items-center justify-center"
         style={{
-          background: "linear-gradient(135deg, #256DE9 0%, #1a4bb5 100%)",
-          boxShadow: "0 8px 28px rgba(37,109,233,0.55)",
+          background: `linear-gradient(135deg, ${c.accent} 0%, ${c.accentDark} 100%)`,
+          boxShadow: `0 8px 28px rgba(${c.accentRgb},0.55)`,
         }}
       >
         <motion.div
@@ -128,7 +128,7 @@ export function AiAssistant() {
           >
             {/* Header */}
             <div className="px-4 pt-4 pb-3 flex items-center gap-3 shrink-0"
-              style={{ background: "linear-gradient(135deg, #1a3a80 0%, #0d1630 100%)", borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
+              style={{ background: c.headerGradient, borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
               <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
                 style={{ background: "rgba(255,255,255,0.12)", border: "1px solid rgba(255,255,255,0.15)" }}>
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
@@ -161,7 +161,7 @@ export function AiAssistant() {
                 >
                   {msg.from === "ai" && (
                     <div className="w-7 h-7 rounded-xl flex items-center justify-center shrink-0 mt-0.5"
-                      style={{ background: "#256DE9" }}>
+                      style={{ background: c.accent }}>
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
                         <path d="M12 2C6.48 2 2 5.97 2 10.8C2 13.63 3.53 16.14 5.94 17.74L5 21L9.05 19.35C10 19.77 11 20 12 20C17.52 20 22 16.03 22 11.2C22 6.37 17.52 2 12 2Z" fill="white" />
                       </svg>
@@ -169,7 +169,7 @@ export function AiAssistant() {
                   )}
                   <div className="max-w-[80%] px-3 py-2.5 rounded-2xl"
                     style={msg.from === "user"
-                      ? { background: "#256DE9", borderBottomRightRadius: 6 }
+                      ? { background: c.accent, borderBottomRightRadius: 6 }
                       : { background: c.secondaryCard, border: `1px solid ${c.cardBorder}`, borderBottomLeftRadius: 6 }
                     }>
                     <p className="text-xs leading-relaxed" style={{ color: msg.from === "user" ? "white" : c.text }}>
@@ -182,14 +182,14 @@ export function AiAssistant() {
               {typing && (
                 <div className="flex items-center gap-2">
                   <div className="w-7 h-7 rounded-xl flex items-center justify-center shrink-0"
-                    style={{ background: "#256DE9" }}>
+                    style={{ background: c.accent }}>
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
                       <path d="M12 2C6.48 2 2 5.97 2 10.8C2 13.63 3.53 16.14 5.94 17.74L5 21L9.05 19.35C10 19.77 11 20 12 20C17.52 20 22 16.03 22 11.2C22 6.37 17.52 2 12 2Z" fill="white" />
                     </svg>
                   </div>
                   <div className="flex gap-1 px-3 py-3 rounded-2xl" style={{ background: c.secondaryCard, borderBottomLeftRadius: 6 }}>
                     {[0, 1, 2].map((i) => (
-                      <motion.div key={i} className="w-1.5 h-1.5 rounded-full" style={{ background: "#256DE9" }}
+                      <motion.div key={i} className="w-1.5 h-1.5 rounded-full" style={{ background: c.accent }}
                         animate={{ y: [0, -4, 0] }} transition={{ repeat: Infinity, duration: 0.8, delay: i * 0.15 }} />
                     ))}
                   </div>
@@ -208,7 +208,7 @@ export function AiAssistant() {
                       transition={{ delay: 0.1 + i * 0.07 }}
                       onClick={() => handleSend(faq.q)}
                       className="w-full text-left px-3 py-2 rounded-xl text-xs font-medium"
-                      style={{ background: c.accentBg, border: "1px solid rgba(37,109,233,0.2)", color: "#256DE9" }}
+                      style={{ background: c.accentBg, border: `1px solid rgba(${c.accentRgb},0.2)`, color: c.accent }}
                     >
                       {faq.q}
                     </motion.button>
@@ -228,14 +228,14 @@ export function AiAssistant() {
                   onKeyDown={(e) => e.key === "Enter" && handleSend()}
                   placeholder="Ask me anything..."
                   className="flex-1 px-3 py-2.5 rounded-xl text-xs focus:outline-none"
-                  style={{ background: c.inputBg, border: `1px solid ${c.inputBorder}`, color: c.text, caretColor: "#256DE9" }}
+                  style={{ background: c.inputBg, border: `1px solid ${c.inputBorder}`, color: c.text, caretColor: c.accent }}
                 />
                 <motion.button
                   whileTap={{ scale: 0.9 }}
                   onClick={() => handleSend()}
                   disabled={!input.trim() || typing}
                   className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
-                  style={{ background: input.trim() ? "#256DE9" : c.secondaryCard }}
+                  style={{ background: input.trim() ? c.accent : c.secondaryCard }}
                 >
                   <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
                     <path d="M22 2L11 13M22 2L15 22L11 13M22 2L2 9L11 13" stroke={input.trim() ? "white" : c.textMuted} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />

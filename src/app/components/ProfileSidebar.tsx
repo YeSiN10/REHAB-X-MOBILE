@@ -91,7 +91,7 @@ export function ProfileSidebar() {
               }}
             >
               <div className="absolute inset-0 pointer-events-none"
-                style={{ background: "radial-gradient(ellipse at 50% -10%, rgba(37,109,233,0.4) 0%, transparent 65%)" }} />
+                style={{ background: c.headerGlowBg }} />
 
               {/* Logo */}
               <div className="flex items-center gap-2.5 mb-5 relative z-10">
@@ -137,7 +137,7 @@ export function ProfileSidebar() {
                     {/* Camera icon overlay */}
                     <div
                       className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center"
-                      style={{ background: "#256DE9", border: "1.5px solid #0d1630" }}
+                      style={{ background: c.accent, border: "1.5px solid #0d1630" }}
                     >
                       <svg width="10" height="10" viewBox="0 0 24 24" fill="none">
                         <path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z" stroke="white" strokeWidth="2" strokeLinecap="round" />
@@ -188,7 +188,7 @@ export function ProfileSidebar() {
                     style={{ color: c.textSub }}
                     onMouseEnter={(e) => {
                       (e.currentTarget as HTMLButtonElement).style.background = c.accentBg;
-                      (e.currentTarget as HTMLButtonElement).style.color = "#256DE9";
+                      (e.currentTarget as HTMLButtonElement).style.color = c.accent;
                     }}
                     onMouseLeave={(e) => {
                       (e.currentTarget as HTMLButtonElement).style.background = "transparent";
@@ -227,7 +227,7 @@ export function ProfileSidebar() {
                   <button
                     onClick={() => setIsDark(!isDark)}
                     className="relative w-11 h-6 rounded-full transition-all duration-300 shrink-0"
-                    style={{ background: isDark ? "#256DE9" : "rgba(37,109,233,0.2)" }}
+                    style={{ background: isDark ? c.accent : `rgba(${c.accentRgb},0.2)` }}
                   >
                     <motion.div
                       animate={{ x: isDark ? 22 : 2 }}
@@ -245,8 +245,8 @@ export function ProfileSidebar() {
                   onClick={() => handleNav("/premium")}
                   className="w-full px-3 py-3 rounded-xl flex items-center gap-3"
                   style={{
-                    background: "linear-gradient(135deg, rgba(37,109,233,0.15) 0%, rgba(168,85,247,0.1) 100%)",
-                    border: "1px solid rgba(37,109,233,0.2)",
+                    background: `linear-gradient(135deg, rgba(${c.accentRgb},0.15) 0%, rgba(168,85,247,0.1) 100%)`,
+                    border: `1px solid rgba(${c.accentRgb},0.2)`,
                   }}
                 >
                   <span style={{ fontSize: 18 }}>⭐</span>
@@ -255,7 +255,7 @@ export function ProfileSidebar() {
                     <p style={{ color: c.textMuted, fontSize: 10 }}>Unlock all VR features</p>
                   </div>
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-                    <path d="M9 18L15 12L9 6" stroke="#256DE9" strokeWidth="2" strokeLinecap="round" />
+                    <path d="M9 18L15 12L9 6" stroke={c.accent} strokeWidth="2" strokeLinecap="round" />
                   </svg>
                 </button>
               </div>
