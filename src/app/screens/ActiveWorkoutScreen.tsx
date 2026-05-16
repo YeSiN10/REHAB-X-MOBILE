@@ -180,6 +180,7 @@ export default function ActiveWorkoutScreen() {
   const navigate = useNavigate();
   const { id } = useParams();
   const { addSession } = useApp();
+  const c = useColors();
   const workout = workoutData[id || "1"] || workoutData["1"];
 
   const [cameraPermission, setCameraPermission] = useState<"pending" | "granted" | "denied">("pending");
