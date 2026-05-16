@@ -781,32 +781,72 @@ export default function HomeScreen() {
           </motion.button>
         </div>
 
-        {/* Mood Tracker */}
+        {/* Recovery Status */}
         <div className="px-5 mb-2">
           <div className="p-4 rounded-2xl" style={{ background: c.card, border: `1px solid ${c.cardBorder}`, boxShadow: c.shadow }}>
             <div className="flex items-center justify-between mb-3">
-              <h2 className="font-bold" style={{ fontSize: 15, color: c.text }}>{t.home.mood.label}</h2>
+              <div>
+                <h2 className="font-bold" style={{ fontSize: 15, color: c.text }}>Recovery Status</h2>
+                <p className="text-[10px] mt-0.5" style={{ color: c.textMuted }}>How's your body feeling today?</p>
+              </div>
               {todayMood && (
                 <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: c.accentBg, color: c.accent }}>LOGGED</span>
               )}
             </div>
-            <div className="flex justify-between">
-              {moodDefsResolved.map((mood) => (
-                <motion.button key={mood.value} whileTap={{ scale: 0.9 }} onClick={() => setTodayMood(mood.value)} className="flex flex-col items-center gap-1.5 flex-1">
-                  <div
-                    className="w-10 h-10 rounded-2xl flex items-center justify-center transition-all"
-                    style={todayMood === mood.value
-                      ? { background: mood.color + "22", border: `2px solid ${mood.color}`, boxShadow: `0 4px 12px ${mood.color}44` }
+
+            {/* 5-level recovery scale */}
+            <div className="flex gap-1.5 mb-3">
+              {moodDefsResolved.map((level, idx) => {
+                const icons = [
+                  /* exhausted — flatline/wave */
+                  <svg key="e" width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M2 12h4l2-5 3 10 3-5 2 3 3-3 3 0" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>,
+                  /* low — downward */
+                  <svg key="l" width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 16l7 7 7-7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>,
+                  /* ok — balance */
+                  <svg key="o" width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M5 12h14" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"/><circle cx="12" cy="12" r="3" fill="currentColor" fillOpacity="0.3"/></svg>,
+                  /* good — upward */
+                  <svg key="g" width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 19V5M5 12l7-7 7 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>,
+                  /* great — lightning */
+                  <svg key="gr" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>,
+                ];
+                const labels = ["Critical", "Low", "Fair", "Good", "Peak"];
+                const isSelected = todayMood === level.value;
+                return (
+                  <motion.button
+                    key={level.value}
+                    whileTap={{ scale: 0.9 }}
+                    onClick={() => setTodayMood(level.value)}
+                    className="flex-1 flex flex-col items-center gap-1 py-2.5 rounded-xl transition-all"
+                    style={isSelected
+                      ? { background: level.color + "22", border: `1.5px solid ${level.color}`, boxShadow: `0 4px 10px ${level.color}44` }
                       : { background: c.secondaryCard, border: `1.5px solid ${c.divider}` }}
                   >
-                    <span style={{ fontSize: 20 }}>{mood.emoji}</span>
-                  </div>
-                  <span className="text-[9px] font-semibold" style={{ color: todayMood === mood.value ? mood.color : c.textMuted }}>
-                    {t.home.mood[mood.value as keyof typeof t.home.mood] as string}
-                  </span>
-                </motion.button>
-              ))}
+                    <div style={{ color: isSelected ? level.color : c.textMuted }}>{icons[idx]}</div>
+                    <span className="text-[8px] font-bold leading-tight" style={{ color: isSelected ? level.color : c.textMuted }}>
+                      {labels[idx]}
+                    </span>
+                  </motion.button>
+                );
+              })}
             </div>
+
+            {/* Status description when selected */}
+            {todayMood && (() => {
+              const descriptions: Record<string, string> = {
+                exhausted: "Rest day recommended — focus on gentle stretching",
+                low: "Light mobility work only — listen to your body",
+                ok: "Moderate session — stay within comfortable range",
+                good: "Ready for your rehabilitation program today",
+                great: "Peak condition — push your rehabilitation limits!",
+              };
+              const sel = moodDefsResolved.find(l => l.value === todayMood);
+              return (
+                <div className="flex items-center gap-2 pt-2" style={{ borderTop: `1px solid ${c.divider}` }}>
+                  <div className="w-2 h-2 rounded-full shrink-0" style={{ background: sel?.color }} />
+                  <p className="text-[10px] leading-snug" style={{ color: c.textSub }}>{descriptions[todayMood]}</p>
+                </div>
+              );
+            })()}
           </div>
         </div>
       </div>

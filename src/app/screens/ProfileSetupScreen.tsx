@@ -68,7 +68,7 @@ const PAIN_ZONES = [
 
 export default function ProfileSetupScreen() {
   const navigate = useNavigate();
-  const { user, updateUser, authToken } = useApp();
+  const { user, updateUser, authToken, setTodayMood } = useApp();
   const c = useColors();
   const fileRef = useRef<HTMLInputElement>(null);
   const avatarRef = useRef<HTMLInputElement>(null);
@@ -179,6 +179,7 @@ export default function ProfileSetupScreen() {
 
   const handleComplete = () => {
     if (usernameError) return;
+    if (initialMood) setTodayMood(initialMood);
     setCompleting(true);
     updateUser({
       name: username.trim() || user.name,
@@ -196,7 +197,8 @@ export default function ProfileSetupScreen() {
     setTimeout(() => navigate("/home"), 2000);
   };
 
-  const steps = ["Personal", "Rehabilitation", "Kiné", "Documents"];
+  const [initialMood, setInitialMood] = useState("");
+  const steps = ["Personal", "Rehabilitation", "Kiné", "Documents", "Wellness"];
 
   if (completing) {
     return (
@@ -678,8 +680,8 @@ export default function ProfileSetupScreen() {
                 <div className="flex items-start gap-3">
                   <div className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0" style={{ background: `rgba(${accentRgb},0.2)` }}>
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                      <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke={accent} strokeWidth="1.8" />
-                      <path d="M12 8V12M12 16H12.01" stroke={accent} strokeWidth="1.8" strokeLinecap="round" />
+                      <path d="M14 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V8L14 2Z" stroke={accent} strokeWidth="1.8" strokeLinecap="round" />
+                      <path d="M14 2V8H20M16 13H8M16 17H8M10 9H8" stroke={accent} strokeWidth="1.8" strokeLinecap="round" />
                     </svg>
                   </div>
                   <div>
@@ -723,10 +725,7 @@ export default function ProfileSetupScreen() {
               <button
                 onClick={() => fileRef.current?.click()}
                 className="w-full py-6 rounded-2xl flex flex-col items-center gap-3 transition-all"
-                style={{
-                  background: c.inputBg,
-                  border: `2px dashed ${c.inputBorder}`,
-                }}
+                style={{ background: c.inputBg, border: `2px dashed ${c.inputBorder}` }}
               >
                 <div className="w-12 h-12 rounded-full flex items-center justify-center" style={{ background: c.accentBg }}>
                   <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
@@ -749,6 +748,66 @@ export default function ProfileSetupScreen() {
               </div>
             </motion.div>
           )}
+
+          {/* ── STEP 4: Wellness ── */}
+          {step === 4 && (
+            <motion.div key="step4" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-6">
+              <div className="p-4 rounded-2xl" style={{ background: c.accentBg, border: `1px solid rgba(${accentRgb},0.2)` }}>
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0" style={{ background: `rgba(${accentRgb},0.2)` }}>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                      <path d="M12 21C12 21 3 14 3 8.5C3 5.42 5.42 3 8.5 3C10.24 3 11.91 3.81 13 5.09C14.09 3.81 15.76 3 17.5 3C20.58 3 23 5.42 23 8.5C23 14 14 21 14 21" stroke={accent} strokeWidth="1.8" strokeLinecap="round" />
+                    </svg>
+                  </div>
+                  <div>
+                    <p className="text-sm font-bold" style={{ color: c.text }}>How are you feeling today?</p>
+                    <p className="text-xs mt-0.5" style={{ color: c.textMuted }}>
+                      This helps us set the right starting intensity for your rehabilitation plan.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                {[
+                  { value: "exhausted", emoji: "😩", label: "Exhausted", desc: "I need rest — pain or fatigue is high", color: "#EF4444" },
+                  { value: "low", emoji: "😔", label: "Low energy", desc: "Feeling tired, only light activity", color: "#F97316" },
+                  { value: "ok", emoji: "😐", label: "Okay", desc: "Some discomfort, moderate activity okay", color: "#EAB308" },
+                  { value: "good", emoji: "😊", label: "Good", desc: "Ready for structured rehabilitation", color: "#22C55E" },
+                  { value: "great", emoji: "🤩", label: "Feeling great", desc: "Full capacity — let's push the session!", color: accent },
+                ].map((mood) => (
+                  <motion.button
+                    key={mood.value}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => setInitialMood(mood.value)}
+                    className="w-full flex items-center gap-4 px-4 py-3.5 rounded-2xl transition-all text-left"
+                    style={initialMood === mood.value
+                      ? { background: mood.color + "18", border: `2px solid ${mood.color}`, boxShadow: `0 4px 16px ${mood.color}33` }
+                      : { background: c.card, border: `1.5px solid ${c.cardBorder}` }}
+                  >
+                    <div className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 text-2xl" style={{ background: initialMood === mood.value ? mood.color + "22" : c.secondaryCard }}>
+                      {mood.emoji}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-bold text-sm" style={{ color: initialMood === mood.value ? mood.color : c.text }}>{mood.label}</p>
+                      <p className="text-xs mt-0.5 leading-snug" style={{ color: c.textMuted }}>{mood.desc}</p>
+                    </div>
+                    {initialMood === mood.value && (
+                      <div className="w-5 h-5 rounded-full flex items-center justify-center shrink-0" style={{ background: mood.color }}>
+                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none">
+                          <path d="M5 12L10 17L19 8" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                      </div>
+                    )}
+                  </motion.button>
+                ))}
+              </div>
+
+              <p className="text-center text-xs" style={{ color: c.textMuted }}>
+                This is optional — you can always update this from your home screen.
+              </p>
+            </motion.div>
+          )}
         </AnimatePresence>
       </div>
 
@@ -768,7 +827,7 @@ export default function ProfileSetupScreen() {
             whileTap={{ scale: 0.97 }}
             onClick={() => {
               if (step === 0 && usernameError) return;
-              if (step < 3) setStep((s) => s + 1);
+              if (step < 4) setStep((s) => s + 1);
               else handleComplete();
             }}
             disabled={step === 0 && (!!usernameError || checkingUsername)}
@@ -784,10 +843,10 @@ export default function ProfileSetupScreen() {
               opacity: (step === 0 && (!!usernameError || checkingUsername)) ? 0.6 : 1,
             }}
           >
-            {step < 3 ? "Continue" : "Get Started"}
+            {step < 4 ? "Continue" : "Get Started"}
           </motion.button>
         </div>
-        {step === 3 && (
+        {step === 4 && (
           <button onClick={handleComplete} className="w-full text-center mt-3 text-sm font-semibold" style={{ color: c.textMuted }}>
             Skip for now
           </button>

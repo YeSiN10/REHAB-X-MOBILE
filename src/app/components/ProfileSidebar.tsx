@@ -85,7 +85,7 @@ export function ProfileSidebar() {
             <div
               className="px-5 pt-14 pb-5 shrink-0 relative overflow-hidden"
               style={{
-                background: "linear-gradient(160deg, #1a3a80 0%, #1b2c60 40%, #0d1630 100%)",
+                background: c.headerGradient,
                 borderBottomLeftRadius: 28,
                 borderBottomRightRadius: 28,
               }}
