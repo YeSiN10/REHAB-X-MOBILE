@@ -189,14 +189,14 @@ export default function ExercisesScreen() {
             >
               <div className="w-10 h-1 rounded-full mx-auto mb-4" style={{ background: c.divider }} />
               <div className="flex items-center justify-between mb-5">
-                <h3 className="font-black text-lg" style={{ color: c.text }}>Filter Exercises</h3>
+                <h3 className="font-black text-lg" style={{ color: c.text }}>{t.exercises.filterTitle}</h3>
                 {hasActiveFilters && (
-                  <button onClick={clearFilters} className="text-sm font-bold" style={{ color: "#EF4444" }}>Clear All</button>
+                  <button onClick={clearFilters} className="text-sm font-bold" style={{ color: "#EF4444" }}>{t.exercises.clearAll}</button>
                 )}
               </div>
 
               {/* Type */}
-              <p className="text-[10px] font-bold uppercase tracking-wider mb-2.5" style={{ color: c.textMuted }}>Exercise Type</p>
+              <p className="text-[10px] font-bold uppercase tracking-wider mb-2.5" style={{ color: c.textMuted }}>{t.exercises.exerciseType}</p>
               <div className="flex flex-wrap gap-2 mb-5">
                 {typeOptions.map(opt => (
                   <button key={opt} onClick={() => toggleFilter(filterType, opt, setFilterType)}
@@ -210,7 +210,7 @@ export default function ExercisesScreen() {
               </div>
 
               {/* Level */}
-              <p className="text-[10px] font-bold uppercase tracking-wider mb-2.5" style={{ color: c.textMuted }}>Difficulty Level</p>
+              <p className="text-[10px] font-bold uppercase tracking-wider mb-2.5" style={{ color: c.textMuted }}>{t.exercises.difficultyLevel}</p>
               <div className="flex flex-wrap gap-2 mb-5">
                 {levelOptions.map(opt => (
                   <button key={opt} onClick={() => toggleFilter(filterLevel, opt, setFilterLevel)}
@@ -224,7 +224,7 @@ export default function ExercisesScreen() {
               </div>
 
               {/* Intensity */}
-              <p className="text-[10px] font-bold uppercase tracking-wider mb-2.5" style={{ color: c.textMuted }}>Intensity</p>
+              <p className="text-[10px] font-bold uppercase tracking-wider mb-2.5" style={{ color: c.textMuted }}>{t.exercises.intensity}</p>
               <div className="flex gap-2 mb-6">
                 {intensityOptions.map(opt => {
                   const colors: Record<string, string> = { Low: "#22C55E", Medium: "#EAB308", High: "#F97316" };
@@ -243,7 +243,7 @@ export default function ExercisesScreen() {
               <button onClick={() => setShowFilterSheet(false)}
                 className="w-full py-4 rounded-2xl text-white font-bold text-sm"
                 style={{ background: `linear-gradient(135deg, ${c.accent}, ${c.accentDark})`, boxShadow: `0 12px 32px rgba(${c.accentRgb},0.3)` }}>
-                Apply Filters {hasActiveFilters ? `(${filterType.length + filterLevel.length + filterIntensity.length})` : ""}
+                {t.exercises.applyFilters} {hasActiveFilters ? `(${filterType.length + filterLevel.length + filterIntensity.length})` : ""}
               </button>
             </motion.div>
           </>
@@ -277,7 +277,7 @@ export default function ExercisesScreen() {
                 <path d="M15 18L9 12L15 6" stroke="white" strokeWidth="2" strokeLinecap="round" />
               </svg>
             </button>
-            <h1 className="text-white font-black" style={{ fontSize: 24 }}>Exercises</h1>
+            <h1 className="text-white font-black" style={{ fontSize: 24 }}>{t.exercises.title}</h1>
           </div>
           <button
             onClick={() => setShowFilterSheet(true)}
@@ -290,7 +290,7 @@ export default function ExercisesScreen() {
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
               <path d="M4 6H20M7 12H17M10 18H14" stroke="white" strokeWidth="2" strokeLinecap="round" />
             </svg>
-            <span className="text-white text-xs font-bold">Filters{hasActiveFilters ? ` (${filterType.length + filterLevel.length + filterIntensity.length})` : ""}</span>
+            <span className="text-white text-xs font-bold">{t.exercises.filters}{hasActiveFilters ? ` (${filterType.length + filterLevel.length + filterIntensity.length})` : ""}</span>
           </button>
         </div>
 
@@ -333,7 +333,7 @@ export default function ExercisesScreen() {
                 </div>
                 <span className="text-[9px] font-bold whitespace-nowrap"
                   style={{ color: isActive ? "white" : "rgba(255,255,255,0.5)" }}>
-                  {filter.label}
+                  {t.exercises[filter.id.toLowerCase() as keyof typeof t.exercises] || filter.label}
                 </span>
               </motion.button>
             );
@@ -345,7 +345,7 @@ export default function ExercisesScreen() {
       {/* List */}
       <div className="flex-1 overflow-y-auto pb-[120px] px-5 pt-4" style={{ WebkitOverflowScrolling: "touch", touchAction: "pan-y" } as React.CSSProperties}>
         <p className="text-xs font-semibold mb-4 tracking-wider" style={{ color: c.textMuted }}>
-          {filtered.length} EXERCISES
+          {filtered.length} {t.exercises.exercisesCount}
         </p>
 
         {/* Featured banner */}
@@ -366,7 +366,7 @@ export default function ExercisesScreen() {
             />
             <div className="absolute top-3 left-3 flex items-center gap-2">
               <span className="text-[10px] font-bold px-2.5 py-1 rounded-full text-white" style={{ background: "#F97316" }}>
-                🔥 TRENDING
+                {t.exercises.trending}
               </span>
             </div>
             <button
@@ -447,7 +447,9 @@ export default function ExercisesScreen() {
                     <span className="text-[9px] font-bold uppercase tracking-wider block mb-0.5" style={{ color: c.accent }}>
                       {ex.category}
                     </span>
-                    <h3 className="font-bold text-sm leading-tight" style={{ color: c.text }}>{ex.title}</h3>
+                    <h3 className="font-bold text-sm leading-tight" style={{ color: c.text }}>
+                      {t.exerciseNames[ex.title as keyof typeof t.exerciseNames] || ex.title}
+                    </h3>
                     <div className="flex items-center gap-2 mt-1.5">
                       <span className="text-[10px] flex items-center gap-0.5" style={{ color: c.textMuted }}>
                         <svg width="9" height="9" viewBox="0 0 24 24" fill="none">
@@ -486,8 +488,8 @@ export default function ExercisesScreen() {
                 </svg>
               </div>
               <div className="flex-1">
-                <p className="font-bold text-sm" style={{ color: c.text }}>Advanced Exercises</p>
-                <p className="text-xs" style={{ color: c.textMuted }}>Premium plan required to unlock</p>
+                <p className="font-bold text-sm" style={{ color: c.text }}>{t.exercises.advancedExercises}</p>
+                <p className="text-xs" style={{ color: c.textMuted }}>{t.exercises.premiumRequired}</p>
               </div>
               <motion.button
                 whileTap={{ scale: 0.96 }}
@@ -495,7 +497,7 @@ export default function ExercisesScreen() {
                 className="px-3 py-1.5 rounded-xl text-white text-xs font-bold"
                 style={{ background: "linear-gradient(135deg, #A855F7, #7C3AED)" }}
               >
-                Upgrade
+                {t.exercises.upgrade}
               </motion.button>
             </div>
 
@@ -544,7 +546,7 @@ export default function ExercisesScreen() {
                                 <path d="M8 11V7C8 5.34315 9.34315 4 11 4H13C14.6569 4 16 5.34315 16 7V11" stroke="white" strokeWidth="2" strokeLinecap="round" />
                               </svg>
                             </div>
-                            <span className="text-white text-[9px] font-bold">PREMIUM</span>
+                            <span className="text-white text-[9px] font-bold">{t.exercises.premium}</span>
                           </div>
                         </div>
                       )}
@@ -555,10 +557,12 @@ export default function ExercisesScreen() {
                           {ex.category}
                         </span>
                         <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: "rgba(168,85,247,0.15)", color: "#A855F7" }}>
-                          ⭐ PRO
+                          {t.exercises.pro}
                         </span>
                       </div>
-                      <h3 className="font-bold text-sm leading-tight" style={{ color: c.text }}>{ex.title}</h3>
+                      <h3 className="font-bold text-sm leading-tight" style={{ color: c.text }}>
+                        {t.exerciseNames[ex.title as keyof typeof t.exerciseNames] || ex.title}
+                      </h3>
                       <div className="flex items-center gap-2 mt-1.5">
                         <span className="text-[10px]" style={{ color: c.textMuted }}>{ex.duration}</span>
                         <span className="text-[10px]" style={{ color: c.textMuted }}>•</span>

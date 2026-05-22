@@ -334,7 +334,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const setLanguage = useCallback((l: "en" | "fr" | "ar") => {
     setLanguageState(l);
     localStorage.setItem("rehab_language", l);
+    document.documentElement.lang = l;
   }, []);
+
+  useEffect(() => {
+    document.documentElement.lang = language;
+  }, [language]);
 
   // ── Favorites (per-user, keyed by userId) ─────────────────────────────
   const [favoriteIds, setFavoriteIds] = useState<string[]>(() => {

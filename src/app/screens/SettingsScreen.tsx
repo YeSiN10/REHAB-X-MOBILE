@@ -469,16 +469,15 @@ export default function SettingsScreen() {
                   <button
                     key={lang}
                     onClick={() => setLanguage(lang)}
-                    className="flex-1 flex flex-col items-center gap-1 py-3 rounded-2xl transition-all"
+                    className="flex-1 flex flex-col items-center justify-center gap-1 py-4 rounded-2xl transition-all"
                     style={isActive
                       ? { background: c.accent, boxShadow: `0 8px 20px rgba(${c.accentRgb},0.35)` }
                       : { background: c.secondaryCard, border: `1px solid ${c.cardBorder}` }
                     }
                   >
-                    <span style={{ fontSize: 22 }}>{info.flag}</span>
-                    <span className="text-xs font-bold" style={{ color: isActive ? "white" : c.textSub }}>{info.label}</span>
+                    <span style={{ fontSize: 26 }}>{info.flag}</span>
                     {isActive && (
-                      <div className="w-1.5 h-1.5 rounded-full bg-white opacity-80" />
+                      <div className="w-1.5 h-1.5 rounded-full bg-white opacity-80 mt-1" />
                     )}
                   </button>
                 );

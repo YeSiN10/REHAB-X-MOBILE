@@ -113,10 +113,10 @@ export default function PlansScreen() {
             className="px-3 py-1.5 rounded-full"
             style={{ background: `rgba(${c.accentRgb},0.12)`, border: `1px solid rgba(${c.accentRgb},0.25)` }}
           >
-            <span className="text-[11px] font-bold" style={{ color: c.accent }}>12 AVAILABLE</span>
+            <span className="text-[11px] font-bold" style={{ color: c.accent }}>12 {t.plans.available}</span>
           </div>
         </div>
-        <p className="text-sm ml-[52px] -mt-1" style={{ color: c.textMuted }}>Science-backed VR rehab programs</p>
+        <p className="text-sm ml-[52px] -mt-1" style={{ color: c.textMuted }}>{t.plans.subtitle}</p>
       </div>
 
       <div className="flex-1 overflow-y-auto pb-[90px] px-5 space-y-4">
@@ -124,7 +124,7 @@ export default function PlansScreen() {
         {activeProgram && (
           <div>
             <p className="text-xs font-bold uppercase tracking-wider mb-3" style={{ color: c.textMuted }}>
-              Active Program
+              {t.plans.activeProgram}
             </p>
             <motion.div
               whileTap={{ scale: 0.98 }}
@@ -148,17 +148,17 @@ export default function PlansScreen() {
                   className="text-white text-[10px] font-bold px-3 py-1.5 rounded-full"
                   style={{ background: activeProgram.color }}
                 >
-                  ACTIVE PROGRAM
+                  {t.plans.activeProgram.toUpperCase()}
                 </span>
               </div>
               <div className="absolute bottom-4 left-4 right-4">
                 <h3 className="text-white font-black" style={{ fontSize: 18 }}>
-                  {activeProgram.title}
+                  {t.exerciseNames[activeProgram.title as keyof typeof t.exerciseNames] || activeProgram.title}
                 </h3>
                 <p className="text-[#94A3B8] text-xs mt-0.5">{activeProgram.subtitle}</p>
                 <div className="mt-2.5">
                   <div className="flex justify-between text-xs mb-1">
-                    <span className="text-[#94A3B8]">Progress</span>
+                    <span className="text-[#94A3B8]">{t.plans.progress}</span>
                     <span style={{ color: activeProgram.color }}>{activeProgram.progress}%</span>
                   </div>
                   <div className="w-full h-1.5 rounded-full" style={{ background: "rgba(255,255,255,0.15)" }}>
@@ -190,7 +190,9 @@ export default function PlansScreen() {
                 }
               >
                 <span style={{ color: active ? "white" : cat.color }}>{cat.icon}</span>
-                <span className="text-xs font-semibold">{cat.label}</span>
+                <span className="text-xs font-semibold">
+                  {cat.id === "All" ? t.exercises.all : cat.label}
+                </span>
               </motion.button>
             );
           })}
@@ -199,7 +201,7 @@ export default function PlansScreen() {
         {/* Programs list */}
         <div>
           <p className="text-xs font-bold uppercase tracking-wider mb-3" style={{ color: c.textMuted }}>
-            All Programs
+            {t.plans.allPrograms}
           </p>
           <div className="space-y-3">
             {filtered.map((program, idx) => (
@@ -231,10 +233,12 @@ export default function PlansScreen() {
                       {program.category}
                     </span>
                   </div>
-                  <h3 className="font-bold text-sm truncate" style={{ color: c.text }}>{program.title}</h3>
+                  <h3 className="font-bold text-sm truncate" style={{ color: c.text }}>
+                    {t.exerciseNames[program.title as keyof typeof t.exerciseNames] || program.title}
+                  </h3>
                   <p className="text-xs mt-0.5" style={{ color: c.textMuted }}>{program.subtitle}</p>
                   <div className="flex items-center gap-2 mt-1.5">
-                    <span className="text-[10px]" style={{ color: c.textMuted }}>{program.sessions} sessions</span>
+                    <span className="text-[10px]" style={{ color: c.textMuted }}>{program.sessions} {t.plans.sessions}</span>
                     <span className="text-[10px]" style={{ color: c.divider }}>•</span>
                     <span className="text-[10px]" style={{ color: c.textMuted }}>{program.level}</span>
                   </div>
@@ -259,7 +263,7 @@ export default function PlansScreen() {
                       className="px-3 py-2 rounded-xl"
                       style={{ background: `rgba(${c.accentRgb},0.12)`, border: `1px solid rgba(${c.accentRgb},0.2)` }}
                     >
-                      <span className="text-[10px] font-bold" style={{ color: c.accent }}>START</span>
+                      <span className="text-[10px] font-bold" style={{ color: c.accent }}>{t.plans.start}</span>
                     </div>
                   )}
                 </div>

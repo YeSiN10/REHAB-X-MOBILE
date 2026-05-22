@@ -450,12 +450,12 @@ export default function HomeScreen() {
               </div>
               <div className="flex-1">
                 <p className="text-sm font-bold" style={{ color: c.accent }}>
-                  It's your turn{" "}
+                  {t.home.itsYourTurn}
                   <span style={{ color: c.text }}>{todaySessions}/{todayGoal}</span>
-                  {" "}Exercise!
+                  {t.home.exerciseExclaim}
                 </p>
                 <p className="text-[10px] mt-0.5" style={{ color: c.textMuted }}>
-                  {todaySessions >= todayGoal ? "Daily goal achieved! 🎉" : "Tap to start your scheduled session"}
+                  {todaySessions >= todayGoal ? t.home.dailyGoalAchieved : t.home.tapToStart}
                 </p>
               </div>
               <button
@@ -496,7 +496,7 @@ export default function HomeScreen() {
               {goalView === "weekly" ? (
                 <motion.div key="weekly" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.2 }} className="p-4">
                   <div className="flex justify-between items-center mb-3">
-                    <span className="text-sm font-bold" style={{ color: c.text }}>{completedWeekDays} of {weeklyGoalDays} days completed</span>
+                    <span className="text-sm font-bold" style={{ color: c.text }}>{completedWeekDays} {t.home.of} {weeklyGoalDays} {t.home.daysCompleted}</span>
                     <span className="text-xs font-semibold px-2.5 py-1 rounded-full" style={{ background: c.accentBg, color: c.accent }}>
                       {Math.round((completedWeekDays / weeklyGoalDays) * 100)}%
                     </span>
@@ -527,7 +527,7 @@ export default function HomeScreen() {
                   <div className="flex-1">
                     <p className="font-bold text-sm" style={{ color: c.text }}>{monthlyProgress} / {monthlyGoal} sessions</p>
                     <p className="text-xs mt-0.5" style={{ color: c.textMuted }}>
-                      {monthlyGoal - monthlyProgress > 0 ? `${monthlyGoal - monthlyProgress} more to reach goal` : "Monthly goal achieved! 🎉"}
+                      {monthlyGoal - monthlyProgress > 0 ? `${monthlyGoal - monthlyProgress} ${t.home.moreToReachGoal}` : t.home.dailyGoalAchieved}
                     </p>
                     <div className="flex gap-3 mt-2">
                       <div>
@@ -616,7 +616,7 @@ export default function HomeScreen() {
                     </span>
                   </div>
                   <p style={{ fontSize: 11, fontWeight: 600, color: streak > 0 ? "rgba(232,121,249,0.85)" : c.textMuted }}>
-                    {streak === 0 ? "No active streak" : streak >= 30 ? "Legendary streak! 🏆" : streak >= 14 ? "Unstoppable! 💪" : streak >= 7 ? "On fire! Keep going!" : "Streak going!"}
+                    {streak === 0 ? t.home.noActiveStreak : streak >= 30 ? t.home.legendaryStreak : streak >= 14 ? t.home.unstoppable : streak >= 7 ? t.home.onFire : t.home.streakGoing}
                   </p>
                 </div>
               </div>
@@ -651,14 +651,14 @@ export default function HomeScreen() {
 
             <p className="mt-4 text-center" style={{ fontSize: 10, fontWeight: 600, color: streak > 0 ? "rgba(232,121,249,0.6)" : c.textMuted }}>
               {streak === 0
-                ? "Log a workout today to start your streak!"
+                ? t.home.logWorkoutToStart
                 : streak < 7
-                ? `${7 - streak} more day${7 - streak > 1 ? "s" : ""} to reach your 7-day milestone`
+                ? `${7 - streak} ${t.home.moreDaysTo} 7-day milestone`
                 : streak < 14
-                ? `${14 - streak} more days to hit 2 weeks!`
+                ? `${14 - streak} ${t.home.moreDaysTo} 2 weeks!`
                 : streak < 30
-                ? `${30 - streak} more days to reach the legendary 30-day streak!`
-                : "You've hit the legendary 30-day streak! You're unstoppable!"}
+                ? `${30 - streak} ${t.home.moreDaysTo} 30-day streak!`
+                : t.home.legendaryStreak}
             </p>
           </motion.div>
         </div>
@@ -666,7 +666,7 @@ export default function HomeScreen() {
         {/* Featured Session */}
         <div className="px-5 mb-4">
           <div className="flex justify-between items-center mb-3">
-            <h2 className="font-bold" style={{ fontSize: 17, color: c.text }}>Featured Session</h2>
+            <h2 className="font-bold" style={{ fontSize: 17, color: c.text }}>{t.home.featuredSession}</h2>
             <button onClick={() => navigate("/exercises")} className="flex items-center gap-1 text-sm font-semibold" style={{ color: c.accent }}>
               View All <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M9 18L15 12L9 6" stroke={c.accent} strokeWidth="2" strokeLinecap="round" /></svg>
             </button>
@@ -686,7 +686,9 @@ export default function HomeScreen() {
               </span>
             </div>
             <div className="absolute bottom-4 left-4 right-16">
-              <h3 className="text-white mb-1.5" style={{ fontSize: 19, fontWeight: 800 }}>Post-Sprint Recovery</h3>
+              <h3 className="text-white mb-1.5" style={{ fontSize: 19, fontWeight: 800 }}>
+                {t.exerciseNames["Post-Sprint Recovery"] || "Post-Sprint Recovery"}
+              </h3>
               <div className="flex items-center gap-3">
                 <span className="text-[#94A3B8] text-sm">⏱ 24 mins</span>
                 <span className="w-1 h-1 rounded-full bg-[#475569]" />
@@ -709,7 +711,7 @@ export default function HomeScreen() {
             <div>
               <h2 className="font-bold" style={{ fontSize: 17, color: c.text }}>{t.home.recommended}</h2>
               <p className="text-[10px] font-semibold" style={{ color: c.accent }}>
-                Based on: {user.goal || "Recovery & Performance"}
+                {t.home.basedOn} {user.goal || "Recovery & Performance"}
               </p>
             </div>
             <button onClick={() => navigate("/exercises")} className="flex items-center gap-1 text-sm font-semibold" style={{ color: c.accent }}>
@@ -736,7 +738,9 @@ export default function HomeScreen() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <span className="text-[10px] font-bold uppercase tracking-wider block mb-0.5" style={{ color: c.accent }}>{ex.category}</span>
-                    <h3 className="font-bold text-sm truncate" style={{ color: c.text }}>{ex.title}</h3>
+                    <h3 className="font-bold text-sm truncate" style={{ color: c.text }}>
+                      {t.exerciseNames[ex.title as keyof typeof t.exerciseNames] || ex.title}
+                    </h3>
                     <div className="flex items-center gap-2 mt-1">
                       <span className="text-xs" style={{ color: c.textMuted }}>⏱ {ex.duration}</span>
                       <span className="text-xs" style={{ color: c.textMuted }}>•</span>
@@ -786,11 +790,11 @@ export default function HomeScreen() {
           <div className="p-4 rounded-2xl" style={{ background: c.card, border: `1px solid ${c.cardBorder}`, boxShadow: c.shadow }}>
             <div className="flex items-center justify-between mb-3">
               <div>
-                <h2 className="font-bold" style={{ fontSize: 15, color: c.text }}>Recovery Status</h2>
-                <p className="text-[10px] mt-0.5" style={{ color: c.textMuted }}>How's your body feeling today?</p>
+                <h2 className="font-bold" style={{ fontSize: 15, color: c.text }}>{t.home.recoveryStatus}</h2>
+                <p className="text-[10px] mt-0.5" style={{ color: c.textMuted }}>{t.home.howsBody}</p>
               </div>
               {todayMood && (
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: c.accentBg, color: c.accent }}>LOGGED</span>
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: c.accentBg, color: c.accent }}>{t.home.logged}</span>
               )}
             </div>
 

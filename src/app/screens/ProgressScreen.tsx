@@ -219,8 +219,8 @@ export default function ProgressScreen() {
             style={{ background: c.card, border: `1px solid ${c.cardBorder}` }}
           >
             <div className="text-4xl mb-3">🚀</div>
-            <p className="font-bold text-sm mb-1" style={{ color: c.text }}>Your journey starts here!</p>
-            <p className="text-xs" style={{ color: c.textMuted }}>Complete your first workout to see your progress charts and stats.</p>
+            <p className="font-bold text-sm mb-1" style={{ color: c.text }}>{t.progress.journeyStarts}</p>
+            <p className="text-xs" style={{ color: c.textMuted }}>{t.progress.completeWorkoutHint}</p>
           </div>
         )}
 
@@ -251,7 +251,7 @@ export default function ProgressScreen() {
         >
           <div className="flex items-center justify-between mb-4">
             <h3 className="font-bold" style={{ fontSize: 15, color: c.text }}>
-              {activeTab === "week" ? "This Week" : "This Month"}
+              {activeTab === "week" ? t.progress.thisWeek : t.progress.thisMonth}
             </h3>
             <div
               className="flex rounded-xl overflow-hidden p-0.5"
@@ -264,7 +264,7 @@ export default function ProgressScreen() {
                   className="px-3 py-1.5 rounded-lg text-[10px] font-semibold capitalize transition-all"
                   style={activeMetric === m ? { background: c.accent, color: "white" } : { color: c.textMuted }}
                 >
-                  {m === "calories" ? "Kcal" : "Time"}
+                  {m === "calories" ? t.progress.kcal : t.progress.time}
                 </button>
               ))}
             </div>
@@ -304,10 +304,10 @@ export default function ProgressScreen() {
           style={{ background: c.card, border: `1px solid ${c.cardBorder}`, boxShadow: c.shadow }}
         >
           <div className="flex items-center justify-between mb-4">
-            <h3 className="font-bold" style={{ fontSize: 15, color: c.text }}>Recovery Score</h3>
+            <h3 className="font-bold" style={{ fontSize: 15, color: c.text }}>{t.progress.recoveryScore}</h3>
             <span className="text-[10px] font-bold px-2 py-1 rounded-full"
               style={{ background: `${recoveryColor}20`, color: recoveryColor }}>
-              {sessions.length === 0 ? "LOG WORKOUT" : recoveryScore >= 80 ? "EXCELLENT" : recoveryScore >= 60 ? "GOOD" : recoveryScore >= 40 ? "MODERATE" : "NEEDS REST"}
+              {sessions.length === 0 ? t.progress.logWorkout : recoveryScore >= 80 ? t.progress.excellent : recoveryScore >= 60 ? t.progress.good : recoveryScore >= 40 ? t.progress.moderate : t.progress.needsRest}
             </span>
           </div>
           <div className="flex items-center gap-4">
@@ -335,9 +335,9 @@ export default function ProgressScreen() {
             </div>
             <div className="flex-1 space-y-2.5">
               {[
-                { label: "Sleep Quality", val: sleepQuality },
-                { label: "Muscle Soreness", val: muscleSoreness },
-                { label: "Energy Level", val: energyLevel },
+                { label: t.progress.sleepQuality, val: sleepQuality },
+                { label: t.progress.muscleSoreness, val: muscleSoreness },
+                { label: t.progress.energyLevel, val: energyLevel },
               ].map((item) => {
                 const barColor = item.val >= 70 ? "#22C55E" : item.val >= 50 ? c.accent : "#EAB308";
                 return (
@@ -367,14 +367,14 @@ export default function ProgressScreen() {
             <span style={{ fontSize: 14 }}>💡</span>
             <p className="text-xs leading-relaxed" style={{ color: c.textMuted }}>
               {sessions.length === 0
-                ? "Log your first workout to start tracking your recovery score and health metrics."
+                ? t.progress.recoveryHintNone
                 : recoveryScore >= 80
-                ? "Excellent recovery! You're ready for a high-intensity session today."
+                ? t.progress.recoveryHintExcellent
                 : recoveryScore >= 60
-                ? "Good recovery. A moderate intensity session is recommended."
+                ? t.progress.recoveryHintGood
                 : recoveryScore >= 40
-                ? "Moderate recovery. Consider a light workout or rest day."
-                : "Low recovery detected. Rest and active recovery are recommended today."}
+                ? t.progress.recoveryHintModerate
+                : t.progress.recoveryHintNeedsRest}
             </p>
           </div>
         </div>
@@ -382,8 +382,8 @@ export default function ProgressScreen() {
         {/* Achievements */}
         <div>
           <div className="flex items-center justify-between mb-3">
-            <h3 className="font-bold" style={{ fontSize: 15, color: c.text }}>Achievements</h3>
-            <button className="text-sm font-semibold" style={{ color: c.accent }}>See All</button>
+            <h3 className="font-bold" style={{ fontSize: 15, color: c.text }}>{t.progress.achievements}</h3>
+            <button className="text-sm font-semibold" style={{ color: c.accent }}>{t.progress.seeAll}</button>
           </div>
           <div className="flex gap-3 overflow-x-auto pb-2">
             {achievements.map((a, i) => (
@@ -412,16 +412,16 @@ export default function ProgressScreen() {
         {/* Session History */}
         <div>
           <div className="flex items-center justify-between mb-3">
-            <h3 className="font-bold" style={{ fontSize: 15, color: c.text }}>Session History</h3>
+            <h3 className="font-bold" style={{ fontSize: 15, color: c.text }}>{t.progress.sessionHistory}</h3>
             <span className="text-xs font-semibold px-2.5 py-1 rounded-full" style={{ background: c.accentBg, color: c.accent }}>
-              {sessions.length} total
+              {sessions.length} {t.progress.total}
             </span>
           </div>
 
           {sessions.length === 0 ? (
             <div className="rounded-2xl p-5 text-center" style={{ background: c.card, border: `1px solid ${c.cardBorder}` }}>
-              <p className="text-sm font-semibold mb-1" style={{ color: c.text }}>No sessions yet</p>
-              <p className="text-xs" style={{ color: c.textMuted }}>Complete a workout to see your history here.</p>
+              <p className="text-sm font-semibold mb-1" style={{ color: c.text }}>{t.progress.noSessionsYet}</p>
+              <p className="text-xs" style={{ color: c.textMuted }}>{t.progress.completeWorkoutHistory}</p>
             </div>
           ) : (
             <div className="space-y-2.5">
@@ -472,8 +472,8 @@ export default function ProgressScreen() {
                     const sessionDate = new Date(y, m - 1, d);
                     const todayDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
                     const diff = Math.round((todayDate.getTime() - sessionDate.getTime()) / 86400000);
-                    if (diff === 0) return "Today";
-                    if (diff === 1) return "Yesterday";
+                    if (diff === 0) return t.progress.today;
+                    if (diff === 1) return t.progress.yesterday;
                     return sessionDate.toLocaleDateString("en-US", { month: "short", day: "numeric" });
                   })();
                   return (
@@ -498,7 +498,9 @@ export default function ProgressScreen() {
                         )}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="font-bold text-sm truncate" style={{ color: c.text }}>{s.title || s.type}</p>
+                        <p className="font-bold text-sm truncate" style={{ color: c.text }}>
+                          {s.title ? (t.exerciseNames[s.title as keyof typeof t.exerciseNames] || s.title) : s.type}
+                        </p>
                         <div className="flex items-center gap-2 mt-0.5">
                           <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: `${color}18`, color }}>{s.type}</span>
                           <span className="text-[10px]" style={{ color: c.textMuted }}>{formattedDate}</span>

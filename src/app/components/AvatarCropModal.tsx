@@ -1,5 +1,6 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import { motion } from "motion/react";
+import { useColors } from "../context/AppContext";
 
 interface Props {
   src: string;
@@ -11,6 +12,7 @@ const SIZE = 240;
 const EXPORT_SIZE = 320;
 
 export function AvatarCropModal({ src, onConfirm, onCancel }: Props) {
+  const c = useColors();
   const [zoom, setZoom] = useState(1);
   const [offset, setOffset] = useState({ x: 0, y: 0 });
   const dragging = useRef(false);

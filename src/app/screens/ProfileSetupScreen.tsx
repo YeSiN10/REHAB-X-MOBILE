@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from "motion/react";
 import { useApp, useColors } from "../context/AppContext";
 import { AvatarCropModal } from "../components/AvatarCropModal";
 import { compressImage } from "../utils/imageUtils";
+import { useT } from "../i18n";
 import logo from "../../imports/Carte_visite_Final.png";
 
 const genderOptions = [
@@ -68,6 +69,7 @@ const PAIN_ZONES = [
 
 export default function ProfileSetupScreen() {
   const navigate = useNavigate();
+  const t = useT();
   const { user, updateUser, authToken, setTodayMood } = useApp();
   const c = useColors();
   const fileRef = useRef<HTMLInputElement>(null);
@@ -123,7 +125,7 @@ export default function ProfileSetupScreen() {
   const [completing, setCompleting] = useState(false);
   const [cropSrc, setCropSrc] = useState<string | null>(null);
   const [visitedKine, setVisitedKine] = useState<string>(user.visitedKine || "");
-  const [painLevel, setPainLevel] = useState<number>(user.painLevel ?? 5);
+  const [painLevel, setPainLevel] = useState<number | undefined>(user.painLevel);
   const [painZones, setPainZones] = useState<string[]>(user.painZones || []);
 
   const togglePainZone = (id: string) => {
@@ -198,7 +200,7 @@ export default function ProfileSetupScreen() {
   };
 
   const [initialMood, setInitialMood] = useState("");
-  const steps = ["Personal", "Rehabilitation", "Kiné", "Documents", "Wellness"];
+  const steps = [t.profileSetup.stepPersonal, t.profileSetup.stepRehab, t.profileSetup.stepKine, t.profileSetup.stepDocuments, t.home.mood.label];
 
   if (completing) {
     return (
@@ -341,13 +343,13 @@ export default function ProfileSetupScreen() {
                 </div>
                 <input ref={avatarRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarUpload} />
                 <button onClick={() => avatarRef.current?.click()} className="text-xs font-semibold" style={{ color: accent }}>
-                  {avatar ? "Change Photo" : "Upload Photo"}
+                  {avatar ? t.profile.uploadAvatar : t.profileSetup.uploadDoc}
                 </button>
               </div>
 
               {/* Username */}
               <div>
-                <label className="text-xs font-semibold mb-2 block tracking-wider uppercase" style={{ color: c.textSub }}>Username</label>
+                <label className="text-xs font-semibold mb-2 block tracking-wider uppercase" style={{ color: c.textSub }}>{t.profileSetup.username}</label>
                 <div className="relative">
                   <input
                     type="text"
@@ -356,7 +358,7 @@ export default function ProfileSetupScreen() {
                     onBlur={(e) => { checkUsername(e.target.value); e.target.style.borderColor = usernameError ? "#EF4444" : c.inputBorder; }}
                     className="w-full px-4 py-4 rounded-2xl text-sm focus:outline-none transition-all"
                     style={{ background: c.inputBg, border: `1px solid ${usernameError ? "#EF4444" : c.inputBorder}`, color: c.text, caretColor: accent }}
-                    placeholder="Enter your username"
+                    placeholder={t.profileSetup.usernamePlaceholder}
                     onFocus={(e) => (e.target.style.borderColor = usernameError ? "#EF4444" : accent)}
                   />
                   {checkingUsername && (
@@ -372,7 +374,7 @@ export default function ProfileSetupScreen() {
 
               {/* Phone number */}
               <div>
-                <label className="text-xs font-semibold mb-2 block tracking-wider uppercase" style={{ color: c.textSub }}>Phone Number <span style={{ color: c.textMuted, textTransform: "none", fontSize: 9 }}>(optional)</span></label>
+                <label className="text-xs font-semibold mb-2 block tracking-wider uppercase" style={{ color: c.textSub }}>{t.profileSetup.phone}</label>
                 <div className="relative">
                   <div className="absolute left-4 top-1/2 -translate-y-1/2">
                     <svg width="17" height="17" viewBox="0 0 24 24" fill="none">
@@ -385,7 +387,7 @@ export default function ProfileSetupScreen() {
                     onChange={(e) => setPhone(e.target.value)}
                     className="w-full pl-11 pr-4 py-4 rounded-2xl text-sm focus:outline-none transition-all"
                     style={{ background: c.inputBg, border: `1px solid ${c.inputBorder}`, color: c.text, caretColor: accent }}
-                    placeholder="+1 (555) 000-0000"
+                    placeholder={t.profileSetup.phonePlaceholder}
                     onFocus={(e) => (e.target.style.borderColor = accent)}
                     onBlur={(e) => (e.target.style.borderColor = c.inputBorder)}
                   />
@@ -394,7 +396,7 @@ export default function ProfileSetupScreen() {
 
               {/* Date of Birth */}
               <div>
-                <label className="text-xs font-semibold mb-2 block tracking-wider uppercase" style={{ color: c.textSub }}>Date of Birth</label>
+                <label className="text-xs font-semibold mb-2 block tracking-wider uppercase" style={{ color: c.textSub }}>{t.profileSetup.dateOfBirth}</label>
                 <div className="grid grid-cols-3 gap-2">
                   {/* Day */}
                   <div className="relative">
@@ -404,7 +406,7 @@ export default function ProfileSetupScreen() {
                       className="w-full appearance-none py-4 px-4 rounded-2xl text-sm focus:outline-none transition-all pr-8"
                       style={{ background: c.inputBg, border: `1.5px solid ${dobDay ? accent : c.inputBorder}`, color: dobDay ? c.text : c.textMuted }}
                     >
-                      <option value="">Day</option>
+                      <option value="">{t.profileSetup.dobDay}</option>
                       {Array.from({ length: daysInMonth }, (_, i) => i + 1).map((d) => (
                         <option key={d} value={String(d).padStart(2, "0")} style={{ background: c.inputBg, color: c.text }}>
                           {d}
@@ -423,7 +425,7 @@ export default function ProfileSetupScreen() {
                       className="w-full appearance-none py-4 px-4 rounded-2xl text-sm focus:outline-none transition-all pr-8"
                       style={{ background: c.inputBg, border: `1.5px solid ${dobMonth ? accent : c.inputBorder}`, color: dobMonth ? c.text : c.textMuted }}
                     >
-                      <option value="">Month</option>
+                      <option value="">{t.profileSetup.dobMonth}</option>
                       {MONTHS.map((m, i) => (
                         <option key={m} value={String(i + 1).padStart(2, "0")} style={{ background: c.inputBg, color: c.text }}>
                           {m}
@@ -442,7 +444,7 @@ export default function ProfileSetupScreen() {
                       className="w-full appearance-none py-4 px-4 rounded-2xl text-sm focus:outline-none transition-all pr-8"
                       style={{ background: c.inputBg, border: `1.5px solid ${dobYear ? accent : c.inputBorder}`, color: dobYear ? c.text : c.textMuted }}
                     >
-                      <option value="">Year</option>
+                      <option value="">{t.profileSetup.dobYear}</option>
                       {Array.from({ length: maxYear - minYear + 1 }, (_, i) => maxYear - i).map((y) => (
                         <option key={y} value={String(y)} style={{ background: c.inputBg, color: c.text }}>
                           {y}
@@ -463,7 +465,7 @@ export default function ProfileSetupScreen() {
 
               {/* Gender */}
               <div>
-                <label className="text-xs font-semibold mb-3 block tracking-wider uppercase" style={{ color: c.textSub }}>Gender</label>
+                <label className="text-xs font-semibold mb-3 block tracking-wider uppercase" style={{ color: c.textSub }}>{t.profileSetup.gender}</label>
                 <div className="grid grid-cols-2 gap-3">
                   {genderOptions.map((opt) => {
                     const sel = gender === opt.value;
@@ -480,7 +482,7 @@ export default function ProfileSetupScreen() {
                       >
                         {sel && <div className="absolute inset-0 pointer-events-none" style={{ background: "linear-gradient(180deg, rgba(255,255,255,0.1) 0%, transparent 60%)" }} />}
                         <div style={{ color: sel ? "white" : accent }} className="relative">{opt.icon}</div>
-                        <span className="text-sm font-black relative" style={{ color: sel ? "white" : c.text }}>{opt.label}</span>
+                        <span className="text-sm font-black relative" style={{ color: sel ? "white" : c.text }}>{opt.value === "male" ? t.common.male : t.common.female}</span>
                       </button>
                     );
                   })}
@@ -493,7 +495,7 @@ export default function ProfileSetupScreen() {
           {step === 1 && (
             <motion.div key="step1" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-5">
               <div>
-                <label className="text-xs font-semibold mb-3 block tracking-wider uppercase" style={{ color: c.textSub }}>Rehabilitation Level</label>
+                <label className="text-xs font-semibold mb-3 block tracking-wider uppercase" style={{ color: c.textSub }}>{t.profileSetup.rehabLevel}</label>
                 <div className="space-y-2.5">
                   {rehabilitationLevels.map((lvl) => (
                     <button
@@ -516,15 +518,19 @@ export default function ProfileSetupScreen() {
                         {fitnessLevel === lvl.value && <div className="w-2.5 h-2.5 rounded-full" style={{ background: accent }} />}
                       </div>
                       <div className="text-left flex-1">
-                        <p className="font-bold text-sm" style={{ color: fitnessLevel === lvl.value ? "white" : c.text }}>{lvl.label}</p>
-                        <p className="text-xs" style={{ color: fitnessLevel === lvl.value ? "rgba(255,255,255,0.7)" : c.textMuted }}>{lvl.desc}</p>
+                        <p className="font-bold text-sm" style={{ color: fitnessLevel === lvl.value ? "white" : c.text }}>
+                          {lvl.value === "Beginner" ? t.common.beginner : lvl.value === "Intermediate" ? t.common.intermediate : t.common.advanced}
+                        </p>
+                        <p className="text-xs" style={{ color: fitnessLevel === lvl.value ? "rgba(255,255,255,0.7)" : c.textMuted }}>
+                          {lvl.value === "Beginner" ? t.profileSetup.rehabBeginner : lvl.value === "Intermediate" ? t.profileSetup.rehabIntermediate : t.profileSetup.rehabAdvanced}
+                        </p>
                       </div>
                     </button>
                   ))}
                 </div>
               </div>
               <div>
-                <label className="text-xs font-semibold mb-3 block tracking-wider uppercase" style={{ color: c.textSub }}>Primary Goal</label>
+                <label className="text-xs font-semibold mb-3 block tracking-wider uppercase" style={{ color: c.textSub }}>{t.profileSetup.mainGoal}</label>
                 <div className="grid grid-cols-2 gap-2.5">
                   {goals.map((g) => (
                     <button
@@ -538,7 +544,9 @@ export default function ProfileSetupScreen() {
                       }
                     >
                       <div style={{ color: goal === g.value ? "white" : accent }}>{g.icon}</div>
-                      <span className="text-xs font-bold" style={{ color: goal === g.value ? "white" : c.text }}>{g.label}</span>
+                      <span className="text-xs font-bold" style={{ color: goal === g.value ? "white" : c.text }}>
+                        {g.value === "Recovery & Performance" ? t.profileSetup.goalRecovery : g.value === "Build Muscle" ? t.profileSetup.goalStrength : g.value === "Lose Weight" ? t.profileSetup.goalRenforcement : t.profileSetup.goalFlexibility}
+                      </span>
                     </button>
                   ))}
                 </div>
@@ -553,7 +561,7 @@ export default function ProfileSetupScreen() {
               {/* Visited Kiné */}
               <div>
                 <label className="text-xs font-bold mb-3 block tracking-wider uppercase" style={{ color: c.textSub }}>
-                  Have you visited a Kiné before?
+                  {t.profileSetup.visitedKine}
                 </label>
                 <div className="grid grid-cols-2 gap-3">
                   {[
@@ -580,7 +588,7 @@ export default function ProfileSetupScreen() {
                       >
                         {sel && <div className="absolute inset-0 pointer-events-none" style={{ background: "linear-gradient(180deg, rgba(255,255,255,0.1) 0%, transparent 60%)" }} />}
                         <div style={{ color: sel ? "white" : accent }} className="relative">{opt.icon}</div>
-                        <span className="text-sm font-black relative" style={{ color: sel ? "white" : c.text }}>{opt.label}</span>
+                        <span className="text-sm font-black relative" style={{ color: sel ? "white" : c.text }}>{opt.value === "yes" ? t.common.yes : t.common.no}</span>
                       </button>
                     );
                   })}
@@ -590,20 +598,20 @@ export default function ProfileSetupScreen() {
               {/* Pain Level */}
               <div>
                 <div className="flex items-center justify-between mb-3">
-                  <label className="text-xs font-bold tracking-wider uppercase" style={{ color: c.textSub }}>Pain Level</label>
+                  <label className="text-xs font-bold tracking-wider uppercase" style={{ color: c.textSub }}>{t.profileSetup.painLevel}</label>
                   <div
                     className="px-3 py-1 rounded-full font-black text-xs"
                     style={{
-                      background: painLevel <= 3 ? "rgba(34,197,94,0.15)" : painLevel <= 6 ? "rgba(245,158,11,0.15)" : "rgba(239,68,68,0.15)",
-                      color: painLevel <= 3 ? "#22C55E" : painLevel <= 6 ? "#F59E0B" : "#EF4444",
+                      background: painLevel === undefined ? c.secondaryCard : painLevel <= 3 ? "rgba(34,197,94,0.15)" : painLevel <= 6 ? "rgba(245,158,11,0.15)" : "rgba(239,68,68,0.15)",
+                      color: painLevel === undefined ? c.textMuted : painLevel <= 3 ? "#22C55E" : painLevel <= 6 ? "#F59E0B" : "#EF4444",
                     }}
                   >
-                    {painLevel}/10
+                    {painLevel === undefined ? "-" : painLevel}/10
                   </div>
                 </div>
                 <div className="flex gap-1.5 mb-2">
                   {Array.from({ length: 10 }, (_, i) => i + 1).map((n) => {
-                    const active = n <= painLevel;
+                    const active = painLevel !== undefined && n <= painLevel;
                     const isCurrent = n === painLevel;
                     const col = n <= 3 ? "#22C55E" : n <= 6 ? "#F59E0B" : "#EF4444";
                     return (
@@ -625,8 +633,8 @@ export default function ProfileSetupScreen() {
                   })}
                 </div>
                 <div className="flex justify-between px-0.5">
-                  <span className="text-[10px] font-semibold" style={{ color: "#22C55E" }}>No pain</span>
-                  <span className="text-[10px] font-semibold" style={{ color: "#EF4444" }}>Severe</span>
+                  <span className="text-[10px] font-semibold" style={{ color: "#22C55E" }}>{t.profileSetup.noPain}</span>
+                  <span className="text-[10px] font-semibold" style={{ color: "#EF4444" }}>{t.profileSetup.maxPain}</span>
                 </div>
               </div>
 
@@ -634,9 +642,9 @@ export default function ProfileSetupScreen() {
               <div>
                 <div className="flex items-baseline gap-2 mb-3">
                   <label className="text-xs font-bold tracking-wider uppercase" style={{ color: c.textSub }}>
-                    Pain Zones for Rehabilitation
+                    {t.profileSetup.painZones}
                   </label>
-                  <span className="text-[10px]" style={{ color: c.textMuted }}>(select all that apply)</span>
+                  <span className="text-[10px]" style={{ color: c.textMuted }}>({t.profileSetup.painZonesHint})</span>
                 </div>
                 <div className="grid grid-cols-2 gap-2">
                   {PAIN_ZONES.map((zone) => {
@@ -685,9 +693,9 @@ export default function ProfileSetupScreen() {
                     </svg>
                   </div>
                   <div>
-                    <p className="text-sm font-bold" style={{ color: c.text }}>Medical Documents</p>
+                    <p className="text-sm font-bold" style={{ color: c.text }}>{t.profileSetup.medicalDocs}</p>
                     <p className="text-xs mt-0.5" style={{ color: c.textMuted }}>
-                      Upload relevant medical records, injury reports, or doctor notes for a personalized plan.
+                      {t.profileSetup.medicalDocsHint}
                     </p>
                   </div>
                 </div>
@@ -734,14 +742,14 @@ export default function ProfileSetupScreen() {
                 </div>
                 <div className="text-center">
                   <p className="font-bold text-sm" style={{ color: c.text }}>
-                    {medicalDocs.length > 0 ? "Add More Documents" : "Upload Medical Documents"}
+                    {medicalDocs.length > 0 ? t.profileSetup.addMoreDocs : t.profileSetup.uploadDoc}
                   </p>
-                  <p className="text-xs mt-1" style={{ color: c.textMuted }}>PDF, JPG, PNG, DOC • Multiple files supported</p>
+                  <p className="text-xs mt-1" style={{ color: c.textMuted }}>PDF, JPG, PNG, DOC</p>
                 </div>
               </button>
 
               <div className="p-4 rounded-2xl" style={{ background: c.card, border: `1px solid ${c.cardBorder}` }}>
-                <p className="text-xs font-semibold mb-2" style={{ color: c.text }}>This step is optional</p>
+                <p className="text-xs font-semibold mb-2" style={{ color: c.text }}>{t.profileSetup.skip}</p>
                 <p className="text-xs leading-relaxed" style={{ color: c.textMuted }}>
                   Medical documents help our system create a safer, personalized workout plan. Your data is encrypted and private.
                 </p>
@@ -760,7 +768,7 @@ export default function ProfileSetupScreen() {
                     </svg>
                   </div>
                   <div>
-                    <p className="text-sm font-bold" style={{ color: c.text }}>How are you feeling today?</p>
+                    <p className="text-sm font-bold" style={{ color: c.text }}>{t.home.mood.label}</p>
                     <p className="text-xs mt-0.5" style={{ color: c.textMuted }}>
                       This helps us set the right starting intensity for your rehabilitation plan.
                     </p>
@@ -789,7 +797,7 @@ export default function ProfileSetupScreen() {
                       {mood.emoji}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="font-bold text-sm" style={{ color: initialMood === mood.value ? mood.color : c.text }}>{mood.label}</p>
+                      <p className="font-bold text-sm" style={{ color: initialMood === mood.value ? mood.color : c.text }}>{t.home.mood[mood.value as keyof Omit<typeof t.home.mood, "label">]}</p>
                       <p className="text-xs mt-0.5 leading-snug" style={{ color: c.textMuted }}>{mood.desc}</p>
                     </div>
                     {initialMood === mood.value && (
@@ -826,29 +834,33 @@ export default function ProfileSetupScreen() {
           <motion.button
             whileTap={{ scale: 0.97 }}
             onClick={() => {
-              if (step === 0 && usernameError) return;
+              if (step === 0 && (!!usernameError || checkingUsername || !username.trim() || !dobYear || !dobMonth || !dobDay || !phone.trim())) return;
+              if (step === 2 && (!visitedKine || painLevel === undefined || painZones.length === 0)) return;
               if (step < 4) setStep((s) => s + 1);
               else handleComplete();
             }}
-            disabled={step === 0 && (!!usernameError || checkingUsername)}
+            disabled={
+              (step === 0 && (!!usernameError || checkingUsername || !username.trim() || !dobYear || !dobMonth || !dobDay || !phone.trim())) ||
+              (step === 2 && (!visitedKine || painLevel === undefined || painZones.length === 0))
+            }
             className="flex-1 py-4 rounded-2xl text-white font-bold"
             style={{
-              background: (step === 0 && (!!usernameError || checkingUsername))
+              background: ((step === 0 && (!!usernameError || checkingUsername || !username.trim() || !dobYear || !dobMonth || !dobDay || !phone.trim())) || (step === 2 && (!visitedKine || painLevel === undefined || painZones.length === 0)))
                 ? "#64748B"
                 : `linear-gradient(135deg, ${accent} 0%, ${gender === "female" ? "#6b21a8" : "#1a4bb5"} 100%)`,
-              boxShadow: (step === 0 && (!!usernameError || checkingUsername))
+              boxShadow: ((step === 0 && (!!usernameError || checkingUsername || !username.trim() || !dobYear || !dobMonth || !dobDay || !phone.trim())) || (step === 2 && (!visitedKine || painLevel === undefined || painZones.length === 0)))
                 ? "none"
                 : `0 12px 32px rgba(${accentRgb},0.35)`,
               fontSize: 15,
-              opacity: (step === 0 && (!!usernameError || checkingUsername)) ? 0.6 : 1,
+              opacity: ((step === 0 && (!!usernameError || checkingUsername || !username.trim() || !dobYear || !dobMonth || !dobDay || !phone.trim())) || (step === 2 && (!visitedKine || painLevel === undefined || painZones.length === 0))) ? 0.6 : 1,
             }}
           >
-            {step < 4 ? "Continue" : "Get Started"}
+            {step < 4 ? t.common.continue : t.onboarding.getStarted}
           </motion.button>
         </div>
         {step === 4 && (
           <button onClick={handleComplete} className="w-full text-center mt-3 text-sm font-semibold" style={{ color: c.textMuted }}>
-            Skip for now
+            {t.profileSetup.skip}
           </button>
         )}
       </div>

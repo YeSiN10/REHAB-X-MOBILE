@@ -170,12 +170,12 @@ export default function CalendarScreen() {
       if (TODAY_DAY !== -1) {
         // Current month — use Today / Tomorrow labels
         const diff = d - TODAY_DAY;
-        if (diff === 0)      dateLabel = `Today • ${times[i % times.length]}`;
-        else if (diff === 1) dateLabel = `Tomorrow • ${times[i % times.length]}`;
-        else                 dateLabel = `${MONTHS_EN[month]} ${d} • ${times[i % times.length]}`;
+        if (diff === 0)      dateLabel = `${t.calendar.today} • ${times[i % times.length]}`;
+        else if (diff === 1) dateLabel = `${t.calendar.tomorrow} • ${times[i % times.length]}`;
+        else                 dateLabel = `${t.calendar.months[month]} ${d} • ${times[i % times.length]}`;
       } else {
         // Past or future month — just show the date
-        dateLabel = `${MONTHS_EN[month]} ${d} • ${times[i % times.length]}`;
+        dateLabel = `${t.calendar.months[month]} ${d} • ${times[i % times.length]}`;
       }
       results.push({ id: String(d), date: dateLabel, title: wd.title, type: wd.type, duration: durations[i % durations.length], color: wd.color, exId: wd.exId });
       i++;
@@ -314,7 +314,7 @@ export default function CalendarScreen() {
               </svg>
             </button>
             <span className="font-bold" style={{ fontSize: 12, color: "rgba(255,255,255,0.85)", minWidth: 84, textAlign: "center" }}>
-              {MONTHS_EN[month]} {year}
+              {t.calendar.months[month]} {year}
             </span>
             <button
               onClick={nextMonth}
@@ -337,7 +337,7 @@ export default function CalendarScreen() {
           style={{ background: c.card, border: `1px solid ${c.cardBorder}`, boxShadow: c.shadow }}
         >
           <div className="grid grid-cols-7 px-3 pt-4 pb-2">
-            {DAYS_EN.map((d) => (
+            {t.calendar.days.map((d) => (
               <div key={d} className="text-center text-[11px] font-bold" style={{ color: c.textMuted }}>
                 {d}
               </div>
@@ -441,11 +441,13 @@ export default function CalendarScreen() {
                         <span className="text-[10px] font-bold uppercase tracking-wider block" style={{ color: done ? c.accent : wd.color }}>
                           {wd.type} • {sessionTime}
                         </span>
-                        <p className="font-bold text-sm" style={{ color: c.text }}>{wd.title}</p>
+                        <p className="font-bold text-sm" style={{ color: c.text }}>
+                          {t.exerciseNames[wd.title as keyof typeof t.exerciseNames] || wd.title}
+                        </p>
                         {done ? (
-                          <p className="text-[10px] font-medium mt-0.5" style={{ color: c.accent }}>✓ Completed</p>
+                          <p className="text-[10px] font-medium mt-0.5" style={{ color: c.accent }}>{t.calendar.completedStatus}</p>
                         ) : future ? (
-                          <p className="text-[10px] font-medium mt-0.5" style={{ color: c.textMuted }}>🔒 Not yet available</p>
+                          <p className="text-[10px] font-medium mt-0.5" style={{ color: c.textMuted }}>{t.calendar.notAvailable}</p>
                         ) : null}
                       </div>
                     </div>
@@ -485,7 +487,7 @@ export default function CalendarScreen() {
         {/* Upcoming sessions */}
         <div>
           <h3 className="font-bold mb-3" style={{ fontSize: 15, color: c.text }}>
-            Upcoming Sessions
+            {t.calendar.upcomingSessions}
           </h3>
           <div className="space-y-3">
             {upcoming.map((session, idx) => {
@@ -510,9 +512,11 @@ export default function CalendarScreen() {
                   <div className="w-1 h-12 rounded-full shrink-0" style={{ background: sessionDone ? c.accent : future ? c.divider : session.color }} />
                   <div className="flex-1">
                     <p className="text-xs mb-0.5" style={{ color: c.textMuted }}>{session.date}</p>
-                    <p className="font-bold text-sm" style={{ color: future ? c.textSub : c.text }}>{session.title}</p>
+                    <p className="font-bold text-sm" style={{ color: future ? c.textSub : c.text }}>
+                      {t.exerciseNames[session.title as keyof typeof t.exerciseNames] || session.title}
+                    </p>
                     <p className="text-xs font-semibold mt-0.5" style={{ color: sessionDone ? c.accent : future ? c.textMuted : session.color }}>
-                      {sessionDone ? "✓ Completed" : `${session.type} • ${session.duration}`}
+                      {sessionDone ? t.calendar.completedStatus : `${session.type} • ${session.duration}`}
                     </p>
                   </div>
                   <div
@@ -549,13 +553,13 @@ export default function CalendarScreen() {
           style={{ background: c.card, border: `1px solid ${c.cardBorder}`, boxShadow: c.shadow }}
         >
           <h3 className="font-bold mb-4" style={{ fontSize: 15, color: c.text }}>
-            {MONTHS_EN[month]} Overview
+            {t.calendar.months[month]} {t.calendar.overview}
           </h3>
           <div className="grid grid-cols-3 gap-3">
             {[
-              { label: "Planned",   value: "20", color: c.accent },
-              { label: "Completed", value: String(isPastMonth ? Object.keys(workoutDayData).length : ([...doneDays].filter(k => k.startsWith(`${year}-${month}-`)).length || completedDays || 0)), color: "#22C55E" },
-              { label: "Skipped",   value: "3",  color: "#EF4444" },
+              { label: t.calendar.planned,   value: "20", color: c.accent },
+              { label: t.calendar.completed, value: String(isPastMonth ? Object.keys(workoutDayData).length : ([...doneDays].filter(k => k.startsWith(`${year}-${month}-`)).length || completedDays || 0)), color: "#22C55E" },
+              { label: t.calendar.skipped,   value: "3",  color: "#EF4444" },
             ].map((s) => (
               <div key={s.label} className="text-center">
                 <div className="font-black text-xl" style={{ color: s.color }}>{s.value}</div>

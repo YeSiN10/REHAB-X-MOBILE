@@ -1,35 +1,34 @@
 import express from "express";
 import cors from "cors";
-import pg from "pg";
+import sqlite3 from "sqlite3";
+import { open } from "sqlite";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-
-const { Pool } = pg;
-
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: process.env.DATABASE_URL?.includes("sslmode=require")
-    ? { rejectUnauthorized: false }
-    : false,
-});
 
 const JWT_SECRET = process.env.JWT_SECRET || "rehab-x-fallback-secret-change-in-prod";
 const JWT_EXPIRES = "30d";
 
+let db;
+
 // ── DB init ───────────────────────────────────────────────────────────────
 async function initDb() {
-  await pool.query(`
+  db = await open({
+    filename: './database.sqlite',
+    driver: sqlite3.Database
+  });
+
+  await db.exec(`
     CREATE TABLE IF NOT EXISTS users (
-      id SERIAL PRIMARY KEY,
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
       email TEXT UNIQUE NOT NULL,
       name TEXT NOT NULL,
       password_hash TEXT NOT NULL,
-      created_at TIMESTAMPTZ DEFAULT NOW()
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     );
     CREATE TABLE IF NOT EXISTS kv_store (
       key TEXT PRIMARY KEY,
-      value JSONB NOT NULL,
-      updated_at TIMESTAMPTZ DEFAULT NOW()
+      value TEXT NOT NULL,
+      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
     );
   `);
   console.log("Database tables ready");
@@ -37,18 +36,18 @@ async function initDb() {
 
 // ── KV helpers ────────────────────────────────────────────────────────────
 async function kvGet(key) {
-  const { rows } = await pool.query(
-    "SELECT value FROM kv_store WHERE key = $1",
+  const row = await db.get(
+    "SELECT value FROM kv_store WHERE key = ?",
     [key]
   );
-  return rows.length > 0 ? rows[0].value : null;
+  return row ? JSON.parse(row.value) : null;
 }
 
 async function kvSet(key, value) {
-  await pool.query(
+  await db.run(
     `INSERT INTO kv_store (key, value, updated_at)
-     VALUES ($1, $2, NOW())
-     ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value, updated_at = NOW()`,
+     VALUES (?, ?, CURRENT_TIMESTAMP)
+     ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = CURRENT_TIMESTAMP`,
     [key, JSON.stringify(value)]
   );
 }
@@ -88,17 +87,21 @@ app.post("/api/auth/register", async (req, res) => {
       return res.status(400).json({ error: "Name, email, and password are required" });
     }
 
-    const existing = await pool.query("SELECT id FROM users WHERE email = $1", [email.toLowerCase()]);
-    if (existing.rows.length > 0) {
+    const existing = await db.get("SELECT id FROM users WHERE email = ?", [email.toLowerCase()]);
+    if (existing) {
       return res.status(409).json({ error: "An account with this email already exists" });
     }
 
     const passwordHash = await bcrypt.hash(password, 12);
-    const { rows } = await pool.query(
-      "INSERT INTO users (email, name, password_hash) VALUES ($1, $2, $3) RETURNING id, email, name, created_at",
+    // SQLite doesn't natively return the inserted row like Postgres RETURNING,
+    // but the 'sqlite' library's run() returns an object with lastID.
+    const result = await db.run(
+      "INSERT INTO users (email, name, password_hash) VALUES (?, ?, ?)",
       [email.toLowerCase(), name.trim(), passwordHash]
     );
-    const user = rows[0];
+    
+    const user = await db.get("SELECT id, email, name, created_at FROM users WHERE id = ?", [result.lastID]);
+    
     const token = jwt.sign(
       { userId: user.id, email: user.email, name: user.name },
       JWT_SECRET,
@@ -119,14 +122,14 @@ app.post("/api/auth/login", async (req, res) => {
       return res.status(400).json({ error: "Email and password are required" });
     }
 
-    const { rows } = await pool.query(
-      "SELECT id, email, name, password_hash FROM users WHERE email = $1",
+    const user = await db.get(
+      "SELECT id, email, name, password_hash FROM users WHERE email = ?",
       [email.toLowerCase()]
     );
-    if (rows.length === 0) {
+    if (!user) {
       return res.status(401).json({ error: "Invalid email or password" });
     }
-    const user = rows[0];
+    
     const valid = await bcrypt.compare(password, user.password_hash);
     if (!valid) {
       return res.status(401).json({ error: "Invalid email or password" });
@@ -152,9 +155,9 @@ app.post("/api/auth/send-verification", async (req, res) => {
     const code = String(Math.floor(100000 + Math.random() * 900000));
     const expires = Date.now() + 10 * 60 * 1000; // 10 minutes
 
-    await pool.query(
-      `INSERT INTO kv_store (key, value, updated_at) VALUES ($1, $2, NOW())
-       ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value, updated_at = NOW()`,
+    await db.run(
+      `INSERT INTO kv_store (key, value, updated_at) VALUES (?, ?, CURRENT_TIMESTAMP)
+       ON CONFLICT (key) DO UPDATE SET value = excluded.value, updated_at = CURRENT_TIMESTAMP`,
       [`verify_${email.toLowerCase()}`, JSON.stringify({ code, expires })]
     );
 
@@ -173,14 +176,14 @@ app.post("/api/auth/verify-code", async (req, res) => {
     const { email, code } = req.body;
     if (!email || !code) return res.status(400).json({ error: "Email and code are required" });
 
-    const { rows } = await pool.query(
-      "SELECT value FROM kv_store WHERE key = $1",
+    const row = await db.get(
+      "SELECT value FROM kv_store WHERE key = ?",
       [`verify_${email.toLowerCase()}`]
     );
 
-    if (rows.length === 0) return res.status(400).json({ error: "No verification code found. Please request a new one." });
+    if (!row) return res.status(400).json({ error: "No verification code found. Please request a new one." });
 
-    const { code: storedCode, expires } = rows[0].value;
+    const { code: storedCode, expires } = JSON.parse(row.value);
 
     if (Date.now() > expires) {
       return res.status(400).json({ error: "Code has expired. Please request a new one." });
@@ -190,7 +193,7 @@ app.post("/api/auth/verify-code", async (req, res) => {
     }
 
     // Mark verified — delete the code
-    await pool.query("DELETE FROM kv_store WHERE key = $1", [`verify_${email.toLowerCase()}`]);
+    await db.run("DELETE FROM kv_store WHERE key = ?", [`verify_${email.toLowerCase()}`]);
 
     res.json({ success: true });
   } catch (err) {
@@ -214,19 +217,17 @@ app.post("/api/auth/google", async (req, res) => {
     if (!email) return res.status(400).json({ error: "Invalid Google token payload" });
 
     // Find or create user
-    let user;
-    const { rows } = await pool.query(
-      "SELECT id, email, name FROM users WHERE email = $1",
+    let user = await db.get(
+      "SELECT id, email, name FROM users WHERE email = ?",
       [email.toLowerCase()]
     );
-    if (rows.length > 0) {
-      user = rows[0];
-    } else {
-      const { rows: newRows } = await pool.query(
-        "INSERT INTO users (email, name, password_hash) VALUES ($1, $2, $3) RETURNING id, email, name",
+    
+    if (!user) {
+      const result = await db.run(
+        "INSERT INTO users (email, name, password_hash) VALUES (?, ?, ?)",
         [email.toLowerCase(), name || email.split("@")[0], "google-oauth-" + Date.now()]
       );
-      user = newRows[0];
+      user = await db.get("SELECT id, email, name FROM users WHERE id = ?", [result.lastID]);
     }
 
     const jwtToken = jwt.sign(
@@ -244,12 +245,12 @@ app.post("/api/auth/google", async (req, res) => {
 // ── Auth: Me ──────────────────────────────────────────────────────────────
 app.get("/api/auth/me", requireAuth, async (req, res) => {
   try {
-    const { rows } = await pool.query(
-      "SELECT id, email, name, created_at FROM users WHERE id = $1",
+    const user = await db.get(
+      "SELECT id, email, name, created_at FROM users WHERE id = ?",
       [req.userId]
     );
-    if (rows.length === 0) return res.status(404).json({ error: "User not found" });
-    res.json(rows[0]);
+    if (!user) return res.status(404).json({ error: "User not found" });
+    res.json(user);
   } catch (err) {
     console.error("Me error:", err);
     res.status(500).json({ error: String(err) });
@@ -261,11 +262,11 @@ app.get("/api/username-available", async (req, res) => {
   try {
     const { username } = req.query;
     if (!username || !String(username).trim()) return res.status(400).json({ error: "Username required" });
-    const { rows } = await pool.query(
-      "SELECT id FROM users WHERE LOWER(name) = LOWER($1)",
+    const user = await db.get(
+      "SELECT id FROM users WHERE LOWER(name) = LOWER(?)",
       [String(username).trim()]
     );
-    res.json({ available: rows.length === 0 });
+    res.json({ available: !user });
   } catch (err) {
     console.error("Username available error:", err);
     res.status(500).json({ error: String(err) });
@@ -278,12 +279,13 @@ app.post("/api/update-username", requireAuth, async (req, res) => {
     const { username } = req.body;
     if (!username || !String(username).trim()) return res.status(400).json({ error: "Username required" });
     const cleaned = String(username).trim();
-    const { rows } = await pool.query(
-      "SELECT id FROM users WHERE LOWER(name) = LOWER($1) AND id != $2",
+    const existing = await db.get(
+      "SELECT id FROM users WHERE LOWER(name) = LOWER(?) AND id != ?",
       [cleaned, req.userId]
     );
-    if (rows.length > 0) return res.status(409).json({ error: "Username already taken" });
-    await pool.query("UPDATE users SET name = $1 WHERE id = $2", [cleaned, req.userId]);
+    if (existing) return res.status(409).json({ error: "Username already taken" });
+    
+    await db.run("UPDATE users SET name = ? WHERE id = ?", [cleaned, req.userId]);
     res.json({ success: true });
   } catch (err) {
     console.error("Update username error:", err);
@@ -296,11 +298,11 @@ app.get("/api/check-username", requireAuth, async (req, res) => {
   try {
     const { username } = req.query;
     if (!username || !username.trim()) return res.status(400).json({ error: "Username required" });
-    const { rows } = await pool.query(
-      "SELECT id FROM users WHERE LOWER(name) = LOWER($1) AND id != $2",
+    const existing = await db.get(
+      "SELECT id FROM users WHERE LOWER(name) = LOWER(?) AND id != ?",
       [username.trim(), req.userId]
     );
-    res.json({ taken: rows.length > 0 });
+    res.json({ taken: !!existing });
   } catch (err) {
     console.error("Check username error:", err);
     res.status(500).json({ error: String(err) });
