@@ -6,6 +6,7 @@
   "scripts": {
     "build": "vite build",
     "dev": "vite",
+    "dev:all": "concurrently \"npm run server\" \"npm run dev\"",
     "server": "node server/index.js",
     "start": "node server/index.js & ./node_modules/.bin/vite"
   },
