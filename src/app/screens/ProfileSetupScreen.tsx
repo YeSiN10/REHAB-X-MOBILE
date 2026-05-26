@@ -114,8 +114,8 @@ export default function ProfileSetupScreen() {
   const progressBarGradient = gender === "female"
     ? "linear-gradient(90deg, #c084fc, #9333ea)"
     : "linear-gradient(90deg, #60a5fa, #3b82f6)";
-  const [fitnessLevel, setFitnessLevel] = useState(user.fitnessLevel || "Intermediate");
-  const [goal, setGoal] = useState(user.goal || "Recovery & Performance");
+  const [fitnessLevel, setFitnessLevel] = useState(user.fitnessLevel || "");
+  const [goal, setGoal] = useState(user.goal || "");
   const [medicalDocs, setMedicalDocs] = useState<string[]>(
     user.medicalDocs && user.medicalDocs.length > 0
       ? user.medicalDocs
@@ -487,9 +487,15 @@ export default function ProfileSetupScreen() {
                     );
                   })}
                 </div>
+                {!gender && (
+                  <p className="text-xs mt-2 text-center font-semibold" style={{ color: "#F59E0B" }}>
+                    ⚠️ Please select your gender to continue
+                  </p>
+                )}
               </div>
             </motion.div>
           )}
+
 
           {/* ── STEP 1: Rehabilitation ── */}
           {step === 1 && (
@@ -551,6 +557,11 @@ export default function ProfileSetupScreen() {
                   ))}
                 </div>
               </div>
+              {(!fitnessLevel || !goal) && (
+                <p className="text-xs text-center font-semibold mt-2" style={{ color: "#F59E0B" }}>
+                  ⚠️ Please select a rehab level and a goal to continue
+                </p>
+              )}
             </motion.div>
           )}
 
@@ -834,25 +845,39 @@ export default function ProfileSetupScreen() {
           <motion.button
             whileTap={{ scale: 0.97 }}
             onClick={() => {
-              if (step === 0 && (!!usernameError || checkingUsername || !username.trim() || !dobYear || !dobMonth || !dobDay || !phone.trim())) return;
+              if (step === 0 && (!!usernameError || checkingUsername || !username.trim() || !dobYear || !dobMonth || !dobDay || !phone.trim() || !gender)) return;
+              if (step === 1 && (!fitnessLevel || !goal)) return;
               if (step === 2 && (!visitedKine || painLevel === undefined || painZones.length === 0)) return;
               if (step < 4) setStep((s) => s + 1);
               else handleComplete();
             }}
             disabled={
-              (step === 0 && (!!usernameError || checkingUsername || !username.trim() || !dobYear || !dobMonth || !dobDay || !phone.trim())) ||
+              (step === 0 && (!!usernameError || checkingUsername || !username.trim() || !dobYear || !dobMonth || !dobDay || !phone.trim() || !gender)) ||
+              (step === 1 && (!fitnessLevel || !goal)) ||
               (step === 2 && (!visitedKine || painLevel === undefined || painZones.length === 0))
             }
             className="flex-1 py-4 rounded-2xl text-white font-bold"
             style={{
-              background: ((step === 0 && (!!usernameError || checkingUsername || !username.trim() || !dobYear || !dobMonth || !dobDay || !phone.trim())) || (step === 2 && (!visitedKine || painLevel === undefined || painZones.length === 0)))
+              background: (
+                (step === 0 && (!!usernameError || checkingUsername || !username.trim() || !dobYear || !dobMonth || !dobDay || !phone.trim() || !gender)) ||
+                (step === 1 && (!fitnessLevel || !goal)) ||
+                (step === 2 && (!visitedKine || painLevel === undefined || painZones.length === 0))
+              )
                 ? "#64748B"
                 : `linear-gradient(135deg, ${accent} 0%, ${gender === "female" ? "#6b21a8" : "#1a4bb5"} 100%)`,
-              boxShadow: ((step === 0 && (!!usernameError || checkingUsername || !username.trim() || !dobYear || !dobMonth || !dobDay || !phone.trim())) || (step === 2 && (!visitedKine || painLevel === undefined || painZones.length === 0)))
+              boxShadow: (
+                (step === 0 && (!!usernameError || checkingUsername || !username.trim() || !dobYear || !dobMonth || !dobDay || !phone.trim() || !gender)) ||
+                (step === 1 && (!fitnessLevel || !goal)) ||
+                (step === 2 && (!visitedKine || painLevel === undefined || painZones.length === 0))
+              )
                 ? "none"
                 : `0 12px 32px rgba(${accentRgb},0.35)`,
               fontSize: 15,
-              opacity: ((step === 0 && (!!usernameError || checkingUsername || !username.trim() || !dobYear || !dobMonth || !dobDay || !phone.trim())) || (step === 2 && (!visitedKine || painLevel === undefined || painZones.length === 0))) ? 0.6 : 1,
+              opacity: (
+                (step === 0 && (!!usernameError || checkingUsername || !username.trim() || !dobYear || !dobMonth || !dobDay || !phone.trim() || !gender)) ||
+                (step === 1 && (!fitnessLevel || !goal)) ||
+                (step === 2 && (!visitedKine || painLevel === undefined || painZones.length === 0))
+              ) ? 0.6 : 1,
             }}
           >
             {step < 4 ? t.common.continue : t.onboarding.getStarted}
