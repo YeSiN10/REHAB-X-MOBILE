@@ -219,4 +219,8 @@ app.post("/api/log", requireAuth, (req, res) => {
   res.json({ success: true, total: updated.length });
 });
 
-export default app;
+// Vercel serverless handler — must export a function, not an Express app directly
+export default function handler(req, res) {
+  return app(req, res);
+}
+
