@@ -66,6 +66,28 @@ const PAIN_ZONES = [
   { id: "wrist",      label: "Wrist",      icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="7" y="2" width="10" height="14" rx="5" stroke="currentColor" strokeWidth="1.8"/><path d="M7 13h10M9 19h6M12 16v6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/></svg> },
   { id: "elbow",      label: "Elbow",      icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M5 4l7 8-7 8M19 4l-7 8 7 8" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg> },
 ];
+const COUNTRY_CODES = [
+  { code: "+216", country: "Tunisia",      flag: "🇹🇳" },
+  { code: "+33",  country: "France",       flag: "🇫🇷" },
+  { code: "+213", country: "Algeria",      flag: "🇩🇿" },
+  { code: "+212", country: "Morocco",      flag: "🇲🇦" },
+  { code: "+966", country: "Saudi Arabia", flag: "🇸🇦" },
+  { code: "+971", country: "UAE",          flag: "🇦🇪" },
+  { code: "+1",   country: "USA",          flag: "🇺🇸" },
+  { code: "+44",  country: "UK",           flag: "🇬🇧" },
+  { code: "+49",  country: "Germany",      flag: "🇩🇪" },
+  { code: "+39",  country: "Italy",        flag: "🇮🇹" },
+  { code: "+34",  country: "Spain",        flag: "🇪🇸" },
+  { code: "+32",  country: "Belgium",      flag: "🇧🇪" },
+  { code: "+41",  country: "Switzerland",  flag: "🇨🇭" },
+  { code: "+31",  country: "Netherlands",  flag: "🇳🇱" },
+  { code: "+351", country: "Portugal",     flag: "🇵🇹" },
+  { code: "+90",  country: "Turkey",       flag: "🇹🇷" },
+  { code: "+20",  country: "Egypt",        flag: "🇪🇬" },
+  { code: "+61",  country: "Australia",    flag: "🇦🇺" },
+  { code: "+81",  country: "Japan",        flag: "🇯🇵" },
+  { code: "+86",  country: "China",        flag: "🇨🇳" },
+];
 
 export default function ProfileSetupScreen() {
   const navigate = useNavigate();
@@ -101,7 +123,16 @@ export default function ProfileSetupScreen() {
   const maxYear = currentYear;
   const minYear = currentYear - 100;
   const daysInMonth = dobYear && dobMonth ? new Date(parseInt(dobYear), parseInt(dobMonth), 0).getDate() : 31;
-  const [phone, setPhone] = useState(user.phone || "");
+  const parseExistingCode = () => {
+    if (!user.phone) return "+216";
+    const match = COUNTRY_CODES.find(c => user.phone!.startsWith(c.code));
+    return match ? match.code : "+216";
+  };
+  const [countryCode, setCountryCode] = useState(parseExistingCode());
+  const [phoneNumber, setPhoneNumber] = useState(
+    user.phone ? user.phone.replace(/^\+\d{1,4}/, "").replace(/\D/g, "") : ""
+  );
+  const [showCountryPicker, setShowCountryPicker] = useState(false);
   const [gender, setGender] = useState(user.gender || "");
   const accent = gender === "female" ? "#9333EA" : "#256DE9";
   const accentRgb = gender === "female" ? "147,51,234" : "37,109,233";
@@ -187,7 +218,7 @@ export default function ProfileSetupScreen() {
       name: username.trim() || user.name,
       dob,
       age: dob ? String(calcAge(dob)) : "",
-      phone, gender, fitnessLevel, goal,
+      phone: countryCode + phoneNumber, gender, fitnessLevel, goal,
       medicalDoc: medicalDocs[0] || "",
       medicalDocs,
       profileSetupDone: true,
@@ -375,19 +406,54 @@ export default function ProfileSetupScreen() {
               {/* Phone number */}
               <div>
                 <label className="text-xs font-semibold mb-2 block tracking-wider uppercase" style={{ color: c.textSub }}>{t.profileSetup.phone}</label>
-                <div className="relative">
-                  <div className="absolute left-4 top-1/2 -translate-y-1/2">
-                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none">
-                      <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 13.5 19.79 19.79 0 011 4.82a2 2 0 012-2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L7.09 10.19a16 16 0 006.72 6.72l1.46-1.46a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z" stroke={c.textMuted} strokeWidth="1.8" strokeLinecap="round" />
-                    </svg>
+                <div className="flex gap-2">
+                  {/* Country code picker */}
+                  <div className="relative shrink-0">
+                    <button
+                      type="button"
+                      onClick={() => setShowCountryPicker((v) => !v)}
+                      className="flex items-center gap-1.5 px-3 py-4 rounded-2xl text-sm font-bold transition-all h-full"
+                      style={{ background: c.inputBg, border: `1.5px solid ${showCountryPicker ? accent : c.inputBorder}`, color: c.text, minWidth: 96 }}
+                    >
+                      <span className="text-base">{COUNTRY_CODES.find((x) => x.code === countryCode)?.flag}</span>
+                      <span style={{ color: accent }}>{countryCode}</span>
+                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" style={{ marginLeft: 2 }}>
+                        <path d="M6 9L12 15L18 9" stroke={c.textMuted} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                    </button>
+                    {showCountryPicker && (
+                      <div
+                        className="absolute top-full left-0 mt-1 z-50 rounded-2xl overflow-y-auto"
+                        style={{ background: c.card, border: `1px solid ${c.cardBorder}`, boxShadow: "0 12px 40px rgba(0,0,0,0.35)", maxHeight: 220, minWidth: 220 }}
+                      >
+                        {COUNTRY_CODES.map((item) => (
+                          <button
+                            key={item.code + item.country}
+                            type="button"
+                            onClick={() => { setCountryCode(item.code); setShowCountryPicker(false); }}
+                            className="w-full flex items-center gap-3 px-4 py-3 text-left transition-all"
+                            style={{
+                              background: countryCode === item.code ? `rgba(${accentRgb},0.12)` : "transparent",
+                              borderBottom: `1px solid ${c.divider}`,
+                            }}
+                          >
+                            <span className="text-lg">{item.flag}</span>
+                            <span className="flex-1 text-xs font-semibold" style={{ color: c.text }}>{item.country}</span>
+                            <span className="text-xs font-black" style={{ color: accent }}>{item.code}</span>
+                          </button>
+                        ))}
+                      </div>
+                    )}
                   </div>
+                  {/* Numeric-only phone input */}
                   <input
                     type="tel"
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    className="w-full pl-11 pr-4 py-4 rounded-2xl text-sm focus:outline-none transition-all"
+                    inputMode="numeric"
+                    value={phoneNumber}
+                    onChange={(e) => setPhoneNumber(e.target.value.replace(/\D/g, ""))}
+                    className="flex-1 px-4 py-4 rounded-2xl text-sm focus:outline-none transition-all"
                     style={{ background: c.inputBg, border: `1px solid ${c.inputBorder}`, color: c.text, caretColor: accent }}
-                    placeholder={t.profileSetup.phonePlaceholder}
+                    placeholder="XX XXX XXX"
                     onFocus={(e) => (e.target.style.borderColor = accent)}
                     onBlur={(e) => (e.target.style.borderColor = c.inputBorder)}
                   />
@@ -845,28 +911,28 @@ export default function ProfileSetupScreen() {
           <motion.button
             whileTap={{ scale: 0.97 }}
             onClick={() => {
-              if (step === 0 && (!!usernameError || checkingUsername || !username.trim() || !dobYear || !dobMonth || !dobDay || !phone.trim() || !gender)) return;
+              if (step === 0 && (!!usernameError || checkingUsername || !username.trim() || !dobYear || !dobMonth || !dobDay || !phoneNumber.trim() || !gender)) return;
               if (step === 1 && (!fitnessLevel || !goal)) return;
               if (step === 2 && (!visitedKine || painLevel === undefined || painZones.length === 0)) return;
               if (step < 4) setStep((s) => s + 1);
               else handleComplete();
             }}
             disabled={
-              (step === 0 && (!!usernameError || checkingUsername || !username.trim() || !dobYear || !dobMonth || !dobDay || !phone.trim() || !gender)) ||
+              (step === 0 && (!!usernameError || checkingUsername || !username.trim() || !dobYear || !dobMonth || !dobDay || !phoneNumber.trim() || !gender)) ||
               (step === 1 && (!fitnessLevel || !goal)) ||
               (step === 2 && (!visitedKine || painLevel === undefined || painZones.length === 0))
             }
             className="flex-1 py-4 rounded-2xl text-white font-bold"
             style={{
               background: (
-                (step === 0 && (!!usernameError || checkingUsername || !username.trim() || !dobYear || !dobMonth || !dobDay || !phone.trim() || !gender)) ||
+                (step === 0 && (!!usernameError || checkingUsername || !username.trim() || !dobYear || !dobMonth || !dobDay || !phoneNumber.trim() || !gender)) ||
                 (step === 1 && (!fitnessLevel || !goal)) ||
                 (step === 2 && (!visitedKine || painLevel === undefined || painZones.length === 0))
               )
                 ? "#64748B"
                 : `linear-gradient(135deg, ${accent} 0%, ${gender === "female" ? "#6b21a8" : "#1a4bb5"} 100%)`,
               boxShadow: (
-                (step === 0 && (!!usernameError || checkingUsername || !username.trim() || !dobYear || !dobMonth || !dobDay || !phone.trim() || !gender)) ||
+                (step === 0 && (!!usernameError || checkingUsername || !username.trim() || !dobYear || !dobMonth || !dobDay || !phoneNumber.trim() || !gender)) ||
                 (step === 1 && (!fitnessLevel || !goal)) ||
                 (step === 2 && (!visitedKine || painLevel === undefined || painZones.length === 0))
               )
@@ -874,7 +940,7 @@ export default function ProfileSetupScreen() {
                 : `0 12px 32px rgba(${accentRgb},0.35)`,
               fontSize: 15,
               opacity: (
-                (step === 0 && (!!usernameError || checkingUsername || !username.trim() || !dobYear || !dobMonth || !dobDay || !phone.trim() || !gender)) ||
+                (step === 0 && (!!usernameError || checkingUsername || !username.trim() || !dobYear || !dobMonth || !dobDay || !phoneNumber.trim() || !gender)) ||
                 (step === 1 && (!fitnessLevel || !goal)) ||
                 (step === 2 && (!visitedKine || painLevel === undefined || painZones.length === 0))
               ) ? 0.6 : 1,
